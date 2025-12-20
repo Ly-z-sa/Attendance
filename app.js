@@ -158,6 +158,17 @@ class App {
       } else {
         console.log("User not authenticated");
         this.userId = null; // Clear userId
+
+        // Clear Page Data
+        if (dashboardPage) dashboardPage.clear();
+        if (settingsPage) settingsPage.clear();
+
+        // Clear cached data in app
+        this.userProfile = {};
+        this.allSemesters = [];
+        this.allSubjects = [];
+        this.allAttendance = [];
+
         authService.updateUI(null);
 
         // Immediate check and open

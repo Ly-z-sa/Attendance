@@ -305,7 +305,7 @@ class SettingsPage {
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
         <div>© 2025 Attendance Tracker. All rights reserved.</div>
-        <div style="margin-top: 0.25rem;">Version 2.2.0</div>
+        <div style="margin-top: 0.25rem;">Version 3.0.0</div>
       </div>
     `;
   }
@@ -640,6 +640,12 @@ class SettingsPage {
     // Date picker initialization logic
     // This would be similar to your original implementation
     // I'll keep it simple here for brevity
+  }
+
+  clear() {
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
   }
 }
 

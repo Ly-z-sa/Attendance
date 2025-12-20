@@ -197,6 +197,12 @@ class DashboardPage {
       </div>
     `;
   }
+
+  clear() {
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+  }
 }
 
 export default new DashboardPage();
