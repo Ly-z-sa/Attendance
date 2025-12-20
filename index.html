@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker</title>
+    <link rel="icon" href="assets/att-logo.svg" type="image/svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <img src="assets/att-logo.svg" alt="Logo" style="width: 32px; height: 32px;">
+            <h1>Attendance Tracker</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <nav class="app-nav">
+                <a href="#" class="nav-link active" data-page="Dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-page="Home">Attendance</a>
+                <a href="#" class="nav-link" data-page="WeeklyReport">Reports</a>
+                <a href="#" class="nav-link" data-page="Total">Total</a>
+                <a href="#" class="nav-link" data-page="Settings">Settings</a>
+            </nav>
+            <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" style="display: none;" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="user-bar">
+            <div>
+                <span class="user-info" id="user-info-name">Hello, Student</span><br>
+                <span class="user-major" id="user-info-major">Your Major</span>
+            </div>
+            <div style="text-align: right;">
+                <span class="user-semester" id="user-info-semester">No semester selected</span><br>
+                <span id="streak-display"
+                    style="color: var(--green); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        style="width: 1.25em; height: 1.25em;">
+                        <path fill-rule="evenodd"
+                            d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    0 day streak
+                </span>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div class="page active" data-page="Dashboard">
+            <div class="page-header">
+                <h2>Dashboard</h2>
+            </div>
+            <div class="dashboard-grid" id="dashboard-content">
+                <!-- Dashboard content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Attendance Page -->
+        <div class="page" data-page="Home">
+            <div class="page-header">
+                <div class="custom-dropdown" id="date-selector-dropdown">
+                    <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                        aria-expanded="false">
+                        <span id="selected-date-display">Today</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <div class="dropdown-options" role="listbox" id="date-selector-options"></div>
+                </div>
+                <h2 id="home-day-title">Daily Attendance</h2>
+            </div>
+            <div class="page-content" id="home-content">
+                <!-- Loading skeleton -->
+                <div class="skeleton-loader">
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Report Page -->
+        <div class="page" data-page="WeeklyReport">
+            <div class="page-header">
+                <div class="custom-dropdown" id="week-selector-dropdown">
+                    <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                        aria-expanded="false">
+                        <span id="selected-week-display">Week 1</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                            stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <div class="dropdown-options" role="listbox" id="week-selector-options"></div>
+                </div>
+                <h2>Weekly Report</h2>
+            </div>
+            <div class="page-content" id="weekly-report-content">
+                <div class="skeleton-loader">
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Page -->
+        <div class="page" data-page="Total">
+            <div class="page-header">
+                <h2>All Subjects</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="custom-dropdown" id="export-type-dropdown">
+                        <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                            aria-expanded="false">
+                            <span id="export-type-display">Export to Excel</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                                stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div class="dropdown-options" role="listbox">
+                            <div class="dropdown-option" data-value="weekly" role="option">Weekly Report</div>
+                            <div class="dropdown-option" data-value="monthly" role="option">Monthly Report</div>
+                            <div class="dropdown-option" data-value="semester" role="option">Full Semester</div>
+                        </div>
+                    </div>
+                    <div class="total-header-row">
+                        <span class="total-header-item">Present</span>
+                        <span class="total-header-item">Absent</span>
+                        <span class="total-header-item">Permit</span>
+                        <span class="total-header-item">Late</span>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content" id="total-content">
+                <div class="skeleton-loader">
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" data-page="Settings">
+            <div id="settings-content">
+                <!-- Settings content will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="subject-modal" role="dialog" aria-labelledby="subject-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="subject-modal-title">Add Subject</h4>
+                <button type="button" class="modal-close-btn" onclick="window.modalManager.close('subject-modal')"
+                    aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="subject-modal-id">
+                <div class="form-group">
+                    <label for="subject-modal-name">Subject Name</label>
+                    <input type="text" id="subject-modal-name" class="form-input" placeholder="e.g., Mathematics"
+                        autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Day of Week</label>
+                    <div class="custom-dropdown" id="subject-modal-day-dropdown">
+                        <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                            aria-expanded="false">
+                            <span id="subject-modal-day-display">Select a day...</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                                stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div class="dropdown-options" role="listbox">
+                            <div class="dropdown-option" data-value="Sunday" role="option">Sunday</div>
+                            <div class="dropdown-option" data-value="Monday" role="option">Monday</div>
+                            <div class="dropdown-option" data-value="Tuesday" role="option">Tuesday</div>
+                            <div class="dropdown-option" data-value="Wednesday" role="option">Wednesday</div>
+                            <div class="dropdown-option" data-value="Thursday" role="option">Thursday</div>
+                            <div class="dropdown-option" data-value="Friday" role="option">Friday</div>
+                            <div class="dropdown-option" data-value="Saturday" role="option">Saturday</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="window.modalManager.close('subject-modal')">Cancel</button>
+                <button class="btn btn-green" id="save-subject-btn">Save Subject</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="semester-modal" role="dialog" aria-labelledby="semester-modal-title"
+        aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="semester-modal-title">Add Semester</h4>
+                <button type="button" class="modal-close-btn" onclick="window.modalManager.close('semester-modal')"
+                    aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="semester-modal-id">
+                <div class="form-group">
+                    <label for="semester-modal-name">Semester Name</label>
+                    <input type="text" id="semester-modal-name" class="form-input"
+                        placeholder="e.g., Year 1, Semester I" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <div class="custom-date-picker" id="semester-start-date-picker">
+                        <div class="date-picker-selected" role="button" tabindex="0">
+                            <span id="semester-start-date-display">Select start date</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 18px; height: 18px;" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5" />
+                            </svg>
+                        </div>
+                        <div class="date-picker-calendar">
+                            <div class="calendar-header">
+                                <button class="calendar-nav" id="start-prev-month"
+                                    aria-label="Previous month">‹</button>
+                                <div class="calendar-month-year" id="start-month-year"></div>
+                                <button class="calendar-nav" id="start-next-month" aria-label="Next month">›</button>
+                            </div>
+                            <div class="calendar-grid" id="start-calendar-grid"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="semester-modal-start-date">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <div class="custom-date-picker" id="semester-end-date-picker">
+                        <div class="date-picker-selected" role="button" tabindex="0">
+                            <span id="semester-end-date-display">Select end date</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 18px; height: 18px;" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5" />
+                            </svg>
+                        </div>
+                        <div class="date-picker-calendar">
+                            <div class="calendar-header">
+                                <button class="calendar-nav" id="end-prev-month" aria-label="Previous month">‹</button>
+                                <div class="calendar-month-year" id="end-month-year"></div>
+                                <button class="calendar-nav" id="end-next-month" aria-label="Next month">›</button>
+                            </div>
+                            <div class="calendar-grid" id="end-calendar-grid"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="semester-modal-end-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer">
+                    <div class="modal-footer">
+                        <button type="button" class="btn"
+                            onclick="window.modalManager.close('semester-modal')">Cancel</button>
+                        <button class="btn btn-green" id="save-semester-btn">Save Semester</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="auth-modal" role="dialog" aria-labelledby="auth-modal-title"
+                aria-modal="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="auth-modal-title">Sign In</h4>
+                        <button type="button" class="modal-close-btn" onclick="window.modalManager.close('auth-modal')"
+                            aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="auth-tabs" role="tablist">
+                            <button class="auth-tab active" data-tab="signin" role="tab" aria-selected="true">Sign
+                                In</button>
+                            <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+                        </div>
+
+                        <div class="auth-form" id="signin-form" role="tabpanel">
+                            <div class="form-group">
+                                <label for="signin-email">Email</label>
+                                <input type="email" id="signin-email" class="form-input" placeholder="your@email.com"
+                                    autocomplete="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="signin-password">Password</label>
+                                <input type="password" id="signin-password" class="form-input" placeholder="Password"
+                                    autocomplete="current-password">
+                            </div>
+                            <button class="btn btn-green" id="signin-btn" style="width: 100%; margin-top: 1rem;">Sign
+                                In</button>
+                            <p
+                                style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
+                                By
+                                signing in, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
+                                    target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
+                                    href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
+                                    style="color: var(--primary);">Privacy Policy</a>.</p>
+                        </div>
+
+                        <div class="auth-form" id="signup-form" style="display: none;" role="tabpanel">
+                            <div class="form-group">
+                                <label for="signup-name">Name</label>
+                                <input type="text" id="signup-name" class="form-input" placeholder="Your Name"
+                                    autocomplete="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="signup-email">Email</label>
+                                <input type="email" id="signup-email" class="form-input" placeholder="your@email.com"
+                                    autocomplete="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="signup-password">Password</label>
+                                <input type="password" id="signup-password" class="form-input"
+                                    placeholder="Min 6 chars, 1 capital, 1 number" autocomplete="new-password">
+                                <div id="password-strength" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                            </div>
+                            <button class="btn btn-green" id="signup-btn" style="width: 100%; margin-top: 1rem;">Create
+                                Account</button>
+                            <p
+                                style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
+                                By
+                                creating an account, you agree to our <a
+                                    href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3" target="_blank"
+                                    style="color: var(--primary);">Terms of Service</a> and <a
+                                    href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
+                                    style="color: var(--primary);">Privacy Policy</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="input-modal" role="dialog" aria-labelledby="input-modal-title"
+                aria-modal="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="input-modal-title">Input Required</h4>
+                        <button type="button" class="modal-close-btn" onclick="window.modalManager.close('input-modal')"
+                            aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="input-modal-message"></p>
+                        <div class="form-group">
+                            <input type="text" id="input-modal-field" class="form-input" placeholder="Enter value">
+                            <div id="input-modal-validation" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn"
+                            onclick="window.modalManager.close('input-modal')">Cancel</button>
+                        <button class="btn btn-green" id="input-modal-confirm">Confirm</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="confirm-modal" role="dialog" aria-labelledby="confirm-modal-title"
+                aria-modal="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="confirm-modal-title">Confirm Action</h4>
+                        <button type="button" class="modal-close-btn"
+                            onclick="window.modalManager.close('confirm-modal')"
+                            aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="confirm-modal-message"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn"
+                            onclick="window.modalManager.close('confirm-modal')">Cancel</button>
+                        <button class="btn btn-red" id="confirm-modal-confirm">Confirm</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="report-modal" role="dialog" aria-labelledby="report-modal-title"
+                aria-modal="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Report a Problem</h4>
+                        <button type="button" class="modal-close-btn"
+                            onclick="window.modalManager.close('report-modal')"
+                            aria-label="Close modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Problem Type</label>
+                            <div class="custom-dropdown" id="report-type-dropdown">
+                                <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                                    aria-expanded="false">
+                                    <span id="report-type-display">Select problem type...</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="3" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </div>
+                                <div class="dropdown-options" role="listbox">
+                                    <div class="dropdown-option" data-value="Bug" role="option">Bug/Error</div>
+                                    <div class="dropdown-option" data-value="Crash" role="option">App Crash</div>
+                                    <div class="dropdown-option" data-value="Feature" role="option">Feature Request
+                                    </div>
+                                    <div class="dropdown-option" data-value="Other" role="option">Other</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="report-description">Description</label>
+                            <textarea id="report-description" class="form-input" rows="4"
+                                placeholder="Please describe the problem in detail..."
+                                style="resize: vertical; min-height: 100px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn"
+                            onclick="window.modalManager.close('report-modal')">Cancel</button>
+                        <button class="btn btn-green" id="submit-report-btn">Submit Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+            <div id="loading-overlay"
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 3000; align-items: center; justify-content: center;">
+                <div
+                    style="background: var(--light-grey); padding: 2rem; border-radius: var(--border-radius); text-align: center; box-shadow: var(--shadow);">
+                    <div class="cute-loader"></div>
+                    <div style="margin-top: 1rem; color: var(--dark-text); font-weight: 500;">Processing...</div>
+                </div>
+            </div>
+
+            <!-- FAB for quick attendance -->
+            <button class="fab" id="quick-attendance-fab" title="Quick mark all present"
+                aria-label="Quick mark all present" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+            </button>
+
+            <!-- External libraries -->
+            <script src="assets/clickspark.js"></script>
+            <script src="assets/floating-lines.js"></script>
+            <script src="assets/prism-background.js"></script>
+            <script src="assets/aurora-background.js"></script>
+
+            <!-- Firebase -->
+            <script type="module">
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+                import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+                import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDsuGdds2KAY-SsBtf3oiFpANohU30ArUU",
+                    authDomain: "attracker-unique-lisa.firebaseapp.com",
+                    projectId: "attracker-unique-lisa",
+                    storageBucket: "attracker-unique-lisa.firebasestorage.app",
+                    messagingSenderId: "19799307034",
+                    appId: "1:19799307034:web:c3009fbf189669a09872a3",
+                    measurementId: "G-ZKLDNEW47V"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                window.firebaseAuth = getAuth(app);
+                window.firebaseDb = getFirestore(app);
+            </script>
+
+            <!-- App modules -->
+            <script type="module" src="utils/constants.js"></script>
+            <script type="module" src="utils/helpers.js"></script>
+            <script type="module" src="utils/validation.js"></script>
+            <script type="module" src="services/attendance-service.js"></script>
+            <script type="module" src="services/auth-service.js"></script>
+            <script type="module" src="services/notification-service.js"></script>
+            <script type="module" src="ui/toast-manager.js"></script>
+            <script type="module" src="ui/modal-manager.js"></script>
+            <script type="module" src="ui/theme-manager.js"></script>
+            <script type="module" src="ui/dropdown-manager.js"></script>
+            <script type="module" src="ui/skeleton-loader.js"></script>
+            <script type="module" src="pages/dashboard-page.js"></script>
+            <script type="module" src="pages/home-page.js"></script>
+            <script type="module" src="pages/weekly-report-page.js"></script>
+            <script type="module" src="pages/total-page.js"></script>
+            <script type="module" src="pages/settings-page.js"></script>
+            <script type="module" src="app.js"></script>
+</body>
+
+</html>
