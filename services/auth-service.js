@@ -25,6 +25,9 @@ class AuthService {
     this.userId = null;
     this.loginAttempts = {};
     this.listenersInitialized = false;
+
+    // Expose globally
+    window.authService = this;
   }
 
   initialize(auth, db, userId) {
@@ -105,6 +108,10 @@ class AuthService {
   }
 
   async handleSignIn() {
+    console.log('handleSignIn triggered');
+    // Ensure we have the latest auth instance
+    if (!this.auth) this.auth = window.firebaseAuth;
+
     const email = document.getElementById('signin-email').value.trim();
     const password = document.getElementById('signin-password').value;
 
@@ -185,6 +192,9 @@ class AuthService {
   }
 
   async handleSignUp() {
+    // Ensure we have the latest auth instance
+    if (!this.auth) this.auth = window.firebaseAuth;
+
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const name = document.getElementById('signup-name').value.trim();
@@ -239,33 +249,70 @@ class AuthService {
   }
 
   async handleSignOut() {
+    // Ensure we have the latest auth instance
+    if (!this.auth) this.auth = window.firebaseAuth;
+
     const confirmed = await modalManager.confirm('Sign Out', 'Are you sure you want to sign out?');
     if (!confirmed) return;
+
+    // Force close any remaining modals immediately to prevent stacking issues
+    modalManager.closeAll();
 
     const loadingToast = toastManager.loading('Signing out...');
 
     try {
+      // 1. Reset UI immediately to avoid race conditions with auth state listeners
+      this.resetUI();
+      // Also forcibly hide the signout button and show auth button manually just in case
+      this.updateUI(null);
+
+      // 2. Perform sign out
       await signOut(this.auth);
+
       toastManager.hide(loadingToast);
       toastManager.success('Signed out successfully');
 
-      // Reset UI
-      this.resetUI();
+      // 3. Ensure scroll is free
+      document.body.style.overflow = '';
+
+      // 4. Force reload to clear any lingering React/DOM state if necessary (optional, but safer)
+      // window.location.reload(); // Commented out to try soft reset first
+
+      // Navigate to Dashboard
+      if (window.navigateTo) {
+        window.navigateTo('Dashboard');
+      }
+
     } catch (error) {
       toastManager.hide(loadingToast);
+      console.error('Sign out error:', error);
       toastManager.error('Sign out failed: ' + error.message);
+
+      // Ensure scroll is free even on error
+      document.body.style.overflow = '';
     }
   }
 
   resetUI() {
-    document.getElementById('user-info-name').textContent = 'Hello, Student';
-    document.getElementById('user-info-major').textContent = 'Your Major';
-    document.getElementById('user-info-semester').textContent = 'No semester selected';
-    const streakEl = document.getElementById('streak-display');
-    streakEl.innerHTML = `
-        ${ICONS.FIRE}
-        0 day streak
-    `;
+    try {
+      const nameEl = document.getElementById('user-info-name');
+      const majorEl = document.getElementById('user-info-major');
+      const semEl = document.getElementById('user-info-semester');
+      const streakEl = document.getElementById('streak-display');
+
+      if (nameEl) nameEl.textContent = 'Hello, Student';
+      if (majorEl) majorEl.textContent = 'Your Major';
+      if (semEl) semEl.textContent = 'No semester selected';
+      if (streakEl) {
+        streakEl.innerHTML = `
+            ${ICONS?.FIRE || '🔥'}
+            0 day streak
+        `;
+        streakEl.style.color = 'var(--grey-text)';
+      }
+    } catch (e) {
+      console.error('Error resetting UI:', e);
+    }
   }
 
   async sendVerificationEmail() {

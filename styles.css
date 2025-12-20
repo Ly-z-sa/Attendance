@@ -1193,14 +1193,16 @@ main {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    z-index: 1000;
+    z-index: 2000;
     align-items: center;
     justify-content: center;
 }
 
 .modal-overlay.show {
-    display: flex;
-    animation: fadeIn 0.3s ease;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    /* animation: fadeIn 0.3s ease; REMOVED to prevent freeze */
 }
 
 .modal-content {
@@ -1211,8 +1213,10 @@ main {
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideInUp 0.3s ease;
+    /* animation: slideInUp 0.3s ease; REMOVED to prevent freeze */
 }
 
 @keyframes slideInUp {

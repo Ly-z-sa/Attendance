@@ -32,6 +32,14 @@ class App {
     try {
       console.log('Initializing app...');
 
+      // Ensure firebaseAuth is available
+      if (!this.auth && window.firebaseAuth) {
+        this.auth = window.firebaseAuth;
+      }
+      if (!this.db && window.firebaseDb) {
+        this.db = window.firebaseDb;
+      }
+
       // Initialize UI managers
       toastManager.initialize();
       themeManager.initialize();
@@ -115,7 +123,17 @@ class App {
   }
 
   async handleAuth() {
+    if (!this.auth) {
+      console.error('Auth not initialized. Retrying from window.firebaseAuth...');
+      this.auth = window.firebaseAuth;
+      if (!this.auth) {
+        toastManager.error("Authentication Service Error: Please refresh the page.");
+        return;
+      }
+    }
+
     onAuthStateChanged(this.auth, async (user) => {
+      // Graceful handling of null/undefined user
       if (user) {
         console.log("User authenticated:", user.uid);
         this.userId = user.uid;
@@ -139,8 +157,18 @@ class App {
 
       } else {
         console.log("User not authenticated");
+        this.userId = null; // Clear userId
         authService.updateUI(null);
-        authService.openAuthModal();
+
+        // Immediate check and open
+        // We use a tiny delay (50ms) just to ensure the DOM is fully ready
+        setTimeout(() => {
+          // ONLY open if not already open to prevent focus stealing/resetting or loops
+          if (!window.modalManager.activeModals.has('auth-modal')) {
+            console.log("Opening Main Auth Modal (Auto)");
+            authService.openAuthModal();
+          }
+        }, 50);
       }
     });
   }

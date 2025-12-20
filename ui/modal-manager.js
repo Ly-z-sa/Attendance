@@ -54,7 +54,37 @@ class ModalManager {
       return;
     }
 
-    modal.classList.add('show');
+    // Force reflow to ensure animation plays
+    void modal.offsetWidth;
+
+    // Move to end of body to ensure it sits on top of everything (z-index stacking context fix)
+    if (modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
+    // Also move the overlay/modals container if it exists, but here we assume modals are direct children of body or a container
+    // Since we are targeting ID, we just move the element itself.
+
+    // Nuclear Option: Set style directly with !important
+    // We use setProperty to be safer than cssText, respecting existing unrelated styles if any
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.setProperty('opacity', '1', 'important');
+    modal.style.setProperty('visibility', 'visible', 'important');
+    modal.style.setProperty('pointer-events', 'auto', 'important'); // Ensure clickable
+    modal.style.setProperty('z-index', '2147483647', 'important');
+    modal.style.setProperty('transition', 'none', 'important'); // Kill animations that might hide it
+
+    // Force content visibility too
+    const content = modal.querySelector('.modal-content');
+    if (content) {
+      content.style.setProperty('opacity', '1', 'important');
+      content.style.setProperty('transform', 'none', 'important');
+      content.style.setProperty('visibility', 'visible', 'important');
+    }
+
+    requestAnimationFrame(() => {
+      modal.classList.add('show');
+    });
+
     this.activeModals.add(modalId);
 
     // Focus first input
@@ -64,20 +94,28 @@ class ModalManager {
     }
 
     // Prevent body scroll
-    if (this.activeModals.size === 1) {
-      document.body.style.overflow = 'hidden';
-    }
+    document.body.style.overflow = 'hidden';
   }
 
   close(modalId) {
     const modal = document.getElementById(modalId);
-    if (!modal) return;
+    if (!modal) {
+      console.warn(`Attempted to close non-existent modal: ${modalId}`);
+      return;
+    }
 
     modal.classList.remove('show');
+    // Clean up direct styles
+    modal.style.display = '';
+    modal.style.opacity = '';
+    modal.style.zIndex = '';
+
     this.activeModals.delete(modalId);
 
-    // Restore body scroll if no modals are open
-    if (this.activeModals.size === 0) {
+    // Restore body scroll if no modals are actually visible
+    // We check the DOM directly to be absolutely sure
+    const visibleModals = document.querySelectorAll('.modal-overlay.show');
+    if (visibleModals.length === 0) {
       document.body.style.overflow = '';
     }
   }

@@ -49,8 +49,8 @@ class SettingsPage {
           </div>
           <div>
             ${window.firebaseAuth?.currentUser
-        ? `<button class="btn btn-red" id="signout-btn">Sign Out</button>`
-        : `<button class="btn" id="auth-btn">Sign In</button>`
+        ? `<button class="btn btn-red" id="signout-btn" onclick="window.authService.handleSignOut()">Sign Out</button>`
+        : `<button class="btn" id="auth-btn" onclick="window.modalManager.open('auth-modal')">Sign In</button>`
       }
           </div>
         </div>
@@ -316,8 +316,9 @@ class SettingsPage {
 
     // Profile
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.handleSaveProfile());
-    document.getElementById('auth-btn')?.addEventListener('click', () => modalManager.open('auth-modal'));
-    document.getElementById('signout-btn')?.addEventListener('click', () => authService.handleSignOut());
+    // Inline handlers used for robust auth buttons
+    // document.getElementById('auth-btn')?.addEventListener('click', () => modalManager.open('auth-modal'));
+    // document.getElementById('signout-btn')?.addEventListener('click', () => authService.handleSignOut());
 
     // Current semester
     document.getElementById('current-semester-dropdown')?.addEventListener('change', (e) =>

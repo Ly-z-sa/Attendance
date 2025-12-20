@@ -176,8 +176,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="subject-modal-title">Add Subject</h4>
-                <button type="button" class="modal-close-btn" onclick="window.modalManager.close('subject-modal')"
-                    aria-label="Close modal">&times;</button>
+                <button type="button" class="modal-close-btn" data-modal-close="subject-modal"
+                    onclick="window.modalManager.close('subject-modal')" aria-label="Close modal">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="subject-modal-id">
@@ -210,7 +210,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn" onclick="window.modalManager.close('subject-modal')">Cancel</button>
+                <button type="button" class="btn" data-modal-close="subject-modal"
+                    onclick="window.modalManager.close('subject-modal')">Cancel</button>
                 <button class="btn btn-green" id="save-subject-btn">Save Subject</button>
             </div>
         </div>
@@ -221,8 +222,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="semester-modal-title">Add Semester</h4>
-                <button type="button" class="modal-close-btn" onclick="window.modalManager.close('semester-modal')"
-                    aria-label="Close modal">&times;</button>
+                <button type="button" class="modal-close-btn" data-modal-close="semester-modal"
+                    onclick="window.modalManager.close('semester-modal')" aria-label="Close modal">&times;</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="semester-modal-id">
@@ -280,7 +281,7 @@
             <div class="modal-footer">
                 <div class="modal-footer">
                     <div class="modal-footer">
-                        <button type="button" class="btn"
+                        <button type="button" class="btn" data-modal-close="semester-modal"
                             onclick="window.modalManager.close('semester-modal')">Cancel</button>
                         <button class="btn btn-green" id="save-semester-btn">Save Semester</button>
                     </div>
@@ -292,8 +293,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 id="auth-modal-title">Sign In</h4>
-                        <button type="button" class="modal-close-btn" onclick="window.modalManager.close('auth-modal')"
-                            aria-label="Close modal">&times;</button>
+                        <button type="button" class="modal-close-btn" data-modal-close="auth-modal"
+                            onclick="window.modalManager.close('auth-modal')" aria-label="Close modal">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="auth-tabs" role="tablist">
@@ -313,7 +314,8 @@
                                 <input type="password" id="signin-password" class="form-input" placeholder="Password"
                                     autocomplete="current-password">
                             </div>
-                            <button class="btn btn-green" id="signin-btn" style="width: 100%; margin-top: 1rem;">Sign
+                            <button class="btn btn-green" id="signin-btn" onclick="window.authService.handleSignIn()"
+                                style="width: 100%; margin-top: 1rem;">Sign
                                 In</button>
                             <p
                                 style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
@@ -341,7 +343,8 @@
                                     placeholder="Min 6 chars, 1 capital, 1 number" autocomplete="new-password">
                                 <div id="password-strength" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
                             </div>
-                            <button class="btn btn-green" id="signup-btn" style="width: 100%; margin-top: 1rem;">Create
+                            <button class="btn btn-green" id="signup-btn" onclick="window.authService.handleSignUp()"
+                                style="width: 100%; margin-top: 1rem;">Create
                                 Account</button>
                             <p
                                 style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
@@ -361,8 +364,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 id="input-modal-title">Input Required</h4>
-                        <button type="button" class="modal-close-btn" onclick="window.modalManager.close('input-modal')"
-                            aria-label="Close modal">&times;</button>
+                        <button type="button" class="modal-close-btn" data-modal-close="input-modal"
+                            onclick="window.modalManager.close('input-modal')" aria-label="Close modal">&times;</button>
                     </div>
                     <div class="modal-body">
                         <p id="input-modal-message"></p>
@@ -372,7 +375,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn"
+                        <button type="button" class="btn" data-modal-close="input-modal"
                             onclick="window.modalManager.close('input-modal')">Cancel</button>
                         <button class="btn btn-green" id="input-modal-confirm">Confirm</button>
                     </div>
@@ -392,7 +395,7 @@
                         <p id="confirm-modal-message"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn"
+                        <button type="button" class="btn" data-modal-close="confirm-modal"
                             onclick="window.modalManager.close('confirm-modal')">Cancel</button>
                         <button class="btn btn-red" id="confirm-modal-confirm">Confirm</button>
                     </div>
@@ -404,7 +407,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4>Report a Problem</h4>
-                        <button type="button" class="modal-close-btn"
+                        <button type="button" class="modal-close-btn" data-modal-close="report-modal"
                             onclick="window.modalManager.close('report-modal')"
                             aria-label="Close modal">&times;</button>
                     </div>
@@ -438,7 +441,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn"
+                        <button type="button" class="btn" data-modal-close="report-modal"
                             onclick="window.modalManager.close('report-modal')">Cancel</button>
                         <button class="btn btn-green" id="submit-report-btn">Submit Report</button>
                     </div>
