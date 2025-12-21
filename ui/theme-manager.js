@@ -72,15 +72,15 @@ class ThemeManager {
 
   applyColorScheme(scheme) {
     this.currentColorScheme = scheme;
-    
+
     if (scheme === 'default') {
       document.documentElement.removeAttribute('data-color-scheme');
     } else {
       document.documentElement.setAttribute('data-color-scheme', scheme);
     }
-    
+
     localStorage.setItem('colorScheme', scheme);
-    
+
     // Update dropdown display if exists
     const display = document.getElementById('color-scheme-display');
     if (display) {
@@ -92,7 +92,7 @@ class ThemeManager {
     this.currentFont = font;
     document.documentElement.setAttribute('data-font', font);
     localStorage.setItem('font', font);
-    
+
     // Update dropdown display if exists
     const display = document.getElementById('font-display');
     if (display) {
@@ -103,7 +103,7 @@ class ThemeManager {
   applyBackground(background) {
     this.currentBackground = background;
     localStorage.setItem('background', background);
-    
+
     // Cleanup previous background
     if (this.backgroundInstance) {
       this.backgroundInstance.destroy();
@@ -115,6 +115,16 @@ class ThemeManager {
       case 'floating-lines':
         if (typeof FloatingLines !== 'undefined') {
           this.backgroundInstance = new FloatingLines();
+        }
+        break;
+      case 'particles':
+        if (typeof ParticlesBackground !== 'undefined') {
+          this.backgroundInstance = new ParticlesBackground();
+        }
+        break;
+      case 'matrix':
+        if (typeof MatrixBackground !== 'undefined') {
+          this.backgroundInstance = new MatrixBackground();
         }
         break;
       case 'prism':
@@ -131,7 +141,7 @@ class ThemeManager {
         // No background
         break;
     }
-    
+
     // Update dropdown display if exists
     const display = document.getElementById('background-display');
     if (display) {

@@ -3,116 +3,89 @@ class AuroraBackground {
     this.canvas = document.createElement('canvas');
     this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
     this.ctx = this.canvas.getContext('2d');
-    this.startTime = Date.now();
-    
+
     document.body.appendChild(this.canvas);
+
     this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    this.resizeHandler = () => this.resizeCanvas();
+    window.addEventListener('resize', this.resizeHandler);
+
     this.animate();
   }
-  
+
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
   }
-  
-  drawAurora() {
-    const time = (Date.now() - this.startTime) / 1000;
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-    
-    this.ctx.clearRect(0, 0, width, height);
-    
-    // Dark night sky gradient
-    const skyGradient = this.ctx.createLinearGradient(0, 0, 0, height);
-    skyGradient.addColorStop(0, '#0a0a1a');
-    skyGradient.addColorStop(0.7, '#1a1a2e');
-    skyGradient.addColorStop(1, '#16213e');
-    this.ctx.fillStyle = skyGradient;
-    this.ctx.fillRect(0, 0, width, height);
-    
-    // Draw aurora layers
-    for (let layer = 0; layer < 4; layer++) {
-      const yOffset = height * 0.2 + layer * height * 0.15;
-      const amplitude = 80 + layer * 30;
-      const frequency = 0.003 + layer * 0.001;
-      const speed = 0.5 + layer * 0.2;
-      const alpha = 0.3 - layer * 0.05;
-      
-      this.ctx.globalAlpha = alpha;
-      
-      // Create aurora gradient
-      const gradient = this.ctx.createLinearGradient(0, yOffset - amplitude, 0, yOffset + amplitude);
-      const hue1 = 120 + Math.sin(time * 0.3 + layer) * 60; // Green to cyan
-      const hue2 = 280 + Math.cos(time * 0.2 + layer) * 40; // Purple to pink
-      
-      gradient.addColorStop(0, `hsla(${hue1}, 80%, 60%, 0)`);
-      gradient.addColorStop(0.3, `hsla(${hue1}, 90%, 70%, 0.8)`);
-      gradient.addColorStop(0.7, `hsla(${hue2}, 85%, 65%, 0.6)`);
-      gradient.addColorStop(1, `hsla(${hue2}, 70%, 50%, 0)`);
-      
-      this.ctx.fillStyle = gradient;
+
+  draw() {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const time = Date.now() * 0.001;
+
+    this.ctx.clearRect(0, 0, w, h);
+
+    // Night sky gradient
+    const sky = this.ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#000000');
+    sky.addColorStop(1, '#0c1c2e');
+    this.ctx.fillStyle = sky;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // Stars
+    for (let i = 0; i < 50; i++) {
+      const x = (Math.sin(i * 132.1) * 43758.5453) % w;
+      const y = (Math.cos(i * 432.1) * 23421.123) % h;
+      const size = Math.random() * 2;
+      const alpha = Math.abs(Math.sin(time + i)) * 0.8;
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       this.ctx.beginPath();
-      
-      // Draw flowing aurora shape
-      for (let x = 0; x <= width; x += 5) {
-        const wave1 = Math.sin(x * frequency + time * speed) * amplitude * 0.6;
-        const wave2 = Math.sin(x * frequency * 1.5 + time * speed * 0.7) * amplitude * 0.4;
-        const y = yOffset + wave1 + wave2;
-        
-        if (x === 0) {
-          this.ctx.moveTo(x, y - amplitude);
-        } else {
-          this.ctx.lineTo(x, y - amplitude);
-        }
-      }
-      
-      for (let x = width; x >= 0; x -= 5) {
-        const wave1 = Math.sin(x * frequency + time * speed) * amplitude * 0.6;
-        const wave2 = Math.sin(x * frequency * 1.5 + time * speed * 0.7) * amplitude * 0.4;
-        const y = yOffset + wave1 + wave2;
-        this.ctx.lineTo(x, y + amplitude);
-      }
-      
-      this.ctx.closePath();
-      this.ctx.fill();
-      
-      // Add glow effect
-      this.ctx.shadowColor = `hsl(${hue1}, 80%, 60%)`;
-      this.ctx.shadowBlur = 30;
-      this.ctx.fill();
-      this.ctx.shadowBlur = 0;
-    }
-    
-    // Add twinkling stars
-    for (let i = 0; i < 100; i++) {
-      const x = (Math.sin(i * 0.1) * 0.5 + 0.5) * width;
-      const y = (Math.cos(i * 0.13) * 0.3 + 0.2) * height;
-      const twinkle = Math.sin(time * 2 + i) * 0.5 + 0.5;
-      const size = twinkle * 2 + 0.5;
-      
-      this.ctx.globalAlpha = twinkle * 0.8;
-      this.ctx.fillStyle = '#ffffff';
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, size, 0, Math.PI * 2);
+      this.ctx.arc(Math.abs(x), Math.abs(y), size, 0, Math.PI * 2);
       this.ctx.fill();
     }
-    
-    this.ctx.globalAlpha = 1;
+
+    // Aurora Layers
+    this.drawAuroraLayer(time, h * 0.4, '#00ff99', 0.1);
+    this.drawAuroraLayer(time + 10, h * 0.5, '#00ccff', 0.1);
+    this.drawAuroraLayer(time + 20, h * 0.3, '#bb00ff', 0.05);
   }
-  
+
+  drawAuroraLayer(time, yBase, color, alpha) {
+    this.ctx.fillStyle = color;
+    this.ctx.globalAlpha = alpha;
+    this.ctx.beginPath();
+
+    const distinctPoints = 100;
+
+    this.ctx.moveTo(0, this.canvas.height);
+
+    for (let i = 0; i <= distinctPoints; i++) {
+      const x = (i / distinctPoints) * this.canvas.width;
+      // Complex wave function for organic look
+      const noise = Math.sin(x * 0.01 + time) * Math.cos(x * 0.005 - time * 0.5);
+      const y = yBase + noise * 100 + Math.sin(i * 0.1 + time) * 50;
+
+      this.ctx.lineTo(x, y);
+    }
+
+    this.ctx.lineTo(this.canvas.width, this.canvas.height);
+    this.ctx.closePath();
+
+    // Add glow
+    this.ctx.shadowColor = color;
+    this.ctx.shadowBlur = 50;
+    this.ctx.fill();
+    this.ctx.shadowBlur = 0;
+  }
+
   animate() {
-    this.drawAurora();
+    this.draw();
     this.animationId = requestAnimationFrame(() => this.animate());
   }
-  
+
   destroy() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
-    if (this.canvas && this.canvas.parentNode) {
-      this.canvas.parentNode.removeChild(this.canvas);
-    }
-    window.removeEventListener('resize', () => this.resizeCanvas());
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
+    window.removeEventListener('resize', this.resizeHandler);
   }
 }

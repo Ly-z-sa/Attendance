@@ -59,6 +59,8 @@ export const FONTS = {
 export const BACKGROUNDS = {
   default: 'Default',
   'floating-lines': 'Floating Lines',
+  particles: 'Particles Network',
+  matrix: 'Matrix Rain',
   prism: 'Prism',
   aurora: 'Aurora'
 };
