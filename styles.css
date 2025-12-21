@@ -82,7 +82,7 @@
     --primary-dark: #3f1dcb;
     --secondary: rgba(82, 39, 255, 0.8);
     --accent: rgba(124, 77, 255, 0.6);
-    --light-grey: rgba(255, 255, 255, 0.1);
+    --light-grey: rgba(255, 255, 255, 0.2);
     --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --dark-text: #ffffff;
     --grey-text: rgba(255, 255, 255, 0.7);
@@ -101,9 +101,10 @@
 [data-color-scheme="glass"] .data-row,
 [data-color-scheme="glass"] .settings-section,
 [data-color-scheme="glass"] .modal-content {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 [data-color-scheme="crimson"] {

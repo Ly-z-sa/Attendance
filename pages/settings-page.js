@@ -397,13 +397,32 @@ class SettingsPage {
         const isCollapsed = content.classList.contains('collapsed');
 
         if (isCollapsed) {
-          content.style.maxHeight = content.scrollHeight + 'px';
+          // Expand
+          content.style.overflow = 'hidden';
           content.classList.remove('collapsed');
           newHeader.classList.remove('collapsed');
+          content.style.maxHeight = content.scrollHeight + 'px';
+
+          // After animation, set overflow to visible to allow dropdowns to show
+          setTimeout(() => {
+            if (!content.classList.contains('collapsed')) {
+              content.style.overflow = 'visible';
+              content.style.maxHeight = 'none';
+            }
+          }, 300);
         } else {
-          content.style.maxHeight = '0px';
-          content.classList.add('collapsed');
-          newHeader.classList.add('collapsed');
+          // Collapse
+          content.style.overflow = 'hidden';
+          content.style.maxHeight = content.scrollHeight + 'px'; // Set explicit height first
+
+          // Force reflow
+          content.offsetHeight;
+
+          requestAnimationFrame(() => {
+            content.style.maxHeight = '0px';
+            content.classList.add('collapsed');
+            newHeader.classList.add('collapsed');
+          });
         }
       });
     });
