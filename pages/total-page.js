@@ -9,7 +9,7 @@ class TotalPage {
 
   initialize() {
     this.container = document.getElementById('total-content');
-    
+
     // Setup export dropdown
     const exportDropdown = document.getElementById('export-type-dropdown');
     if (exportDropdown) {
@@ -35,7 +35,19 @@ class TotalPage {
       return;
     }
 
-    this.container.innerHTML = currentSemSubjects.map((subject, index) => {
+    let html = `
+      <div style="display: flex; justify-content: flex-end; padding: 0 1.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--grey-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="flex: 1;"></div>
+        <div style="display: flex; gap: 1rem; width: 232px; justify-content: space-around;">
+          <div style="width: 48px; text-align: center;">PRS</div>
+          <div style="width: 48px; text-align: center;">ABS</div>
+          <div style="width: 48px; text-align: center;">PER</div>
+          <div style="width: 48px; text-align: center;">LAT</div>
+        </div>
+      </div>
+    `;
+
+    html += currentSemSubjects.map((subject, index) => {
       const stats = attendanceService.calculateSubjectStats(subject.id);
 
       return `
@@ -65,6 +77,8 @@ class TotalPage {
         </div>
       `;
     }).join('');
+
+    this.container.innerHTML = html;
   }
 
   getPercentageColor(percentage) {
@@ -77,7 +91,7 @@ class TotalPage {
 
   handleExport(type) {
     const currentSem = window.app.allSemesters.find(s => s.id === window.app.currentSemesterId);
-    
+
     if (!currentSem) {
       toastManager.warning('Please select a semester first.');
       return;

@@ -43,20 +43,20 @@ class WeeklyReportPage {
     this.container.innerHTML = `
       <!-- Stats Cards -->
       <div class="weekly-stats-grid">
-        <div class="data-row stat-row">
-          <span>Present</span>
+        <div class="stat-column">
+          <span class="stat-label">Present</span>
           <div class="count-bubble count-green">${weekStats.counts.Present}</div>
         </div>
-        <div class="data-row stat-row">
-          <span>Absent</span>
+        <div class="stat-column">
+          <span class="stat-label">Absent</span>
           <div class="count-bubble count-red">${weekStats.counts.Absent}</div>
         </div>
-        <div class="data-row stat-row">
-          <span>Permission</span>
+        <div class="stat-column">
+          <span class="stat-label">Permit</span>
           <div class="count-bubble count-blue">${weekStats.counts.Permission}</div>
         </div>
-        <div class="data-row stat-row">
-          <span>Late</span>
+        <div class="stat-column">
+          <span class="stat-label">Late</span>
           <div class="count-bubble count-yellow">${weekStats.counts.Late}</div>
         </div>
       </div>
