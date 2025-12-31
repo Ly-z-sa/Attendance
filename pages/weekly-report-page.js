@@ -6,6 +6,8 @@ import { ICONS } from '../utils/icons.js';
 class WeeklyReportPage {
   constructor() {
     this.container = null;
+    this.selectedWeek = null;
+    this.currentSemesterId = null;
   }
 
   initialize() {
@@ -14,7 +16,11 @@ class WeeklyReportPage {
     // Setup week selector
     const weekSelector = document.getElementById('week-selector-dropdown');
     if (weekSelector) {
-      weekSelector.addEventListener('change', () => {
+      weekSelector.addEventListener('change', (e) => {
+        const val = e.currentTarget.dataset.value;
+        if (val) {
+          this.selectedWeek = parseInt(val, 10);
+        }
         this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
       });
     }
@@ -29,12 +35,17 @@ class WeeklyReportPage {
       return;
     }
 
+    // Handle semester change
+    if (this.currentSemesterId !== currentSemesterId) {
+      this.currentSemesterId = currentSemesterId;
+      this.selectedWeek = null; // Reset selection on semester change
+    }
+
     // Update week selector
     this.updateWeekSelector(currentSemesterId, currentSem);
 
     // Get selected week
-    const weekSelector = document.getElementById('week-selector-dropdown');
-    const selectedWeek = parseInt(weekSelector?.dataset.value || 1, 10);
+    const selectedWeek = this.selectedWeek || 1;
 
     // Get stats for selected week
     const weekStats = attendanceService.calculateStats(currentSemesterId, selectedWeek);
@@ -105,7 +116,13 @@ class WeeklyReportPage {
     }
 
     const currentWeek = getSemesterWeek(getTodayDateString(), semester);
-    let weekToDisplay = currentWeek && validWeeks.includes(currentWeek) ? currentWeek : validWeeks[0] || 1;
+
+    // Default to current week if nothing selected yet
+    if (this.selectedWeek === null) {
+      this.selectedWeek = currentWeek && validWeeks.includes(currentWeek) ? currentWeek : (validWeeks[0] || 1);
+    }
+
+    let weekToDisplay = this.selectedWeek;
 
     weekDropdown.dataset.value = weekToDisplay;
     selectedWeekDisplay.textContent = `Week ${weekToDisplay}`;
