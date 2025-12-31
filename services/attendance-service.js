@@ -7,10 +7,12 @@ import {
   onSnapshot,
   serverTimestamp,
   query,
-  where
+  where,
+  setDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS } from '../utils/constants.js';
-import { getSemesterWeek, calculateWarning } from '../utils/helpers.js';
+import { getSemesterWeek, calculateWarning, getTodayDateString, getRealTime } from '../utils/helpers.js';
 
 class AttendanceService {
   constructor() {
@@ -70,6 +72,75 @@ class AttendanceService {
 
   getForDate(date) {
     return this.allAttendance.filter(r => r.date === date);
+  }
+
+  async addSubject(semesterId, subjectData) {
+    if (!subjectData.name || typeof subjectData.name !== 'string' || !subjectData.name.trim()) {
+      throw new Error("Subject name is required and must be a valid string.");
+    }
+    try {
+      const docRef = await addDoc(
+        collection(this.db, FIREBASE_PATHS.subjects(this.userId)),
+        {
+          ...subjectData,
+          semesterId,
+          createdAt: serverTimestamp()
+        }
+      );
+      return docRef.id;
+    } catch (error) {
+      console.error("Error adding subject:", error);
+      throw error;
+    }
+  }
+
+  async updateSubject(semesterId, subjectId, subjectData) {
+    if (subjectData.name !== undefined && (!subjectData.name || typeof subjectData.name !== 'string' || !subjectData.name.trim())) {
+      throw new Error("Subject name cannot be empty.");
+    }
+    try {
+      await updateDoc(
+        doc(this.db, FIREBASE_PATHS.subjectDoc(this.userId, subjectId)),
+        {
+          ...subjectData,
+          updatedAt: serverTimestamp()
+        }
+      );
+    } catch (error) {
+      console.error("Error updating subject:", error);
+      throw error;
+    }
+  }
+
+  async addSemester(semesterData) {
+    try {
+      const docRef = await addDoc(
+        collection(this.db, FIREBASE_PATHS.semesters(this.userId)),
+        {
+          ...semesterData,
+          createdAt: serverTimestamp()
+        }
+      );
+      return docRef.id;
+    } catch (error) {
+      console.error("Error adding semester:", error);
+      throw error;
+    }
+  }
+
+  async updateSemester(semesterId, semesterData) {
+    try {
+      await updateDoc(
+        doc(this.db, FIREBASE_PATHS.semesterDoc(this.userId, semesterId)),
+        {
+          ...semesterData,
+          updatedAt: serverTimestamp()
+        }
+      );
+    } catch (error) {
+      console.error("Error updating semester:", error);
+      throw error;
+    }
   }
 
   async submitAttendance(subjectId, semesterId, date, status, semester) {
@@ -271,7 +342,7 @@ class AttendanceService {
     return warnings;
   }
 
-  exportToCSV(type, semester, subjects) {
+  exportToExcel(type, semester, subjects) {
     const currentSemAttendance = this.getForSemester(semester.id);
     let filteredData = currentSemAttendance;
     let filename = `${semester.name}_${type}_attendance`;
@@ -286,23 +357,68 @@ class AttendanceService {
       filename += `_${new Date(getRealTime()).toLocaleString('default', { month: 'long' })}`;
     }
 
-    let csvContent = 'Date,Subject,Status,Week\n';
-
+    // Create attendance data sheet
+    const attendanceData = [['Date', 'Subject', 'Status', 'Week']];
     filteredData.forEach(record => {
       const subject = subjects.find(s => s.id === record.subjectId);
       const subjectName = subject ? subject.name : 'Unknown Subject';
-      csvContent += `${record.date},${subjectName},${record.status},${record.semesterWeek || 'N/A'}\n`;
+      attendanceData.push([record.date, subjectName, record.status, record.semesterWeek || 'N/A']);
     });
 
-    csvContent += '\n\nSUMMARY\n';
-    csvContent += 'Subject,Present,Absent,Permission,Late,Total,Percentage\n';
-
+    // Create summary data
+    const summaryData = [['Subject', 'Present', 'Absent', 'Permission', 'Late', 'Total', 'Attendance %']];
     subjects.filter(s => s.semesterId === semester.id).forEach(subject => {
       const stats = this.calculateSubjectStats(subject.id);
-      csvContent += `${subject.name},${stats.counts.Present},${stats.counts.Absent},${stats.counts.Permission},${stats.counts.Late},${stats.total},${stats.percentage}%\n`;
+      summaryData.push([
+        subject.name,
+        stats.counts.Present,
+        stats.counts.Absent,
+        stats.counts.Permission,
+        stats.counts.Late,
+        stats.total,
+        `${stats.percentage}%`
+      ]);
     });
 
-    return { csvContent, filename: filename + '.csv' };
+    // Create workbook with SheetJS
+    const wb = XLSX.utils.book_new();
+
+    // Create attendance sheet
+    const ws1 = XLSX.utils.aoa_to_sheet(attendanceData);
+
+    // Auto-fit column widths for attendance sheet
+    const attendanceCols = [
+      { wch: 12 },  // Date
+      { wch: 30 },  // Subject
+      { wch: 12 },  // Status
+      { wch: 8 }    // Week
+    ];
+    ws1['!cols'] = attendanceCols;
+
+    XLSX.utils.book_append_sheet(wb, ws1, 'Attendance Records');
+
+    // Create summary sheet
+    const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
+
+    // Auto-fit column widths for summary sheet
+    const summaryCols = [
+      { wch: 30 },  // Subject
+      { wch: 10 },  // Present
+      { wch: 10 },  // Absent
+      { wch: 12 },  // Permission
+      { wch: 8 },   // Late
+      { wch: 8 },   // Total
+      { wch: 14 }   // Percentage
+    ];
+    ws2['!cols'] = summaryCols;
+
+    XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
+
+    // Generate Excel binary
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    return { blob, filename: filename + '.xlsx' };
   }
 
   cleanup() {

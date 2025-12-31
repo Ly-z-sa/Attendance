@@ -98,14 +98,13 @@ class TotalPage {
     }
 
     try {
-      const { csvContent, filename } = attendanceService.exportToCSV(
+      const { blob, filename } = attendanceService.exportToExcel(
         type,
         currentSem,
         window.app.allSubjects
       );
 
       // Create and download file
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = filename;

@@ -9,9 +9,13 @@ import {
   updatePassword,
   deleteUser,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  reauthenticateWithPopup
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS } from '../utils/constants.js';
 import { ICONS } from '../utils/icons.js';
 import { validatePassword, validateEmail, checkBadWords } from '../utils/validation.js';
@@ -56,6 +60,7 @@ class AuthService {
         document.getElementById('signin-form').style.display = tabType === 'signin' ? 'block' : 'none';
         document.getElementById('signup-form').style.display = tabType === 'signup' ? 'block' : 'none';
         document.getElementById('auth-modal-title').textContent = tabType === 'signin' ? 'Sign In' : 'Sign Up';
+
       });
     });
 
@@ -141,6 +146,10 @@ class AuthService {
       this.loginAttempts[email] = 0;
       toastManager.hide(loadingToast);
       modalManager.close('auth-modal');
+
+      // Check for profile completion
+      await this.checkAndPromptProfileCompletion(this.auth.currentUser.uid);
+
       toastManager.success('Signed in successfully!');
     } catch (error) {
       toastManager.hide(loadingToast);
@@ -245,6 +254,166 @@ class AuthService {
       } else {
         toastManager.error('Sign up failed: ' + error.message);
       }
+    }
+  }
+
+  async handleGoogleSignIn() {
+    // Ensure we have the latest auth instance
+    if (!this.auth) this.auth = window.firebaseAuth;
+
+    const loadingToast = toastManager.loading('Connecting to Google...');
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(this.auth, provider);
+      const user = result.user;
+
+      // Check if user profile exists, if not create it
+      // We can check if it's a new user via additionalUserInfo, but checking doc existence is safer
+      // or just merge with existing data
+      await setDoc(doc(this.db, FIREBASE_PATHS.userProfile(user.uid)), {
+        name: user.displayName || 'Google User',
+        email: user.email,
+        // Don't overwrite existing major or createdAt if they exist
+      }, { merge: true });
+
+      // If it's a new user (createdAt missing), set it
+      // Actually merge: true handles updates fine, but we might want to ensure createdAt is set only once.
+      // For simplicity, we just updated the name/email.
+
+      toastManager.hide(loadingToast);
+      modalManager.close('auth-modal');
+
+      // Check for profile completion
+      await this.checkAndPromptProfileCompletion(user.uid);
+
+      toastManager.success(`Welcome, ${user.displayName || 'User'}!`);
+
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      console.error("Google Sign In Error:", error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        toastManager.info('Sign in cancelled');
+      } else {
+        toastManager.error('Google Sign In failed: ' + error.message);
+      }
+    }
+  }
+
+  async handleGithubSignIn() {
+    // Ensure we have the latest auth instance
+    if (!this.auth) this.auth = window.firebaseAuth;
+
+    const loadingToast = toastManager.loading('Connecting to GitHub...');
+
+    try {
+      const provider = new GithubAuthProvider();
+      const result = await signInWithPopup(this.auth, provider);
+      const user = result.user;
+
+      // Check if user profile exists, if not create it
+      // We can check if it's a new user via additionalUserInfo, but checking doc existence is safer
+      // or just merge with existing data
+      await setDoc(doc(this.db, FIREBASE_PATHS.userProfile(user.uid)), {
+        name: user.displayName || 'GitHub User',
+        email: user.email,
+        // Don't overwrite existing major or createdAt if they exist
+      }, { merge: true });
+
+      toastManager.hide(loadingToast);
+      modalManager.close('auth-modal');
+
+      // Check for profile completion
+      await this.checkAndPromptProfileCompletion(user.uid);
+
+      toastManager.success(`Welcome, ${user.displayName || 'User'}!`);
+
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      console.error("GitHub Sign In Error:", error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        toastManager.info('Sign in cancelled');
+      } else if (error.code === 'auth/account-exists-with-different-credential') {
+        toastManager.error('An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.');
+      } else {
+        toastManager.error('GitHub Sign In failed: ' + error.message);
+      }
+    }
+  }
+
+  async checkAndPromptProfileCompletion(uid) {
+    try {
+      const userDocRef = doc(this.db, FIREBASE_PATHS.userProfile(uid));
+      const docSnap = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(module => module.getDoc(userDocRef));
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        if (!userData.name || !userData.major) {
+          // Open onboarding modal
+          document.getElementById('onboarding-name').value = userData.name || '';
+          document.getElementById('onboarding-major').value = userData.major || '';
+          modalManager.open('onboarding-modal');
+          return false; // Profile incomplete
+        }
+      }
+      return true; // Profile complete
+    } catch (error) {
+      console.error("Error checking profile:", error);
+      return true; // Fail safe to true to not block user if DB error
+    }
+  }
+
+  async handleSaveProfile() {
+    const nameInput = document.getElementById('onboarding-name');
+    const majorInput = document.getElementById('onboarding-major');
+    const name = nameInput.value.trim();
+    const major = majorInput.value.trim();
+
+    if (!name || !major) {
+      toastManager.warning('Please fill in both Name and Major.');
+      return;
+    }
+
+    if (await checkBadWords(name) || await checkBadWords(major)) {
+      toastManager.error('Please use appropriate language.');
+      return;
+    }
+
+    const loadingToast = toastManager.loading('Saving profile...');
+
+    try {
+      // Ensure auth is initialized
+      if (!this.auth) this.auth = window.firebaseAuth;
+      const user = this.auth.currentUser;
+
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
+      await setDoc(doc(this.db, FIREBASE_PATHS.userProfile(user.uid)), {
+        name,
+        major
+      }, { merge: true });
+
+      // Also update auth profile name if different
+      if (user.displayName !== name) {
+        // We'd need updateProfile from firebase-auth but it's not imported.
+        // For now, firestore update is the source of truth for the app.
+      }
+
+      toastManager.hide(loadingToast);
+      modalManager.close('onboarding-modal');
+      toastManager.success('Profile updated! Welcome.');
+
+      // Trigger any post-login UI updates (like sidebar name)
+      // This might require a page reload or a specific event, checking app.js might be verified.
+      // For now, reload window to ensure everything syncs is the safest for "first time" feeling
+      setTimeout(() => window.location.reload(), 1000);
+
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      console.error("Save profile error:", error);
+      toastManager.error('Failed to save profile: ' + error.message);
     }
   }
 
@@ -403,33 +572,100 @@ class AuthService {
   }
 
   async deleteAccount() {
+    const user = this.auth.currentUser;
+    if (!user) return;
+
     const confirmed = await modalManager.confirm(
       'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.'
+      'Are you sure you want to delete your account? This action detects all your data (semesters, subjects, attendance) and cannot be undone.'
     );
     if (!confirmed) return;
 
-    const password = await modalManager.input(
-      'Delete Account',
-      'Enter your password to confirm account deletion:',
-      'Password',
-      true
-    );
-    if (!password) return;
+    // Re-authentication
+    const loadingReauth = toastManager.loading('Verifying identity...');
+    try {
+      const providerId = user.providerData[0]?.providerId;
 
-    const loadingToast = toastManager.loading('Deleting account...');
+      if (providerId === 'password') {
+        const password = await modalManager.input(
+          'Confirm Password',
+          'Enter your password to confirm deletion:',
+          'Password',
+          true
+        );
+        if (!password) {
+          toastManager.hide(loadingReauth);
+          return;
+        }
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+      } else if (providerId === 'google.com') {
+        const provider = new GoogleAuthProvider();
+        await reauthenticateWithPopup(user, provider);
+      } else if (providerId === 'github.com') {
+        const provider = new GithubAuthProvider();
+        await reauthenticateWithPopup(user, provider);
+      }
+      toastManager.hide(loadingReauth);
+    } catch (error) {
+      toastManager.hide(loadingReauth);
+      console.error("Re-auth failed:", error);
+      toastManager.error('Authentication check failed. Please try again.');
+      return;
+    }
+
+    const loadingDelete = toastManager.loading('Deleting account data...');
 
     try {
-      const credential = EmailAuthProvider.credential(this.auth.currentUser.email, password);
-      await reauthenticateWithCredential(this.auth.currentUser, credential);
-      await deleteUser(this.auth.currentUser);
+      // 1. Delete Firestore Data
+      await this.deleteUserData(user.uid);
 
-      toastManager.hide(loadingToast);
+      // 2. Delete Auth User
+      await deleteUser(user);
+
+      toastManager.hide(loadingDelete);
       toastManager.success('Account deleted successfully.');
+
+      // Reset UI
+      this.resetUI();
+      document.body.style.overflow = '';
+
+      setTimeout(() => window.location.reload(), 1500);
+
     } catch (error) {
-      toastManager.hide(loadingToast);
-      toastManager.error('Failed to delete account: ' + error.message);
+      toastManager.hide(loadingDelete);
+      // If error is "requires-recent-login" (though we just re-authed), handle it
+      if (error.code === 'auth/requires-recent-login') {
+        toastManager.error('Please sign out and sign in again to verify your identity.');
+      } else {
+        toastManager.error('Failed to delete account: ' + error.message);
+      }
     }
+  }
+
+  async deleteUserData(uid) {
+    // Helper to delete a collection
+    const deleteCollection = async (path) => {
+      const colRef = collection(this.db, path);
+      const snapshot = await getDocs(colRef);
+      const batch = writeBatch(this.db);
+      snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+    };
+
+    // Delete subcollections
+    await deleteCollection(FIREBASE_PATHS.semesters(uid));
+    await deleteCollection(FIREBASE_PATHS.subjects(uid));
+    await deleteCollection(FIREBASE_PATHS.attendance(uid));
+
+    // Delete profile doc
+    // Note: FIREBASE_PATHS.userProfile returns the path string "artifacts/.../profile/details"
+    // We also want to delete the parent user doc if possible, but structure is:
+    // artifacts/APP_ID/users/uid/ (contains profile/details, etc.)
+    // We should delete the profile detail doc.
+    await deleteDoc(doc(this.db, FIREBASE_PATHS.userProfile(uid)));
   }
 
   updatePasswordStrength(password) {

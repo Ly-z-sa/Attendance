@@ -23,6 +23,8 @@
     --yellow: #DAA520;
     --yellow-dark: #B8860B;
     --border-color: #DEB887;
+    --popup-bg: rgba(245, 245, 220, 0.9);
+    /* Beige translucent */
     --border-radius: 12px;
     --shadow: 0 4px 12px rgba(139, 69, 19, 0.1);
     --transition: all 0.3s ease;
@@ -48,6 +50,8 @@
     --yellow: #FFD700;
     --yellow-dark: #FFA500;
     --border-color: #404040;
+    --popup-bg: rgba(44, 44, 44, 0.9);
+    /* Dark grey translucent */
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -83,6 +87,8 @@
     --secondary: rgba(82, 39, 255, 0.8);
     --accent: rgba(124, 77, 255, 0.6);
     --light-grey: rgba(255, 255, 255, 0.2);
+    --popup-bg: rgba(82, 39, 255, 0.4);
+    /* Glass purple */
     --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --dark-text: #ffffff;
     --grey-text: rgba(255, 255, 255, 0.7);
@@ -123,6 +129,25 @@
     --primary: #059669;
     --primary-light: #10b981;
     --primary-dark: #047857;
+}
+
+[data-color-scheme="festive"] {
+    --primary: #c41e3a;
+    --primary-light: #dc143c;
+    --primary-dark: #8b0000;
+    --secondary: #228b22;
+    --accent: #ffd700;
+    --green: #228b22;
+    --red: #c41e3a;
+    --yellow: #ffd700;
+}
+
+[data-color-scheme="festive"] .app-header {
+    background: linear-gradient(135deg, #c41e3a 0%, #228b22 50%, #8b0000 100%);
+}
+
+[data-color-scheme="festive"] .bulk-attendance-card {
+    background: linear-gradient(135deg, #c41e3a 0%, #228b22 100%);
 }
 
 /* Font Settings */
@@ -783,6 +808,9 @@ main {
     align-items: center;
 }
 
+/* ============================================
+   CUSTOM TIME PICKER
+   ============================================ */
 .bulk-icon svg {
     width: 1em;
     height: 1em;
@@ -804,23 +832,26 @@ main {
 
 .bulk-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.75rem;
 }
 
 .bulk-btn {
-    flex: 1;
-    padding: 0.75rem 1rem;
+    flex: 1 1 calc(50% - 0.375rem);
+    min-width: 120px;
+    padding: 0.75rem 0.75rem;
     border: 2px solid white;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
     color: white;
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .bulk-btn:hover {
@@ -830,7 +861,7 @@ main {
 }
 
 .bulk-btn-icon {
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 /* ============================================
@@ -1019,6 +1050,44 @@ main {
     pointer-events: none;
 }
 
+
+/* CSS Fix for Dropdown Clipping & Modal Scrolling */
+.modal-overlay {
+    overflow: hidden !important;
+    padding: 0;
+}
+
+.modal-content {
+    overflow: visible !important;
+    /* Allow popups to pop out */
+}
+
+.modal-body {
+    overflow-y: auto !important;
+    padding: 2rem;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--grey-text) transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--grey-text);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+
 .tick-btn.loading::after {
     content: '';
     position: absolute;
@@ -1113,19 +1182,21 @@ main {
 .dropdown-options {
     display: none;
     position: absolute;
-    background: var(--light-grey);
-    backdrop-filter: blur(10px);
+    background: var(--popup-bg);
+    backdrop-filter: blur(15px);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 12px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 20000;
     top: 110%;
     left: 0;
     width: 100%;
     max-height: 250px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     animation: dropdownFade 0.2s ease;
 }
+
+
 
 @keyframes dropdownFade {
     from {
@@ -1139,9 +1210,10 @@ main {
     }
 }
 
-.custom-dropdown.open .dropdown-options {
-    display: block;
+.dropdown-options.open {
+    display: block !important;
 }
+
 
 .dropdown-option {
     padding: 0.875rem 1.25rem;
@@ -1208,17 +1280,20 @@ main {
 
 .modal-content {
     background: var(--light-grey);
-    padding: 2rem;
+    padding: 0;
     border-radius: var(--border-radius);
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
-    overflow-y: auto;
-    max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    /* Robust Flex */
+    flex-direction: column;
+    overflow: hidden !important;
+    /* Contain the scrolling body, popups are ported anyway */
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    /* animation: slideInUp 0.3s ease; REMOVED to prevent freeze */
 }
+
+
 
 @keyframes slideInUp {
     from {
@@ -1236,13 +1311,19 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    padding: 1rem 2rem;
+    /* Tighter padding */
+    border-bottom: 1px solid var(--border-color);
 }
+
 
 .modal-header h4 {
     font-size: 1.5rem;
     font-weight: 600;
+    margin: 0;
+    /* Clear default browser margins */
 }
+
 
 .modal-close-btn {
     background: none;
@@ -1268,8 +1349,11 @@ main {
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
-    margin-top: 1.5rem;
+    padding: 1.25rem 2rem;
+    /* Restore padding here */
+    border-top: 1px solid var(--border-color);
 }
+
 
 /* ============================================
    FORMS
@@ -1304,13 +1388,29 @@ main {
 }
 
 /* ============================================
+   GOOGLE SIGN IN BUTTON
+   ============================================ */
+.google-btn {
+    transition: background-color .3s, box-shadow .3s;
+}
+
+.google-btn:hover {
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15) !important;
+    background-color: #f7f8f8 !important;
+}
+
+.google-btn:active {
+    background-color: #f1f3f4 !important;
+}
+
+/* ============================================
    TOAST NOTIFICATIONS
    ============================================ */
 #toast-container {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    z-index: 2000;
+    z-index: 15000;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -1708,7 +1808,7 @@ main {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    z-index: 3000;
+    z-index: 12000;
     align-items: center;
     justify-content: center;
 }
@@ -1936,24 +2036,24 @@ main {
 .date-picker-calendar {
     display: none;
     position: absolute;
-    background: var(--light-grey);
-    backdrop-filter: blur(10px);
+    background: var(--popup-bg);
+    backdrop-filter: blur(15px);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    z-index: 1001;
+    z-index: 20000;
     top: 110%;
     left: 0;
     min-width: 280px;
     max-height: 350px;
     overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    animation: dropdownFade 0.2s ease;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     padding: 1rem;
 }
 
-.custom-date-picker.open .date-picker-calendar {
-    display: block;
+.date-picker-calendar.open {
+    display: block !important;
 }
+
 
 .calendar-header {
     display: flex;
@@ -2013,10 +2113,13 @@ main {
     color: var(--dark-text);
 }
 
-.calendar-day:hover {
-    background: rgba(139, 69, 19, 0.1);
-    transform: scale(1.1);
+.calendar-day.disabled {
+    color: var(--grey-text);
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
 }
+
 
 .calendar-day.selected {
     background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
@@ -2698,4 +2801,143 @@ button:focus-visible,
 .count-yellow {
     background: var(--yellow);
     color: var(--dark-text);
+}
+
+/* ============================================
+   CUSTOM TIME PICKER
+   ============================================ */
+.custom-time-picker {
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+}
+
+.time-picker-display {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+    min-height: 48px;
+}
+
+.custom-time-picker.open .time-picker-display {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.time-picker-display span {
+    font-weight: 500;
+}
+
+.time-picker-dropdown {
+    position: absolute;
+    top: 110%;
+    /* Slight gap */
+    left: 0;
+    width: 100%;
+    background: var(--popup-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    /* Strong shadow for popup feel */
+    z-index: 20000;
+    /* Consistently King */
+    display: none;
+    padding: 0.75rem;
+    max-height: 300px;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.time-picker-dropdown.open {
+    display: flex !important;
+    animation: fadeIn 0.2s ease;
+}
+
+
+.time-column {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    scrollbar-width: thin;
+    max-height: 250px;
+}
+
+.time-column::-webkit-scrollbar {
+    width: 4px;
+}
+
+.time-column::-webkit-scrollbar-thumb {
+    background: var(--grey-text);
+    border-radius: 4px;
+}
+
+.time-option {
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+.time-option:hover {
+    background: var(--primary-light);
+    color: white;
+}
+
+.time-option.selected {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.time-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--dark-text);
+    padding-bottom: 2rem;
+}
+
+/* Hybrid Time Picker Input */
+.time-manual-input {
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--dark-text);
+    width: 80px;
+    outline: none;
+    padding: 0;
+}
+
+.time-manual-input::placeholder {
+    color: var(--grey-text);
+}
+
+.time-picker-icon {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    color: var(--grey-text);
+}
+
+.time-picker-icon:hover {
+    background-color: var(--light-grey);
+    color: var(--primary);
 }

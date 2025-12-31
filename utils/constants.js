@@ -47,7 +47,8 @@ export const COLOR_SCHEMES = {
   glass: 'Glass',
   crimson: 'Crimson',
   violet: 'Violet',
-  emerald: 'Emerald'
+  emerald: 'Emerald',
+  festive: 'Festive'
 };
 
 export const FONTS = {
@@ -62,5 +63,14 @@ export const BACKGROUNDS = {
   particles: 'Particles Network',
   matrix: 'Matrix Rain',
   prism: 'Prism',
-  aurora: 'Aurora'
+  aurora: 'Aurora',
+  snowfall: 'Snowfall'
+};
+
+export const CLICK_EFFECTS = {
+  none: 'None',
+  spark: 'Spark',
+  ripple: 'Ripple',
+  confetti: 'Confetti',
+  hearts: 'Hearts'
 };

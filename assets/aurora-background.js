@@ -1,3 +1,4 @@
+// assets/aurora-background.js
 class AuroraBackground {
   constructor() {
     this.canvas = document.createElement('canvas');
@@ -10,12 +11,32 @@ class AuroraBackground {
     this.resizeHandler = () => this.resizeCanvas();
     window.addEventListener('resize', this.resizeHandler);
 
+    // Initialize stars
+    this.stars = [];
+    this.initStars();
+
     this.animate();
   }
 
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+    this.initStars();
+  }
+
+  initStars() {
+    this.stars = [];
+    const count = Math.min(150, Math.floor((this.canvas.width * this.canvas.height) / 10000));
+
+    for (let i = 0; i < count; i++) {
+      this.stars.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height * 0.6,
+        size: Math.random() * 2 + 0.5,
+        twinkleSpeed: Math.random() * 3 + 1,
+        twinkleOffset: Math.random() * Math.PI * 2
+      });
+    }
   }
 
   draw() {
@@ -23,59 +44,116 @@ class AuroraBackground {
     const h = this.canvas.height;
     const time = Date.now() * 0.001;
 
-    this.ctx.clearRect(0, 0, w, h);
-
     // Night sky gradient
     const sky = this.ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, '#000000');
-    sky.addColorStop(1, '#0c1c2e');
+    sky.addColorStop(0, '#000510');
+    sky.addColorStop(0.3, '#051025');
+    sky.addColorStop(0.7, '#0a1a35');
+    sky.addColorStop(1, '#0d2040');
     this.ctx.fillStyle = sky;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Stars
-    for (let i = 0; i < 50; i++) {
-      const x = (Math.sin(i * 132.1) * 43758.5453) % w;
-      const y = (Math.cos(i * 432.1) * 23421.123) % h;
-      const size = Math.random() * 2;
-      const alpha = Math.abs(Math.sin(time + i)) * 0.8;
-      this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      this.ctx.beginPath();
-      this.ctx.arc(Math.abs(x), Math.abs(y), size, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
+    // Draw twinkling stars
+    this.drawStars(time);
 
-    // Aurora Layers
-    this.drawAuroraLayer(time, h * 0.4, '#00ff99', 0.1);
-    this.drawAuroraLayer(time + 10, h * 0.5, '#00ccff', 0.1);
-    this.drawAuroraLayer(time + 20, h * 0.3, '#bb00ff', 0.05);
+    // Aurora layers - horizontal waves flowing across the sky
+    this.drawAuroraWave(time, h * 0.15, '#00ff88', 0.12, 0);
+    this.drawAuroraWave(time * 0.8 + 2, h * 0.25, '#00aaff', 0.10, 1);
+    this.drawAuroraWave(time * 0.6 + 4, h * 0.10, '#aa44ff', 0.08, 2);
+    this.drawAuroraWave(time * 1.1 + 1, h * 0.20, '#00ffaa', 0.09, 3);
   }
 
-  drawAuroraLayer(time, yBase, color, alpha) {
-    this.ctx.fillStyle = color;
-    this.ctx.globalAlpha = alpha;
+  drawStars(time) {
+    this.stars.forEach(star => {
+      const twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset) * 0.5 + 0.5;
+      const alpha = 0.3 + twinkle * 0.7;
+
+      this.ctx.beginPath();
+      this.ctx.arc(star.x, star.y, star.size * (0.5 + twinkle * 0.5), 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      this.ctx.fill();
+
+      // Star glow for larger stars
+      if (star.size > 1.5) {
+        const glow = this.ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 4);
+        glow.addColorStop(0, `rgba(200, 220, 255, ${alpha * 0.3})`);
+        glow.addColorStop(1, 'transparent');
+        this.ctx.fillStyle = glow;
+        this.ctx.beginPath();
+        this.ctx.arc(star.x, star.y, star.size * 4, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+    });
+  }
+
+  drawAuroraWave(time, yBase, color, baseAlpha, layerIndex) {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'screen';
+
+    // Create horizontal flowing aurora ribbons
+    const ribbonHeight = 80 + Math.sin(time * 0.3 + layerIndex) * 30;
+
+    // Gradient for the aurora ribbon (vertical fade)
+    const gradient = this.ctx.createLinearGradient(0, yBase - ribbonHeight, 0, yBase + ribbonHeight);
+    gradient.addColorStop(0, 'transparent');
+    gradient.addColorStop(0.3, color + '60');
+    gradient.addColorStop(0.5, color + '90');
+    gradient.addColorStop(0.7, color + '60');
+    gradient.addColorStop(1, 'transparent');
+
+    this.ctx.fillStyle = gradient;
+    this.ctx.globalAlpha = baseAlpha;
+
+    // Draw the wavy ribbon shape - flowing HORIZONTALLY
     this.ctx.beginPath();
 
-    const distinctPoints = 100;
+    const segments = 100;
 
-    this.ctx.moveTo(0, this.canvas.height);
+    // Top edge of ribbon - waves flowing left to right
+    this.ctx.moveTo(0, h);
+    for (let i = 0; i <= segments; i++) {
+      const x = (i / segments) * w;
 
-    for (let i = 0; i <= distinctPoints; i++) {
-      const x = (i / distinctPoints) * this.canvas.width;
-      // Complex wave function for organic look
-      const noise = Math.sin(x * 0.01 + time) * Math.cos(x * 0.005 - time * 0.5);
-      const y = yBase + noise * 100 + Math.sin(i * 0.1 + time) * 50;
+      // Multiple sine waves for organic look - horizontal flow
+      const wave1 = Math.sin(x * 0.005 + time * 0.5) * 40;
+      const wave2 = Math.sin(x * 0.01 - time * 0.3) * 25;
+      const wave3 = Math.sin(x * 0.003 + time * 0.2) * 60;
 
-      this.ctx.lineTo(x, y);
+      const y = yBase + wave1 + wave2 + wave3;
+
+      if (i === 0) {
+        this.ctx.moveTo(x, y - ribbonHeight);
+      } else {
+        this.ctx.lineTo(x, y - ribbonHeight);
+      }
     }
 
-    this.ctx.lineTo(this.canvas.width, this.canvas.height);
-    this.ctx.closePath();
+    // Bottom edge of ribbon
+    for (let i = segments; i >= 0; i--) {
+      const x = (i / segments) * w;
 
-    // Add glow
+      const wave1 = Math.sin(x * 0.005 + time * 0.5) * 40;
+      const wave2 = Math.sin(x * 0.01 - time * 0.3) * 25;
+      const wave3 = Math.sin(x * 0.003 + time * 0.2) * 60;
+
+      const y = yBase + wave1 + wave2 + wave3;
+
+      this.ctx.lineTo(x, y + ribbonHeight);
+    }
+
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Add glow effect
     this.ctx.shadowColor = color;
-    this.ctx.shadowBlur = 50;
+    this.ctx.shadowBlur = 30;
     this.ctx.fill();
     this.ctx.shadowBlur = 0;
+
+    this.ctx.restore();
   }
 
   animate() {

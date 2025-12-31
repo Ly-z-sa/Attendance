@@ -8,6 +8,7 @@ import attendanceService from '../services/attendance-service.js';
 import authService from '../services/auth-service.js';
 import toastManager from '../ui/toast-manager.js';
 import themeManager from '../ui/theme-manager.js';
+import clickEffectManager from '../ui/click-effect-manager.js';
 import dropdownManager from '../ui/dropdown-manager.js';
 import dashboardPage from '../pages/dashboard-page.js';
 import homePage from '../pages/home-page.js';
@@ -63,15 +64,8 @@ class App {
       authService.initialize(this.auth, this.db, null);
       await this.handleAuth();
 
-      // Initialize ClickSpark
-      new ClickSpark(document.body, {
-        sparkColor: '#CD853F',
-        sparkSize: 12,
-        sparkRadius: 20,
-        sparkCount: 10,
-        duration: 500,
-        easing: 'ease-out'
-      });
+      // Initialize Click Effect Manager (replaces ClickSpark)
+      clickEffectManager.initialize();
 
       console.log('App initialized successfully');
     } catch (error) {

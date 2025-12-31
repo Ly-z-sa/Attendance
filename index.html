@@ -275,244 +275,315 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="modal-footer">
-                    <div class="modal-footer">
-                        <button type="button" class="btn" data-modal-close="semester-modal"
-                            onclick="window.modalManager.close('semester-modal')">Cancel</button>
-                        <button class="btn btn-green" id="save-semester-btn">Save Semester</button>
+                <button type="button" class="btn" data-modal-close="semester-modal"
+                    onclick="window.modalManager.close('semester-modal')">Cancel</button>
+                <button class="btn btn-green" id="save-semester-btn">Save Semester</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="auth-modal" role="dialog" aria-labelledby="auth-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="auth-modal-title">Sign In</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="auth-modal"
+                    onclick="window.modalManager.close('auth-modal')" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs" role="tablist">
+                    <button class="auth-tab active" data-tab="signin" role="tab" aria-selected="true">Sign
+                        In</button>
+                    <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+                </div>
+
+
+                <div class="auth-form" id="signin-form" role="tabpanel">
+                    <div class="form-group">
+                        <label for="signin-email">Email</label>
+                        <input type="email" id="signin-email" class="form-input" placeholder="your@email.com"
+                            autocomplete="email">
                     </div>
+                    <div class="form-group">
+                        <label for="signin-password">Password</label>
+                        <input type="password" id="signin-password" class="form-input" placeholder="Password"
+                            autocomplete="current-password">
+                    </div>
+                    <button class="btn btn-green" id="signin-btn" onclick="window.authService.handleSignIn()"
+                        style="width: 100%; margin-top: 1rem;">Sign
+                        In</button>
+                    <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
+                        By
+                        signing in, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
+                            target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
+                            href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
+                            style="color: var(--primary);">Privacy Policy</a>.</p>
+
+                    <div style="position: relative; text-align: center; margin: 1.5rem 0;">
+                        <hr style="border: 0; border-top: 1px solid var(--border-color);">
+                        <span
+                            style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-color); padding: 0 0.5rem; color: var(--grey-text); font-size: 0.9rem;">OR</span>
+                    </div>
+
+                    <!-- Google Sign In Button (Sign In Only) -->
+                    <button class="btn google-btn" onclick="window.authService.handleGoogleSignIn()"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: white; color: #3c4043; border: 1px solid #dadce0; box-shadow: none; margin-bottom: 0.75rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        <span class="google-btn-text">Sign in with Google</span>
+                    </button>
+
+                    <!-- GitHub Sign In Button -->
+                    <button class="btn github-btn" onclick="window.authService.handleGithubSignIn()"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: #24292e; color: white; border: 1px solid #24292e; box-shadow: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"
+                            fill="currentColor">
+                            <path
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        <span class="github-btn-text">Sign in with GitHub</span>
+                    </button>
+                </div>
+
+                <div class="auth-form" id="signup-form" style="display: none;" role="tabpanel">
+                    <div class="form-group">
+                        <label for="signup-name">Name</label>
+                        <input type="text" id="signup-name" class="form-input" placeholder="Your Name"
+                            autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" class="form-input" placeholder="your@email.com"
+                            autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" class="form-input"
+                            placeholder="Min 6 chars, 1 capital, 1 number" autocomplete="new-password">
+                        <div id="password-strength" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                    </div>
+                    <button class="btn btn-green" id="signup-btn" onclick="window.authService.handleSignUp()"
+                        style="width: 100%; margin-top: 1rem;">Create
+                        Account</button>
+                    <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
+                        By
+                        creating an account, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
+                            target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
+                            href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
+                            style="color: var(--primary);">Privacy Policy</a>.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="input-modal" role="dialog" aria-labelledby="input-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="input-modal-title">Input Required</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="input-modal"
+                    onclick="window.modalManager.close('input-modal')" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="input-modal-message"></p>
+                <div class="form-group">
+                    <input type="text" id="input-modal-field" class="form-input" placeholder="Enter value">
+                    <div id="input-modal-validation" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="input-modal"
+                    onclick="window.modalManager.close('input-modal')">Cancel</button>
+                <button class="btn btn-green" id="input-modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
 
-            <div class="modal-overlay" id="auth-modal" role="dialog" aria-labelledby="auth-modal-title"
-                aria-modal="true">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 id="auth-modal-title">Sign In</h4>
-                        <button type="button" class="modal-close-btn" data-modal-close="auth-modal"
-                            onclick="window.modalManager.close('auth-modal')" aria-label="Close modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="auth-tabs" role="tablist">
-                            <button class="auth-tab active" data-tab="signin" role="tab" aria-selected="true">Sign
-                                In</button>
-                            <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+    <div class="modal-overlay" id="multi-input-modal" role="dialog" aria-labelledby="multi-input-modal-title"
+        aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="multi-input-modal-title">Input Required</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="multi-input-modal"
+                    onclick="window.modalManager.close('multi-input-modal')" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body" id="multi-input-modal-body">
+                <!-- Dynamic fields injected here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="multi-input-modal"
+                    onclick="window.modalManager.close('multi-input-modal')">Cancel</button>
+                <button class="btn btn-green" id="multi-input-modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="onboarding-modal" role="dialog" aria-labelledby="onboarding-modal-title"
+        aria-modal="true" data-backdrop="static">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="onboarding-modal-title">Complete Your Profile</h4>
+                <!-- No close button to encourage completion -->
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--grey-text);">Please enter your details to continue.</p>
+                <div class="form-group">
+                    <label for="onboarding-name">Full Name</label>
+                    <input type="text" id="onboarding-name" class="form-input" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="onboarding-major">Major</label>
+                    <input type="text" id="onboarding-major" class="form-input" placeholder="e.g. Computer Science">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-green" id="onboarding-save-btn" onclick="window.authService.handleSaveProfile()"
+                    style="width: 100%;">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-modal" role="dialog" aria-labelledby="confirm-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="confirm-modal-title">Confirm Action</h4>
+                <button type="button" class="modal-close-btn" onclick="window.modalManager.close('confirm-modal')"
+                    aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="confirm-modal"
+                    onclick="window.modalManager.close('confirm-modal')">Cancel</button>
+                <button class="btn btn-red" id="confirm-modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="report-modal" role="dialog" aria-labelledby="report-modal-title" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Report a Problem</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="report-modal"
+                    onclick="window.modalManager.close('report-modal')" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Problem Type</label>
+                    <div class="custom-dropdown" id="report-type-dropdown">
+                        <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                            aria-expanded="false">
+                            <span id="report-type-display">Select problem type...</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                                stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
                         </div>
-
-                        <div class="auth-form" id="signin-form" role="tabpanel">
-                            <div class="form-group">
-                                <label for="signin-email">Email</label>
-                                <input type="email" id="signin-email" class="form-input" placeholder="your@email.com"
-                                    autocomplete="email">
+                        <div class="dropdown-options" role="listbox">
+                            <div class="dropdown-option" data-value="Bug" role="option">Bug/Error</div>
+                            <div class="dropdown-option" data-value="Crash" role="option">App Crash</div>
+                            <div class="dropdown-option" data-value="Feature" role="option">Feature Request
                             </div>
-                            <div class="form-group">
-                                <label for="signin-password">Password</label>
-                                <input type="password" id="signin-password" class="form-input" placeholder="Password"
-                                    autocomplete="current-password">
-                            </div>
-                            <button class="btn btn-green" id="signin-btn" onclick="window.authService.handleSignIn()"
-                                style="width: 100%; margin-top: 1rem;">Sign
-                                In</button>
-                            <p
-                                style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
-                                By
-                                signing in, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
-                                    target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
-                                    href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
-                                    style="color: var(--primary);">Privacy Policy</a>.</p>
-                        </div>
-
-                        <div class="auth-form" id="signup-form" style="display: none;" role="tabpanel">
-                            <div class="form-group">
-                                <label for="signup-name">Name</label>
-                                <input type="text" id="signup-name" class="form-input" placeholder="Your Name"
-                                    autocomplete="name">
-                            </div>
-                            <div class="form-group">
-                                <label for="signup-email">Email</label>
-                                <input type="email" id="signup-email" class="form-input" placeholder="your@email.com"
-                                    autocomplete="email">
-                            </div>
-                            <div class="form-group">
-                                <label for="signup-password">Password</label>
-                                <input type="password" id="signup-password" class="form-input"
-                                    placeholder="Min 6 chars, 1 capital, 1 number" autocomplete="new-password">
-                                <div id="password-strength" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
-                            </div>
-                            <button class="btn btn-green" id="signup-btn" onclick="window.authService.handleSignUp()"
-                                style="width: 100%; margin-top: 1rem;">Create
-                                Account</button>
-                            <p
-                                style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
-                                By
-                                creating an account, you agree to our <a
-                                    href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3" target="_blank"
-                                    style="color: var(--primary);">Terms of Service</a> and <a
-                                    href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
-                                    style="color: var(--primary);">Privacy Policy</a>.</p>
+                            <div class="dropdown-option" data-value="Other" role="option">Other</div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="modal-overlay" id="input-modal" role="dialog" aria-labelledby="input-modal-title"
-                aria-modal="true">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 id="input-modal-title">Input Required</h4>
-                        <button type="button" class="modal-close-btn" data-modal-close="input-modal"
-                            onclick="window.modalManager.close('input-modal')" aria-label="Close modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="input-modal-message"></p>
-                        <div class="form-group">
-                            <input type="text" id="input-modal-field" class="form-input" placeholder="Enter value">
-                            <div id="input-modal-validation" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn" data-modal-close="input-modal"
-                            onclick="window.modalManager.close('input-modal')">Cancel</button>
-                        <button class="btn btn-green" id="input-modal-confirm">Confirm</button>
-                    </div>
+                <div class="form-group">
+                    <label for="report-description">Description</label>
+                    <textarea id="report-description" class="form-input" rows="4"
+                        placeholder="Please describe the problem in detail..."
+                        style="resize: vertical; min-height: 100px;"></textarea>
                 </div>
             </div>
-
-            <div class="modal-overlay" id="confirm-modal" role="dialog" aria-labelledby="confirm-modal-title"
-                aria-modal="true">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 id="confirm-modal-title">Confirm Action</h4>
-                        <button type="button" class="modal-close-btn"
-                            onclick="window.modalManager.close('confirm-modal')"
-                            aria-label="Close modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="confirm-modal-message"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn" data-modal-close="confirm-modal"
-                            onclick="window.modalManager.close('confirm-modal')">Cancel</button>
-                        <button class="btn btn-red" id="confirm-modal-confirm">Confirm</button>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="report-modal"
+                    onclick="window.modalManager.close('report-modal')">Cancel</button>
+                <button class="btn btn-green" id="submit-report-btn">Submit Report</button>
             </div>
+        </div>
+    </div>
 
-            <div class="modal-overlay" id="report-modal" role="dialog" aria-labelledby="report-modal-title"
-                aria-modal="true">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4>Report a Problem</h4>
-                        <button type="button" class="modal-close-btn" data-modal-close="report-modal"
-                            onclick="window.modalManager.close('report-modal')"
-                            aria-label="Close modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Problem Type</label>
-                            <div class="custom-dropdown" id="report-type-dropdown">
-                                <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
-                                    aria-expanded="false">
-                                    <span id="report-type-display">Select problem type...</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="3" stroke="currentColor" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
-                                <div class="dropdown-options" role="listbox">
-                                    <div class="dropdown-option" data-value="Bug" role="option">Bug/Error</div>
-                                    <div class="dropdown-option" data-value="Crash" role="option">App Crash</div>
-                                    <div class="dropdown-option" data-value="Feature" role="option">Feature Request
-                                    </div>
-                                    <div class="dropdown-option" data-value="Other" role="option">Other</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="report-description">Description</label>
-                            <textarea id="report-description" class="form-input" rows="4"
-                                placeholder="Please describe the problem in detail..."
-                                style="resize: vertical; min-height: 100px;"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn" data-modal-close="report-modal"
-                            onclick="window.modalManager.close('report-modal')">Cancel</button>
-                        <button class="btn btn-green" id="submit-report-btn">Submit Report</button>
-                    </div>
-                </div>
-            </div>
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-            <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="loading-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 3000; align-items: center; justify-content: center;">
+        <div
+            style="background: var(--light-grey); padding: 2rem; border-radius: var(--border-radius); text-align: center; box-shadow: var(--shadow);">
+            <div class="cute-loader"></div>
+            <div style="margin-top: 1rem; color: var(--dark-text); font-weight: 500;">Processing...</div>
+        </div>
+        <!-- FAB for quick attendance -->
+        <button class="fab" id="quick-attendance-fab" title="Quick mark all present" aria-label="Quick mark all present"
+            style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+        </button>
 
-            <div id="loading-overlay"
-                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 3000; align-items: center; justify-content: center;">
-                <div
-                    style="background: var(--light-grey); padding: 2rem; border-radius: var(--border-radius); text-align: center; box-shadow: var(--shadow);">
-                    <div class="cute-loader"></div>
-                    <div style="margin-top: 1rem; color: var(--dark-text); font-weight: 500;">Processing...</div>
-                </div>
-            </div>
+        <!-- External libraries -->
+        <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+        <script src="assets/clickspark.js"></script>
+        <script src="assets/floating-lines.js"></script>
+        <script src="assets/prism-background.js"></script>
+        <script src="assets/aurora-background.js"></script>
+        <script src="assets/snowfall-background.js"></script>
 
-            <!-- FAB for quick attendance -->
-            <button class="fab" id="quick-attendance-fab" title="Quick mark all present"
-                aria-label="Quick mark all present" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-            </button>
+        <!-- Firebase -->
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+            import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+            import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            <!-- External libraries -->
-            <script src="assets/clickspark.js"></script>
-            <script src="assets/floating-lines.js"></script>
-            <script src="assets/prism-background.js"></script>
-            <script src="assets/aurora-background.js"></script>
+            const firebaseConfig = {
+                apiKey: "AIzaSyDsuGdds2KAY-SsBtf3oiFpANohU30ArUU",
+                authDomain: "attracker-unique-lisa.firebaseapp.com",
+                projectId: "attracker-unique-lisa",
+                storageBucket: "attracker-unique-lisa.firebasestorage.app",
+                messagingSenderId: "19799307034",
+                appId: "1:19799307034:web:c3009fbf189669a09872a3",
+                measurementId: "G-ZKLDNEW47V"
+            };
 
-            <!-- Firebase -->
-            <script type="module">
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-                import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-                import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+            const app = initializeApp(firebaseConfig);
+            window.firebaseAuth = getAuth(app);
+            window.firebaseDb = getFirestore(app);
+        </script>
 
-                const firebaseConfig = {
-                    apiKey: "AIzaSyDsuGdds2KAY-SsBtf3oiFpANohU30ArUU",
-                    authDomain: "attracker-unique-lisa.firebaseapp.com",
-                    projectId: "attracker-unique-lisa",
-                    storageBucket: "attracker-unique-lisa.firebasestorage.app",
-                    messagingSenderId: "19799307034",
-                    appId: "1:19799307034:web:c3009fbf189669a09872a3",
-                    measurementId: "G-ZKLDNEW47V"
-                };
+        <!-- Backgrounds -->
+        <script src="assets/floating-lines.js"></script>
+        <script src="assets/live-backgrounds.js"></script>
 
-                const app = initializeApp(firebaseConfig);
-                window.firebaseAuth = getAuth(app);
-                window.firebaseDb = getFirestore(app);
-            </script>
-
-            <!-- Backgrounds -->
-            <script src="assets/floating-lines.js"></script>
-            <script src="assets/live-backgrounds.js"></script>
-
-            <!-- App modules -->
-            <script type="module" src="utils/constants.js"></script>
-            <script type="module" src="utils/helpers.js"></script>
-            <script type="module" src="utils/validation.js"></script>
-            <script type="module" src="services/attendance-service.js"></script>
-            <script type="module" src="services/auth-service.js"></script>
-            <script type="module" src="services/notification-service.js"></script>
-            <script type="module" src="ui/toast-manager.js"></script>
-            <script type="module" src="ui/modal-manager.js"></script>
-            <script type="module" src="ui/theme-manager.js"></script>
-            <script type="module" src="ui/dropdown-manager.js"></script>
-            <script type="module" src="ui/skeleton-loader.js"></script>
-            <script type="module" src="pages/dashboard-page.js"></script>
-            <script type="module" src="pages/home-page.js"></script>
-            <script type="module" src="pages/weekly-report-page.js"></script>
-            <script type="module" src="pages/total-page.js"></script>
-            <script type="module" src="pages/settings-page.js"></script>
-            <script type="module" src="app.js"></script>
+        <!-- App modules -->
+        <script type="module" src="utils/constants.js"></script>
+        <script type="module" src="utils/helpers.js"></script>
+        <script type="module" src="utils/validation.js"></script>
+        <script type="module" src="services/attendance-service.js"></script>
+        <script type="module" src="services/auth-service.js"></script>
+        <script type="module" src="services/notification-service.js"></script>
+        <script type="module" src="ui/toast-manager.js"></script>
+        <script type="module" src="ui/modal-manager.js"></script>
+        <script type="module" src="ui/theme-manager.js"></script>
+        <script type="module" src="ui/dropdown-manager.js"></script>
+        <script type="module" src="ui/skeleton-loader.js"></script>
+        <script type="module" src="pages/dashboard-page.js"></script>
+        <script type="module" src="pages/home-page.js"></script>
+        <script type="module" src="pages/weekly-report-page.js"></script>
+        <script type="module" src="pages/total-page.js"></script>
+        <script type="module" src="pages/settings-page.js"></script>
+        <script type="module" src="app.js"></script>
 </body>
 
 </html>

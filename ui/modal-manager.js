@@ -1,5 +1,6 @@
 // ui/modal-manager.js
 import { validatePassword, getPasswordStrength } from '../utils/validation.js';
+import dropdownManager from './dropdown-manager.js';
 
 class ModalManager {
   constructor() {
@@ -70,7 +71,7 @@ class ModalManager {
     modal.style.setProperty('opacity', '1', 'important');
     modal.style.setProperty('visibility', 'visible', 'important');
     modal.style.setProperty('pointer-events', 'auto', 'important'); // Ensure clickable
-    modal.style.setProperty('z-index', '2147483647', 'important');
+    modal.style.setProperty('z-index', '10000', 'important');
     modal.style.setProperty('transition', 'none', 'important'); // Kill animations that might hide it
 
     // Force content visibility too
@@ -261,6 +262,103 @@ class ModalManager {
       confirmBtn.addEventListener('click', handleConfirm);
 
       this.open('confirm-modal');
+    });
+  }
+
+  // Multi-input modal for complex forms
+  multiInput(title, fields) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('multi-input-modal');
+      const titleEl = document.getElementById('multi-input-modal-title');
+      const bodyEl = document.getElementById('multi-input-modal-body');
+      const confirmBtn = document.getElementById('multi-input-modal-confirm');
+
+      titleEl.textContent = title;
+      bodyEl.innerHTML = ''; // Clear previous fields
+
+      // Generate inputs
+      fields.forEach(field => {
+        const group = document.createElement('div');
+        group.className = 'form-group';
+
+        const label = document.createElement('label');
+        label.textContent = field.label;
+        group.appendChild(label);
+
+        let input;
+
+        if (field.type === 'select') {
+          // Use custom dropdown
+          const options = field.options.map(opt => ({ value: opt, label: opt }));
+          input = dropdownManager.createDropdown(options, field.value);
+          // Set name on the dropdown for retrieval (custom prop we can read later)
+          input.dataset.name = field.name;
+
+          // Add listener to update hidden value if we were using one, but here we can just read dataset.value from the container
+        } else if (field.type === 'time') {
+          // Use custom time picker
+          input = dropdownManager.createTimePicker(field.name, field.value);
+        } else {
+          input = document.createElement('input');
+          input.type = field.type;
+          input.className = 'form-input';
+          input.name = field.name;
+          if (field.value) input.value = field.value;
+          if (field.placeholder) input.placeholder = field.placeholder;
+        }
+
+        group.appendChild(input);
+        bodyEl.appendChild(group);
+      });
+
+      const handleConfirm = () => {
+        const results = {};
+
+        // Handle standard inputs (excluding hidden inputs inside custom pickers if we handle them manually, but extracting all inputs works too)
+        // However, to match the previous robust logic:
+        bodyEl.querySelectorAll('input:not([type="hidden"])').forEach(input => {
+          results[input.name] = input.value;
+        });
+
+        // Handle custom dropdowns
+        bodyEl.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+          const name = dropdown.dataset.name;
+          if (name) results[name] = dropdown.dataset.value;
+        });
+
+        // Handle custom time pickers
+        bodyEl.querySelectorAll('.custom-time-picker').forEach(picker => {
+          const input = picker.querySelector('input[type="hidden"]');
+          if (input) results[input.name] = input.value;
+        });
+
+        this.close('multi-input-modal');
+        cleanup();
+        resolve(results);
+      };
+
+      const handleCancel = () => {
+        this.close('multi-input-modal');
+        cleanup();
+        resolve(null);
+      };
+
+      const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+          btn.removeEventListener('click', handleCancelWrap);
+        });
+      };
+
+      const handleCancelWrap = () => handleCancel();
+
+      modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', handleCancelWrap);
+      });
+
+      confirmBtn.addEventListener('click', handleConfirm);
+
+      this.open('multi-input-modal');
     });
   }
 

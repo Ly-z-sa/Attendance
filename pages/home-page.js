@@ -165,6 +165,12 @@ class HomePage {
             <button class="bulk-btn bulk-btn-present" data-status="Present">
               <span class="bulk-btn-icon">✓</span> All Present
             </button>
+            <button class="bulk-btn bulk-btn-absent" data-status="Absent">
+              <span class="bulk-btn-icon">✗</span> All Absent
+            </button>
+            <button class="bulk-btn bulk-btn-permission" data-status="Permission">
+              <span class="bulk-btn-icon">📋</span> All Permission
+            </button>
             <button class="bulk-btn bulk-btn-late" data-status="Late">
               <span class="bulk-btn-icon">⏰</span> All Late
             </button>

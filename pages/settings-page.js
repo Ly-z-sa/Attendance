@@ -1,22 +1,25 @@
 // pages/settings-page.js
 import { doc, setDoc, addDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { FIREBASE_PATHS, COLOR_SCHEMES, FONTS, BACKGROUNDS } from '../utils/constants.js';
+import { FIREBASE_PATHS, COLOR_SCHEMES, FONTS, BACKGROUNDS, CLICK_EFFECTS } from '../utils/constants.js';
 import { checkBadWords, validateSemesterDates } from '../utils/validation.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
 import themeManager from '../ui/theme-manager.js';
 import authService from '../services/auth-service.js';
 import notificationService from '../services/notification-service.js';
+import attendanceService from '../services/attendance-service.js';
+import clickEffectManager from '../ui/click-effect-manager.js';
 
 class SettingsPage {
   constructor() {
     this.container = null;
+    this.currentSemesterId = null;
+    this.allSemesters = [];
+    this.allSubjects = [];
   }
 
   initialize() {
     this.container = document.getElementById('settings-content');
-
-    // Setup date pickers
     this.initializeDatePickers();
   }
 
@@ -158,9 +161,10 @@ class SettingsPage {
   }
 
   renderSubjectItem(subject) {
+    const timeDisplay = subject.startTime ? `<span style="font-size: 0.85em; color: var(--grey-text); margin-left: 0.5rem;">${subject.startTime} - ${subject.endTime || '?'}</span>` : '';
     return `
       <div class="settings-list-item" data-id="${subject.id}">
-        <span><strong>${subject.name}</strong> (${subject.day})</span>
+        <span><strong>${subject.name}</strong> (${subject.day})${timeDisplay}</span>
         <div class="btn-group">
           <button class="btn btn-edit-subject">Edit</button>
           <button class="btn btn-red btn-delete-subject">Delete</button>
@@ -192,8 +196,9 @@ class SettingsPage {
   }
 
   renderAccountSection() {
+    if (!window.firebaseAuth?.currentUser) return '';
     return `
-      <div class="settings-section" id="account-management" style="display: none;">
+      <div class="settings-section" id="account-management">
         <div class="settings-header">
           <h3>Account Management</h3>
         </div>
@@ -221,6 +226,7 @@ class SettingsPage {
           ${this.renderColorSchemeDropdown()}
           ${this.renderBackgroundDropdown()}
           ${this.renderFontDropdown()}
+          ${this.renderClickEffectDropdown()}
         </div>
       </div>
     `;
@@ -289,6 +295,27 @@ class SettingsPage {
     `;
   }
 
+  renderClickEffectDropdown() {
+    const currentEffect = clickEffectManager.getEffect();
+
+    return `
+      <div class="form-group">
+        <label>Click Animation</label>
+        <div class="custom-dropdown" id="click-effect-dropdown" data-value="${currentEffect}">
+          <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+            <span id="click-effect-display">${CLICK_EFFECTS[currentEffect]}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+          </div>
+          <div class="dropdown-options" role="listbox">
+            ${Object.entries(CLICK_EFFECTS).map(([key, value]) =>
+      `<div class="dropdown-option" data-value="${key}" role="option">${value}</div>`
+    ).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   renderLegalSection() {
     return `
       <div class="settings-section">
@@ -304,43 +331,53 @@ class SettingsPage {
       </div>
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
-        <div>© 2025 Attendance Tracker. All rights reserved.</div>
-        <div style="margin-top: 0.25rem;">Version 3.0.0</div>
+        <div>© 2026 Attendance Tracker. All rights reserved.</div>
+        <div style="margin-top: 0.25rem;">Version 3.2.6</div>
       </div>
     `;
   }
 
   attachEventListeners(currentSemesterId, allSemesters, allSubjects) {
+    // Store reference for class methods
+    this.currentSemesterId = currentSemesterId;
+    this.allSemesters = allSemesters;
+    this.allSubjects = allSubjects;
+
     // Collapse handlers
     this.setupCollapseHandlers();
 
     // Profile
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.handleSaveProfile());
-    // Inline handlers used for robust auth buttons
-    // document.getElementById('auth-btn')?.addEventListener('click', () => modalManager.open('auth-modal'));
-    // document.getElementById('signout-btn')?.addEventListener('click', () => authService.handleSignOut());
 
     // Current semester
-    document.getElementById('current-semester-dropdown')?.addEventListener('change', (e) =>
-      this.handleCurrentSemesterChange(e.currentTarget.dataset.value)
-    );
+    document.getElementById('current-semester-dropdown')?.addEventListener('change', (e) => {
+      this.handleCurrentSemesterChange(e.currentTarget.dataset.value);
+    });
 
     // Semesters
+    document.getElementById('save-semester-btn')?.addEventListener('click', () => this.handleAddSemester());
     document.getElementById('add-semester-btn')?.addEventListener('click', () => this.openSemesterModal());
     document.querySelectorAll('.btn-edit-semester').forEach(btn =>
       btn.addEventListener('click', (e) => this.handleEditSemester(e))
     );
     document.querySelectorAll('.btn-delete-semester').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleDeleteSemester(e, allSubjects))
+      btn.addEventListener('click', (e) => this.handleDeleteSemester(e)) // using class state
     );
 
     // Subjects
-    document.getElementById('add-subject-btn')?.addEventListener('click', () => this.openSubjectModal());
+    document.getElementById('add-subject-btn')?.addEventListener('click', () => {
+      if (!this.currentSemesterId) {
+        toastManager.error('Please select or create a semester first.');
+        return;
+      }
+      this.openSubjectModal(null, this.currentSemesterId);
+    });
+
     document.querySelectorAll('.btn-edit-subject').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleEditSubject(e, allSubjects))
+      btn.addEventListener('click', (e) => this.handleEditSubject(e)) // using class state
     );
     document.querySelectorAll('.btn-delete-subject').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleDeleteSubject(e))
+      btn.addEventListener('click', (e) => this.handleDeleteSubject(e)) // using class state
     );
 
     // Notifications
@@ -379,6 +416,9 @@ class SettingsPage {
 
     // Re-setup theme manager listeners
     themeManager.setupPersonalizationListeners();
+
+    // Re-setup click effect manager listener
+    clickEffectManager.setupPersonalizationListener();
   }
 
   setupCollapseHandlers() {
@@ -523,14 +563,15 @@ class SettingsPage {
 
   handleEditSemester(e) {
     const id = e.target.closest('.settings-list-item').dataset.id;
-    const semester = window.app.allSemesters.find(s => s.id === id);
+    const semester = this.allSemesters.find(s => s.id === id); // Use class state
     this.openSemesterModal(semester);
   }
 
-  async handleDeleteSemester(e, allSubjects) {
+  async handleDeleteSemester(e) {
     const id = e.target.closest('.settings-list-item').dataset.id;
-    const semester = window.app.allSemesters.find(s => s.id === id);
-    const subjectsToDelete = allSubjects.filter(s => s.semesterId === id);
+    const semester = this.allSemesters.find(s => s.id === id); // Use class state
+    // Use class state for subjects too to count deletes
+    const subjectsToDelete = this.allSubjects ? this.allSubjects.filter(s => s.semesterId === id) : [];
     const attendanceToDelete = window.app.allAttendance?.filter(r => r.semesterId === id) || [];
 
     const confirmed = await modalManager.confirm(
@@ -552,40 +593,149 @@ class SettingsPage {
     }
   }
 
-  openSubjectModal(subject = null) {
-    const modal = document.getElementById('subject-modal');
-    const title = modal.querySelector('#subject-modal-title');
-    const idInput = modal.querySelector('#subject-modal-id');
-    const nameInput = modal.querySelector('#subject-modal-name');
-    const dayDropdown = modal.querySelector('#subject-modal-day-dropdown');
-    const dayDisplay = modal.querySelector('#subject-modal-day-display');
+  async openSubjectModal(subject = null, semesterId = null) {
+    // Use passed semesterId or fallback to instance
+    const targetSemesterId = semesterId || this.currentSemesterId;
 
-    if (subject) {
-      title.textContent = 'Edit Subject';
-      idInput.value = subject.id;
-      nameInput.value = subject.name;
-      dayDisplay.textContent = subject.day;
-      dayDropdown.dataset.value = subject.day;
-    } else {
-      title.textContent = 'Add Subject';
-      idInput.value = '';
-      nameInput.value = '';
-      dayDisplay.textContent = 'Select a day...';
-      dayDropdown.dataset.value = '';
+    const inputs = await modalManager.multiInput(
+      subject ? 'Edit Subject' : 'Add Subject',
+      [
+        { name: 'name', label: 'Subject Name', type: 'text', value: subject ? subject.name : '', placeholder: 'e.g. Mathematics' },
+        {
+          name: 'day',
+          label: 'Day of Week',
+          type: 'select',
+          options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          value: subject ? subject.day : 'Monday'
+        },
+        { name: 'startTime', label: 'Start Time', type: 'time', value: subject?.startTime || '' },
+        { name: 'endTime', label: 'End Time', type: 'time', value: subject?.endTime || '' }
+      ]
+    );
+
+    if (inputs) {
+      const name = inputs.name ? inputs.name.trim() : '';
+
+      if (!name) {
+        toastManager.error('Subject name is required');
+        return;
+      }
+
+      if (await checkBadWords(name)) {
+        toastManager.error('Please use appropriate language for the subject name.');
+        return;
+      }
+
+      if (inputs.startTime && inputs.endTime && inputs.startTime >= inputs.endTime) {
+        toastManager.error('End time must be after start time.');
+        return;
+      }
+
+      try {
+        if (subject) {
+          await attendanceService.updateSubject(targetSemesterId, subject.id, {
+            name: inputs.name,
+            day: inputs.day,
+            startTime: inputs.startTime || null,
+            endTime: inputs.endTime || null
+          });
+          toastManager.success('Subject updated successfully');
+        } else {
+          if (!targetSemesterId) {
+            toastManager.error('No semester selected');
+            return;
+          }
+          await attendanceService.addSubject(targetSemesterId, {
+            name: inputs.name,
+            day: inputs.day,
+            startTime: inputs.startTime || null,
+            endTime: inputs.endTime || null
+          });
+          toastManager.success('Subject added successfully');
+        }
+      } catch (error) {
+        toastManager.error(error.message);
+      }
     }
-
-    modalManager.open('subject-modal');
   }
 
-  handleEditSubject(e, allSubjects) {
+
+
+  async handleAddSemester() {
+    const modal = document.getElementById('semester-modal');
+    const idInput = modal.querySelector('#semester-modal-id');
+    const nameInput = modal.querySelector('#semester-modal-name');
+    const startDateInput = modal.querySelector('#semester-modal-start-date');
+    const endDateInput = modal.querySelector('#semester-modal-end-date');
+
+    const id = idInput.value;
+    const name = nameInput.value.trim();
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    const todayString = new Date().toISOString().split('T')[0];
+
+    if (!name) {
+      toastManager.error('Please enter a semester name');
+      return;
+    }
+
+    if (!startDate || !endDate) {
+      toastManager.error('Please select both start and end dates');
+      return;
+    }
+
+    if (startDate < todayString && !id) { // Only for new semesters
+      toastManager.error('Start date cannot be in the past');
+      return;
+    }
+
+    if (startDate > endDate) {
+      toastManager.error('Start date must be before end date');
+      return;
+    }
+
+    const loadingToast = toastManager.loading('Saving semester...');
+
+    try {
+      if (id) {
+        // Update
+        await attendanceService.updateSemester(id, {
+          name,
+          startDate,
+          endDate
+        });
+        toastManager.success('Semester updated successfully');
+      } else {
+        // Add
+        await attendanceService.addSemester({
+          name,
+          startDate,
+          endDate
+        });
+        toastManager.success('Semester added successfully');
+      }
+
+      modalManager.close('semester-modal');
+      toastManager.hide(loadingToast);
+
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      toastManager.error('Error saving semester: ' + error.message);
+    }
+  }
+
+  handleEditSubject(e) {
     const id = e.target.closest('.settings-list-item').dataset.id;
-    const subject = allSubjects.find(s => s.id === id);
-    this.openSubjectModal(subject);
+    // Use class state
+    const subject = this.allSubjects.find(s => s.id === id);
+    this.openSubjectModal(subject, this.currentSemesterId);
   }
 
   async handleDeleteSubject(e) {
     const id = e.target.closest('.settings-list-item').dataset.id;
-    const subject = window.app.allSubjects.find(s => s.id === id);
+    // Use class state
+    const subject = this.allSubjects ? this.allSubjects.find(s => s.id === id) : window.app.allSubjects.find(s => s.id === id);
 
     const confirmed = await modalManager.confirm(
       'Delete Subject',
@@ -608,10 +758,14 @@ class SettingsPage {
 
   showContactInfo() {
     const email = 'lyssa.phat@gmail.com';
-    toastManager.info(
-      `Contact us at: ${email} <button onclick="navigator.clipboard.writeText('${email}').then(() => window.toastManager.success('Email copied!'))" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; border: none; border-radius: 4px; background: var(--primary); color: white; cursor: pointer; font-size: 0.8rem;">Copy</button>`,
-      8000
-    );
+
+    // Copy to clipboard automatically
+    navigator.clipboard.writeText(email).then(() => {
+      toastManager.success(`Email copied to clipboard`);
+    }).catch(() => {
+      // Fallback if clipboard fails
+      toastManager.info(`Contact us at: ${email}`, 6000);
+    });
   }
 
   async handleSubmitReport() {
@@ -658,7 +812,6 @@ class SettingsPage {
   initializeDatePickers() {
     // Date picker initialization logic
     // This would be similar to your original implementation
-    // I'll keep it simple here for brevity
   }
 
   clear() {

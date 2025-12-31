@@ -137,6 +137,11 @@ class ThemeManager {
           this.backgroundInstance = new AuroraBackground();
         }
         break;
+      case 'snowfall':
+        if (typeof SnowfallBackground !== 'undefined') {
+          this.backgroundInstance = new SnowfallBackground();
+        }
+        break;
       default:
         // No background
         break;

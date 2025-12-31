@@ -1,3 +1,4 @@
+// assets/prism-background.js
 class PrismBackground {
   constructor() {
     this.canvas = document.createElement('canvas');
@@ -7,9 +8,12 @@ class PrismBackground {
     document.body.appendChild(this.canvas);
 
     this.resizeCanvas();
-
     this.resizeHandler = () => this.resizeCanvas();
     window.addEventListener('resize', this.resizeHandler);
+
+    // Initialize prism crystals
+    this.crystals = [];
+    this.initCrystals();
 
     this.animate();
   }
@@ -17,87 +21,183 @@ class PrismBackground {
   resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+    this.initCrystals();
+  }
+
+  initCrystals() {
+    this.crystals = [];
+    const count = Math.min(15, Math.floor(this.canvas.width / 100));
+
+    for (let i = 0; i < count; i++) {
+      this.crystals.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: Math.random() * 80 + 40,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.01,
+        hue: Math.random() * 360,
+        opacity: Math.random() * 0.15 + 0.05,
+        sides: Math.floor(Math.random() * 3) + 3, // 3-5 sides
+        floatOffset: Math.random() * Math.PI * 2,
+        floatSpeed: Math.random() * 0.5 + 0.5
+      });
+    }
   }
 
   draw() {
     const w = this.canvas.width;
     const h = this.canvas.height;
-    const time = Date.now() * 0.0005;
+    const time = Date.now() * 0.001;
 
-    this.ctx.clearRect(0, 0, w, h);
-
-    // Deep Space Background
-    const gradient = this.ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h));
-    gradient.addColorStop(0, '#1a0b2e');
+    // Deep space gradient background
+    const gradient = this.ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.8);
+    gradient.addColorStop(0, '#1a0a2e');
+    gradient.addColorStop(0.5, '#0d0618');
     gradient.addColorStop(1, '#000000');
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Ambient Glows
-    this.drawBlob(w * 0.2, h * 0.3, 300, '#43187c', 0.15);
-    this.drawBlob(w * 0.8, h * 0.7, 400, '#75187c', 0.15);
+    // Ambient light beams
+    this.drawLightBeams(w, h, time);
 
-    this.ctx.translate(w / 2, h / 2);
+    // Draw floating crystals
+    this.crystals.forEach((crystal, i) => {
+      crystal.rotation += crystal.rotationSpeed;
+      const floatY = Math.sin(time * crystal.floatSpeed + crystal.floatOffset) * 20;
 
-    // Layered Prisms
-    this.drawTriangle(time, 200, '#00ffff', 0.1);
-    this.drawTriangle(-time * 1.5, 180, '#ff00ff', 0.1);
-    this.drawTriangle(time * 0.5, 300, '#ffffff', 0.05);
+      this.drawCrystal(
+        crystal.x,
+        crystal.y + floatY,
+        crystal.size,
+        crystal.sides,
+        crystal.rotation,
+        crystal.hue + time * 10,
+        crystal.opacity
+      );
+    });
 
-    // Complex geometric shape composed of lines
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = `hsl(${time * 50}, 70%, 50%)`;
-    this.ctx.lineWidth = 1;
-    this.ctx.globalAlpha = 0.3;
-    const vertices = 6;
-    const radius = 150 + Math.sin(time) * 20;
-
-    for (let i = 0; i <= vertices; i++) {
-      const angle = (Math.PI * 2 / vertices) * i + time;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      if (i === 0) this.ctx.moveTo(x, y);
-      else this.ctx.lineTo(x, y);
-
-      // Connect to opposite
-      const oppAngle = angle + Math.PI;
-      this.ctx.lineTo(Math.cos(oppAngle) * (radius / 2), Math.sin(oppAngle) * (radius / 2));
-    }
-    this.ctx.stroke();
-
-    this.ctx.resetTransform();
+    // Central prism with rainbow refraction
+    this.drawMainPrism(w / 2, h / 2, time);
   }
 
-  drawBlob(x, y, r, color, alpha) {
+  drawLightBeams(w, h, time) {
     this.ctx.globalCompositeOperation = 'screen';
-    const g = this.ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, color);
-    g.addColorStop(1, 'transparent');
-    this.ctx.fillStyle = g;
-    this.ctx.globalAlpha = alpha;
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, r, 0, Math.PI * 2);
-    this.ctx.fill();
+
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2 + time * 0.1;
+      const gradient = this.ctx.createLinearGradient(
+        w / 2, h / 2,
+        w / 2 + Math.cos(angle) * w,
+        h / 2 + Math.sin(angle) * h
+      );
+
+      const hue = (i * 72 + time * 20) % 360;
+      gradient.addColorStop(0, `hsla(${hue}, 100%, 60%, 0.1)`);
+      gradient.addColorStop(0.5, `hsla(${hue}, 100%, 50%, 0.03)`);
+      gradient.addColorStop(1, 'transparent');
+
+      this.ctx.fillStyle = gradient;
+      this.ctx.beginPath();
+      this.ctx.moveTo(w / 2, h / 2);
+      this.ctx.lineTo(w / 2 + Math.cos(angle - 0.2) * w, h / 2 + Math.sin(angle - 0.2) * h);
+      this.ctx.lineTo(w / 2 + Math.cos(angle + 0.2) * w, h / 2 + Math.sin(angle + 0.2) * h);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  drawTriangle(angle, size, color, alpha) {
+  drawCrystal(x, y, size, sides, rotation, hue, opacity) {
     this.ctx.save();
-    this.ctx.rotate(angle);
-    this.ctx.fillStyle = color;
-    this.ctx.globalAlpha = alpha;
-    this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = 2;
+    this.ctx.translate(x, y);
+    this.ctx.rotate(rotation);
+
+    // Crystal body with gradient
+    const gradient = this.ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, ${opacity})`);
+    gradient.addColorStop(0.5, `hsla(${hue + 30}, 80%, 70%, ${opacity * 1.5})`);
+    gradient.addColorStop(1, `hsla(${hue + 60}, 70%, 50%, ${opacity})`);
 
     this.ctx.beginPath();
-    const h = size * (Math.sqrt(3) / 2);
-    this.ctx.moveTo(0, -h / 2 * 1.5); // Top
-    this.ctx.lineTo(-size / 2, h / 2 * 0.5); // Bottom Left
-    this.ctx.lineTo(size / 2, h / 2 * 0.5); // Bottom Right
+    for (let i = 0; i <= sides; i++) {
+      const angle = (i / sides) * Math.PI * 2 - Math.PI / 2;
+      const px = Math.cos(angle) * size / 2;
+      const py = Math.sin(angle) * size / 2;
+      if (i === 0) this.ctx.moveTo(px, py);
+      else this.ctx.lineTo(px, py);
+    }
     this.ctx.closePath();
 
+    this.ctx.fillStyle = gradient;
     this.ctx.fill();
+
+    // Crystal edge glow
+    this.ctx.strokeStyle = `hsla(${hue}, 100%, 80%, ${opacity * 2})`;
+    this.ctx.lineWidth = 1;
     this.ctx.stroke();
+
+    this.ctx.restore();
+  }
+
+  drawMainPrism(x, y, time) {
+    const size = 120;
+
+    this.ctx.save();
+    this.ctx.translate(x, y);
+    this.ctx.rotate(time * 0.2);
+
+    // Main triangle prism
+    const h = size * Math.sqrt(3) / 2;
+
+    // Prism faces with different colors
+    const faces = [
+      { start: 0, color1: 'rgba(255, 0, 128, 0.2)', color2: 'rgba(128, 0, 255, 0.1)' },
+      { start: Math.PI * 2 / 3, color1: 'rgba(0, 255, 255, 0.2)', color2: 'rgba(0, 128, 255, 0.1)' },
+      { start: Math.PI * 4 / 3, color1: 'rgba(255, 255, 0, 0.2)', color2: 'rgba(255, 128, 0, 0.1)' }
+    ];
+
+    faces.forEach(face => {
+      this.ctx.save();
+      this.ctx.rotate(face.start);
+
+      const gradient = this.ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+      gradient.addColorStop(0, face.color1);
+      gradient.addColorStop(1, face.color2);
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, -h * 0.6);
+      this.ctx.lineTo(-size / 2, h * 0.4);
+      this.ctx.lineTo(size / 2, h * 0.4);
+      this.ctx.closePath();
+
+      this.ctx.fillStyle = gradient;
+      this.ctx.fill();
+
+      this.ctx.restore();
+    });
+
+    // Inner glow
+    const innerGlow = this.ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.8);
+    innerGlow.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+    innerGlow.addColorStop(0.5, 'rgba(200, 200, 255, 0.1)');
+    innerGlow.addColorStop(1, 'transparent');
+
+    this.ctx.fillStyle = innerGlow;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Edge highlights
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, -h * 0.6);
+    this.ctx.lineTo(-size / 2, h * 0.4);
+    this.ctx.lineTo(size / 2, h * 0.4);
+    this.ctx.closePath();
+    this.ctx.stroke();
+
     this.ctx.restore();
   }
 
