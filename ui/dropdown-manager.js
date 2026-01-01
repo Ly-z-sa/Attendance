@@ -137,10 +137,19 @@ class DropdownManager {
     element.style.left = 'auto';
     element.style.right = 'auto';
     element.style.maxHeight = 'none';
-    element.style.width = `${rect.width}px`;
+
+    // Only force width for dropdown options to match trigger
+    // Calendars and custom pickers should use their intrinsic (CSS) width
+    if (element.classList.contains('dropdown-options')) {
+      element.style.width = `${rect.width}px`;
+    } else {
+      element.style.width = 'auto'; // allow intrinsic width for calendars/time-pickers
+    }
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
+
+    // Sample dimensions AFTER setting width/positioning style
     const elementRect = element.getBoundingClientRect();
     const elementHeight = elementRect.height;
     const elementWidth = elementRect.width;
@@ -156,7 +165,7 @@ class DropdownManager {
       // Open above
       finalTop = rect.top - elementHeight - 4;
     } else if (spaceBelow < elementHeight && spaceAbove < elementHeight) {
-      // Constrained vertically
+      // Constrained vertically - scrollable
       if (spaceBelow >= spaceAbove) {
         finalTop = rect.bottom + 2;
         element.style.maxHeight = `${spaceBelow - 20}px`;
@@ -168,11 +177,14 @@ class DropdownManager {
       }
     }
 
-    // Horizontal check
-    if (finalLeft + elementWidth > viewportWidth) {
+    // Horizontal check - Stay within viewport
+    if (finalLeft + elementWidth > viewportWidth - 10) {
       finalLeft = viewportWidth - elementWidth - 10;
     }
-    if (finalLeft < 0) finalLeft = 10;
+
+    if (finalLeft < 10) {
+      finalLeft = 10;
+    }
 
     element.style.top = `${finalTop}px`;
     element.style.left = `${finalLeft}px`;

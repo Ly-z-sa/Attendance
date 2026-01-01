@@ -22,6 +22,17 @@
             <h1>Attendance Tracker</h1>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+                <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" style="display: none;" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
             <nav class="app-nav">
                 <a href="#" class="nav-link active" data-page="Dashboard">Dashboard</a>
                 <a href="#" class="nav-link" data-page="Home">Attendance</a>
@@ -43,6 +54,8 @@
             </button>
         </div>
     </header>
+
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
 
     <main>
         <div class="user-bar">
@@ -583,6 +596,7 @@
         <script type="module" src="pages/weekly-report-page.js"></script>
         <script type="module" src="pages/total-page.js"></script>
         <script type="module" src="pages/settings-page.js"></script>
+        <script type="module" src="ui/navigation-manager.js"></script>
         <script type="module" src="app.js"></script>
 </body>
 

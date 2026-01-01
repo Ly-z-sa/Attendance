@@ -15,6 +15,7 @@ import homePage from '../pages/home-page.js';
 import weeklyReportPage from '../pages/weekly-report-page.js';
 import totalPage from '../pages/total-page.js';
 import settingsPage from '../pages/settings-page.js';
+import navigationManager from '../ui/navigation-manager.js';
 
 class App {
   constructor() {
@@ -45,6 +46,7 @@ class App {
       toastManager.initialize();
       themeManager.initialize();
       dropdownManager.initialize();
+      navigationManager.initialize();
 
       // Initialize pages
       dashboardPage.initialize();

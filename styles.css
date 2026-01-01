@@ -228,7 +228,7 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1100;
 }
 
 .app-header h1 {
@@ -281,6 +281,45 @@ body {
 .theme-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: scale(1.1) rotate(15deg);
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--light-text);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    z-index: 1200;
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 1050;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-nav-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .theme-toggle svg {
@@ -1871,138 +1910,7 @@ main {
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
-@media (max-width: 768px) {
-    .app-header {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 1rem;
-    }
-
-    .app-nav {
-        width: 100%;
-        justify-content: space-around;
-        gap: 0.5rem;
-    }
-
-    .nav-link {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.75rem;
-    }
-
-    main {
-        padding: 1rem 0.75rem;
-    }
-
-    .user-bar {
-        flex-direction: column;
-        gap: 0.75rem;
-        padding: 1rem;
-        text-align: center;
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .data-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-    }
-
-    .subject-row-right {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .warnings-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .bulk-actions {
-        flex-direction: column;
-    }
-
-    .week-summary {
-        grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        width: 95%;
-        padding: 1.5rem;
-        margin: 1rem;
-    }
-
-    #toast-container {
-        bottom: 1rem;
-        right: 1rem;
-        left: 1rem;
-        max-width: none;
-    }
-
-    .fab {
-        bottom: 1rem;
-        right: 1rem;
-        width: 48px;
-        height: 48px;
-    }
-
-    .settings-section {
-        padding: 1.5rem;
-    }
-
-    .settings-header {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .settings-list-item {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-
-    .btn-group {
-        justify-content: flex-end;
-    }
-
-    .total-header-row {
-        display: flex;
-        justify-content: space-around;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .total-header-item {
-        width: auto;
-        min-width: 35px;
-    }
-
-    .count-bubble {
-        width: 40px;
-        height: 40px;
-        font-size: 0.9rem;
-    }
-
-    .subject-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-
-    .subject-status-row {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-}
+/* Responsive styles moved to consolidated blocks below */
 
 /* ============================================
    DATE PICKER STYLES
@@ -2142,8 +2050,6 @@ main {
     .date-picker-calendar {
         min-width: 260px;
         max-height: 300px;
-        left: 50%;
-        transform: translateX(-50%);
     }
 
     .calendar-grid {
@@ -2593,42 +2499,7 @@ button:focus-visible,
 /* ============================================
    ADDITIONAL MOBILE OPTIMIZATIONS
    ============================================ */
-@media (max-width: 480px) {
-    .app-header h1 {
-        font-size: 1.25rem;
-    }
-
-    .nav-link {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.5rem;
-    }
-
-    .page-header h2 {
-        font-size: 1.3rem;
-    }
-
-    .stat-card {
-        padding: 1rem;
-    }
-
-    .stat-value {
-        font-size: 1.5rem;
-    }
-
-    .btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.85rem;
-    }
-
-    .form-input {
-        font-size: 16px;
-        /* Prevents zoom on iOS */
-    }
-
-    .modal-content {
-        padding: 1.25rem;
-    }
-}
+/* Additional responsive styles moved to consolidated blocks below */
 
 /* ============================================
    TABLET OPTIMIZATIONS
@@ -2940,4 +2811,282 @@ button:focus-visible,
 .time-picker-icon:hover {
     background-color: var(--light-grey);
     color: var(--primary);
+}
+
+/* ============================================
+   CONSOLIDATED RESPONSIVE DESIGN
+   ============================================ */
+
+/* TABLET & MOBILE (Up to 768px) */
+@media (max-width: 768px) {
+    .app-header {
+        padding: 0.75rem 1rem;
+        flex-direction: row !important;
+        /* FORCE SINGLE LINE */
+        justify-content: space-between;
+        align-items: center;
+        height: auto;
+        gap: 0.5rem;
+    }
+
+    .app-header>div:first-child {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        overflow: hidden;
+    }
+
+    .app-header h1 {
+        font-size: 1.15rem;
+        white-space: nowrap;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-header img {
+        width: 24px !important;
+        height: 24px !important;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+        order: 3;
+    }
+
+    .theme-toggle {
+        order: 2;
+        margin-left: auto;
+    }
+
+    .app-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: var(--bg-color);
+        flex-direction: column;
+        padding: 5rem 1.5rem 2rem;
+        gap: 1rem;
+        z-index: 1200;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+        border-left: 1px solid var(--border-color);
+    }
+
+    .app-nav.mobile-open {
+        right: 0;
+    }
+
+    .nav-link {
+        color: var(--dark-text);
+        font-size: 1.1rem;
+        padding: 1rem;
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+    }
+
+    .nav-link.active {
+        background: var(--light-grey);
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    main {
+        padding: 0.75rem;
+    }
+
+    /* User Bar Optimization */
+    .user-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .user-bar div:last-child {
+        text-align: left !important;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-color);
+        padding-top: 0.75rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Total Page Improvement on Mobile */
+    .total-subject-row .data-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .total-subject-row .data-row-right {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        gap: 0;
+    }
+
+    .total-subject-row .count-bubble {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    /* Settings Button Resizing */
+    .settings-section .btn {
+        padding: 0.5rem 0.8rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .settings-header .btn {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .btn-group .btn {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    #profile-content .btn,
+    #account-management .btn,
+    #notifications-content .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Hidden elements on mobile */
+    .mobile-hide {
+        display: none !important;
+    }
+
+    #toast-container {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+    }
+
+    .fab {
+        bottom: 1rem;
+        right: 1rem;
+        width: 48px;
+        height: 48px;
+    }
+
+    /* Page specific overrides for row layout */
+    [data-page="Total"] .page-header {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+
+    [data-page="Total"] .page-header h2 {
+        font-size: 1.25rem !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    /* Smaller Export Button on Mobile */
+    #export-type-dropdown {
+        min-width: unset !important;
+    }
+
+    #export-type-dropdown .dropdown-selected {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+        min-height: 32px !important;
+        border-radius: 16px !important;
+        white-space: nowrap !important;
+        gap: 0.4rem !important;
+    }
+
+    #export-type-dropdown .dropdown-selected span {
+        font-weight: 500 !important;
+    }
+
+    #export-type-dropdown .dropdown-selected svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+
+/* SMALL PHONES (Up to 480px) */
+@media (max-width: 480px) {
+    .app-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .user-bar div:last-child {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .modal-content {
+        padding: 1.25rem;
+        width: 95%;
+    }
+
+    /* Page specific overrides for row layout */
+    [data-page="Total"] .page-header {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+
+    [data-page="Total"] .page-header h2 {
+        font-size: 1.15rem !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    /* Smaller Export Button on Mobile */
+    #export-type-dropdown .dropdown-selected {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.75rem !important;
+        min-height: 30px !important;
+        border-radius: 15px !important;
+        white-space: nowrap !important;
+        gap: 0.35rem !important;
+    }
+
+    #export-type-dropdown .dropdown-selected span {
+        font-weight: 500 !important;
+    }
+
+    #export-type-dropdown .dropdown-selected svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
 }
