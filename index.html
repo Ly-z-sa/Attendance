@@ -11,7 +11,22 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Social Media Preview Tags -->
+    <meta property="og:title" content="Attendance Tracker - Manage Your Studies Efficiently" />
+    <meta property="og:description"
+        content="Track your daily attendance, view weekly reports, and manage your semester progress with ease. A modern tool for students." />
+    <meta property="og:image" content="https://attendancetracker-app.vercel.app/assets/preview.png" />
+    <meta property="og:url" content="https://attendancetracker-app.vercel.app" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Attendance Tracker">
+    <meta name="twitter:description"
+        content="Modern attendance tracking for students. Manage your subjects and reports in one place.">
+    <meta name="twitter:image" content="https://attendancetracker-app.vercel.app/assets/preview.png">
 </head>
 
 <body>
@@ -59,10 +74,26 @@
 
     <main>
         <div class="user-bar">
-            <div>
-                <span class="user-info" id="user-info-name">Hello, Student</span><br>
-                <span class="user-major" id="user-info-major">Your Major</span>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="avatar-container" id="header-avatar-container"
+                    onclick="document.getElementById('profile-pic-input').click()">
+                    <div id="header-avatar-preview" class="avatar-preview-small"></div>
+                    <div class="avatar-edit-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                            style="width: 11px; height: 11px; display: block;">
+                            <path
+                                d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <span class="user-info" id="user-info-name">Hello, Student</span><br>
+                    <span class="user-username" id="user-info-username"
+                        style="font-size: 0.8rem; color: var(--grey-text);">@username</span><br>
+                    <span class="user-major" id="user-info-major">Your Major</span>
+                </div>
             </div>
+            <input type="file" id="profile-pic-input" accept="image/*" style="display: none;">
             <div style="text-align: right;">
                 <span class="user-semester" id="user-info-semester">No semester selected</span><br>
                 <span id="streak-display"
@@ -312,9 +343,9 @@
 
                 <div class="auth-form" id="signin-form" role="tabpanel">
                     <div class="form-group">
-                        <label for="signin-email">Email</label>
-                        <input type="email" id="signin-email" class="form-input" placeholder="your@email.com"
-                            autocomplete="email">
+                        <label for="signin-email">Email or Username</label>
+                        <input type="text" id="signin-email" class="form-input"
+                            placeholder="Enter your email or username" required>
                     </div>
                     <div class="form-group">
                         <label for="signin-password">Password</label>
@@ -528,7 +559,25 @@
         </div>
     </div>
 
-    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div class="modal-overlay" id="crop-modal" role="dialog" aria-labelledby="crop-modal-title" aria-modal="true">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h4 id="crop-modal-title">Adjust Profile Picture</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="crop-modal"
+                    onclick="window.modalManager.close('crop-modal')" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-container" style="max-height: 400px; overflow: hidden; border-radius: 8px;">
+                    <img id="crop-image" src="" alt="To crop" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="crop-modal"
+                    onclick="window.modalManager.close('crop-modal')">Cancel</button>
+                <button class="btn btn-green" id="apply-crop-btn">Apply & Save</button>
+            </div>
+        </div>
+    </div>
 
     <div id="loading-overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 3000; align-items: center; justify-content: center;">
@@ -548,6 +597,7 @@
 
         <!-- External libraries -->
         <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
         <script src="assets/clickspark.js"></script>
         <script src="assets/floating-lines.js"></script>
         <script src="assets/prism-background.js"></script>

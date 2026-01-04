@@ -1,7 +1,7 @@
-// pages/settings-page.js
-import { doc, setDoc, addDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { doc, setDoc, addDoc, collection, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS, COLOR_SCHEMES, FONTS, BACKGROUNDS, CLICK_EFFECTS } from '../utils/constants.js';
 import { checkBadWords, validateSemesterDates } from '../utils/validation.js';
+import { ICONS } from '../utils/icons.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
 import themeManager from '../ui/theme-manager.js';
@@ -16,6 +16,7 @@ class SettingsPage {
     this.currentSemesterId = null;
     this.allSemesters = [];
     this.allSubjects = [];
+    this.cropper = null;
   }
 
   initialize() {
@@ -41,6 +42,10 @@ class SettingsPage {
   }
 
   renderProfileSection(userProfile) {
+    const avatarHtml = userProfile.photoURL
+      ? `<div class="avatar-preview-large" style="background-image: url('${userProfile.photoURL}')"></div>`
+      : `<div class="avatar-preview-large">${ICONS.USER_SOLID}</div>`;
+
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="profile">
@@ -58,8 +63,20 @@ class SettingsPage {
           </div>
         </div>
         <div class="settings-content collapsed" id="profile-content">
+          <div class="settings-avatar-row">
+            ${avatarHtml}
+            <button class="btn" onclick="document.getElementById('profile-pic-input').click()">Change Picture</button>
+          </div>
           <div class="form-group">
-            <label for="setting-name">Name</label>
+            <label for="setting-username">Username</label>
+            <div class="username-input-group">
+                <span style="font-size: 1.2rem; align-self: center; margin-right: 0.25rem; color: var(--grey-text);">@</span>
+                <input type="text" id="setting-username" class="form-input" placeholder="username" value="${userProfile.username || ''}" autocomplete="off">
+            </div>
+            <div id="username-status" class="username-status"></div>
+          </div>
+          <div class="form-group">
+            <label for="setting-name">Full Name</label>
             <input type="text" id="setting-name" class="form-input" placeholder="Your Name" value="${userProfile.name || ''}" autocomplete="off">
           </div>
           <div class="form-group">
@@ -349,6 +366,12 @@ class SettingsPage {
     // Profile
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.handleSaveProfile());
 
+    // Profile Pic Input
+    document.getElementById('profile-pic-input')?.addEventListener('change', (e) => this.handleImageSelect(e));
+
+    // Crop Apply
+    document.getElementById('apply-crop-btn')?.addEventListener('click', () => this.handleApplyCrop());
+
     // Current semester
     document.getElementById('current-semester-dropdown')?.addEventListener('change', (e) => {
       this.handleCurrentSemesterChange(e.currentTarget.dataset.value);
@@ -471,25 +494,21 @@ class SettingsPage {
   async handleSaveProfile() {
     const name = document.getElementById('setting-name').value.trim();
     const major = document.getElementById('setting-major').value.trim();
+    const username = document.getElementById('setting-username').value.trim();
 
-    if (!name || !major) {
+    if (!name || !major || !username) {
       toastManager.warning('Please fill in all fields.');
-      return;
-    }
-
-    if (await checkBadWords(name)) {
-      toastManager.error('Please use appropriate language for your name.');
-      return;
-    }
-
-    if (await checkBadWords(major)) {
-      toastManager.error('Please use appropriate language for your major.');
       return;
     }
 
     const loadingToast = toastManager.loading('Saving profile...');
 
     try {
+      // Update username if changed
+      if (username !== window.app.userProfile.username) {
+        await authService.updateUsername(window.app.userId, username);
+      }
+
       await setDoc(
         doc(window.firebaseDb, FIREBASE_PATHS.userProfile(window.app.userId)),
         { name, major },
@@ -499,7 +518,77 @@ class SettingsPage {
       toastManager.success('Profile saved successfully!');
     } catch (error) {
       toastManager.hide(loadingToast);
-      toastManager.error('Error saving profile: ' + error.message);
+      toastManager.error(error.message);
+    }
+  }
+
+  handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toastManager.error('Please select an image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = document.getElementById('crop-image');
+      img.src = event.target.result;
+
+      modalManager.open('crop-modal');
+
+      if (this.cropper) {
+        this.cropper.destroy();
+      }
+
+      this.cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+        restore: false,
+        guides: false,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async handleApplyCrop() {
+    if (!this.cropper) return;
+
+    const loadingToast = toastManager.loading('Processing image...');
+
+    try {
+      const canvas = this.cropper.getCroppedCanvas({
+        width: 256,
+        height: 256,
+      });
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+      // Save to Firestore
+      await setDoc(
+        doc(window.firebaseDb, FIREBASE_PATHS.userProfile(window.app.userId)),
+        { photoURL: dataUrl },
+        { merge: true }
+      );
+
+      toastManager.hide(loadingToast);
+      modalManager.close('crop-modal');
+      toastManager.success('Profile picture updated!');
+
+      // Clear input
+      document.getElementById('profile-pic-input').value = '';
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      console.error("Crop error:", error);
+      toastManager.error('Failed to save cropped image');
     }
   }
 
@@ -794,7 +883,7 @@ class SettingsPage {
     const loadingToast = toastManager.loading('Submitting report...');
 
     try {
-      await addDoc(collection(window.firebaseDb, FIREBASE_PATHS.bugReports()), reportData);
+      await addDoc(collection(window.firebaseDb, FIREBASE_PATHS.bugReports(window.app.userId)), reportData);
       toastManager.hide(loadingToast);
       toastManager.success('Report submitted successfully! Thank you for your feedback.');
       modalManager.close('report-modal');
