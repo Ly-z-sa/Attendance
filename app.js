@@ -187,6 +187,11 @@ class App {
         if (docSnap.exists()) {
           this.userProfile = docSnap.data();
           this.currentSemesterId = this.userProfile.currentSemesterId || null;
+
+          // Auto-assign or verify username registry association
+          if (this.userId) {
+            authService.ensureUsername(this.userId);
+          }
         }
         this.renderCurrentPage();
       }
@@ -253,6 +258,20 @@ class App {
       document.getElementById('user-info-semester').textContent = currentSem.name;
     } else {
       document.getElementById('user-info-semester').textContent = "No semester selected";
+    }
+
+    // Update Avatar/Username
+    if (this.userProfile.username) {
+      document.getElementById('user-info-username').textContent = `@${this.userProfile.username}`;
+    }
+
+    const avatarPreview = document.getElementById('header-avatar-preview');
+    if (this.userProfile.photoURL) {
+      avatarPreview.style.backgroundImage = `url('${this.userProfile.photoURL}')`;
+      avatarPreview.innerHTML = '';
+    } else {
+      avatarPreview.style.backgroundImage = 'none';
+      avatarPreview.innerHTML = ICONS.USER_SOLID;
     }
 
     // Update streak

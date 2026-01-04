@@ -28,7 +28,12 @@ export const STREAK_MESSAGES = {
   30: "Mythical! 30 day streak! Attendance master!"
 };
 
+export const ADJECTIVES = ["Happy", "Cool", "Bright", "Quick", "Smart", "Brave", "Kind", "Calm", "Lucky", "Swift", "Sharp", "Mighty", "Grand", "Fair", "Wise"];
+export const NOUNS = ["Tiger", "Eagle", "Panda", "Fox", "Lion", "Wolf", "Owl", "Deer", "Bear", "Hawk", "Shark", "Dolphin", "Cheetah", "Phoenix", "Dragon"];
+
 export const FIREBASE_PATHS = {
+  usernames: () => `artifacts/${APP_ID}/usernames`,
+  usernameDoc: (username) => `artifacts/${APP_ID}/usernames/${username}`,
   userProfile: (userId) => `artifacts/${APP_ID}/users/${userId}/profile/details`,
   semesters: (userId) => `artifacts/${APP_ID}/users/${userId}/semesters`,
   semesterDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/semesters/${id}`,
@@ -36,7 +41,7 @@ export const FIREBASE_PATHS = {
   subjectDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/subjects/${id}`,
   attendance: (userId) => `artifacts/${APP_ID}/users/${userId}/attendanceRecords`,
   attendanceDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/attendanceRecords/${id}`,
-  bugReports: () => 'bug-reports'
+  bugReports: (userId) => `artifacts/${APP_ID}/users/${userId}/bug-reports`
 };
 
 export const COLOR_SCHEMES = {

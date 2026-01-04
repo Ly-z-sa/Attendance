@@ -15,8 +15,8 @@ import {
   signInWithPopup,
   reauthenticateWithPopup
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { FIREBASE_PATHS } from '../utils/constants.js';
+import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { FIREBASE_PATHS, ADJECTIVES, NOUNS } from '../utils/constants.js';
 import { ICONS } from '../utils/icons.js';
 import { validatePassword, validateEmail, checkBadWords } from '../utils/validation.js';
 import toastManager from '../ui/toast-manager.js';
@@ -39,9 +39,117 @@ class AuthService {
     this.db = db;
     this.userId = userId;
 
+    if (userId) {
+      this.ensureUsername(userId);
+    }
+
     if (!this.listenersInitialized) {
       this.setupAuthEventListeners();
       this.listenersInitialized = true;
+    }
+  }
+
+  async generateRandomUsername() {
+    let username;
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 10) {
+      const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)].toLowerCase();
+      const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)].toLowerCase();
+      const num = Math.floor(10 + Math.random() * 90);
+      username = `${adj}_${noun}${num}`;
+
+      if (username.length > 20) {
+        username = username.substring(0, 20);
+      }
+
+      const usernameRef = doc(this.db, FIREBASE_PATHS.usernameDoc(username));
+      const docSnap = await getDoc(usernameRef);
+      if (!docSnap.exists()) {
+        isUnique = true;
+      }
+      attempts++;
+    }
+
+    return username;
+  }
+
+  async ensureUsername(userId) {
+    try {
+      const userDocRef = doc(this.db, FIREBASE_PATHS.userProfile(userId));
+      const docSnap = await getDoc(userDocRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const username = userData.username;
+        const email = userData.email || this.auth.currentUser?.email;
+
+        if (!username) {
+          const randomUsername = await this.generateRandomUsername();
+          await this.updateUsername(userId, randomUsername, email);
+        } else {
+          // Verify registry entry exists and has email
+          const usernameRef = doc(this.db, FIREBASE_PATHS.usernameDoc(username));
+          const usernameSnap = await getDoc(usernameRef);
+
+          if (!usernameSnap.exists() || !usernameSnap.data().email) {
+            console.log(`Fixing missing/incomplete registry for ${username}`);
+            await this.updateUsername(userId, username, email);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error ensuring username:", error);
+    }
+  }
+
+  async updateUsername(userId, newUsername, userEmail = null) {
+    if (!newUsername) {
+      throw new Error("Username is required");
+    }
+
+    const cleanedUsername = newUsername.trim().toLowerCase();
+    const usernameRegex = /^[a-z0-9_]{4,20}$/;
+
+    if (!usernameRegex.test(cleanedUsername)) {
+      throw new Error("Username must be 4-20 characters and contain only lowercase letters, numbers, and underscores.");
+    }
+
+    if (await checkBadWords(cleanedUsername)) {
+      throw new Error("Invalid username content");
+    }
+
+    // Fallback to current user email if not provided
+    const emailToStore = userEmail || this.auth.currentUser?.email;
+    if (!emailToStore) {
+      console.warn("Attempting to update username without an email association");
+    }
+
+    const usernameRef = doc(this.db, FIREBASE_PATHS.usernameDoc(cleanedUsername));
+    const userRef = doc(this.db, FIREBASE_PATHS.userProfile(userId));
+
+    try {
+      await runTransaction(this.db, async (transaction) => {
+        const usernameDoc = await transaction.get(usernameRef);
+        if (usernameDoc.exists() && usernameDoc.data().userId !== userId) {
+          throw new Error("Username already taken");
+        }
+
+        const userDoc = await transaction.get(userRef);
+        const oldUsername = userDoc.data()?.username;
+
+        if (oldUsername && oldUsername !== cleanedUsername) {
+          transaction.delete(doc(this.db, FIREBASE_PATHS.usernameDoc(oldUsername)));
+        }
+
+        transaction.set(usernameRef, { userId, email: emailToStore });
+        transaction.update(userRef, { username: cleanedUsername });
+      });
+      return true;
+    } catch (error) {
+      console.error("Update username error:", error);
+      throw error;
     }
   }
 
@@ -112,66 +220,112 @@ class AuthService {
     });
   }
 
-  async handleSignIn() {
-    console.log('handleSignIn triggered');
-    // Ensure we have the latest auth instance
+  async handleSignIn(e) {
+    if (e) e.preventDefault();
+    // Ensure we have the latest instances
     if (!this.auth) this.auth = window.firebaseAuth;
+    if (!this.db) this.db = window.firebaseDb;
 
-    const email = document.getElementById('signin-email').value.trim();
-    const password = document.getElementById('signin-password').value;
-
-    if (!email || !password) {
-      toastManager.warning('Please fill in all fields');
+    if (!this.auth || !this.db) {
+      console.error("Firebase not initialized in AuthService");
+      toastManager.error("Authentication system is not ready. Please refresh.");
       return;
     }
 
-    if (!validateEmail(email)) {
-      toastManager.error('Please enter a valid email address');
-      return;
-    }
+    const loginInput = document.getElementById('signin-email').value.trim();
+    const password = document.getElementById('signin-password').value.trim();
 
-    if (!this.loginAttempts[email]) {
-      this.loginAttempts[email] = 0;
-    }
-
-    if (this.loginAttempts[email] >= 5) {
-      toastManager.error('Account locked. Contact admin at lyssa.phat@gmail.com');
+    if (!loginInput || !password) {
+      toastManager.warning('Please fill in all fields.');
       return;
     }
 
     const loadingToast = toastManager.loading('Signing in...');
 
     try {
-      await signInWithEmailAndPassword(this.auth, email, password);
+      let email = loginInput;
+
+      // Check if input is a username (no @ symbol)
+      if (!loginInput.includes('@')) {
+        const usernameRef = doc(this.db, FIREBASE_PATHS.usernameDoc(loginInput.toLowerCase()));
+        const usernameDoc = await getDoc(usernameRef);
+
+        if (!usernameDoc.exists()) {
+          toastManager.hide(loadingToast);
+          toastManager.error("Username not found. Please check your spelling or use your email.");
+          return;
+        }
+
+        email = usernameDoc.data().email;
+
+        if (!email) {
+          toastManager.hide(loadingToast);
+          toastManager.error("Username link incomplete. Please sign in with your email address once to fix this.");
+          return;
+        }
+      }
+
+      if (!this.loginAttempts[email]) {
+        this.loginAttempts[email] = 0;
+      }
+
+      if (this.loginAttempts[email] >= 5) {
+        toastManager.hide(loadingToast);
+        toastManager.error('Too many failed attempts. Account locked. Contact admin at lyssa.phat@gmail.com');
+        return;
+      }
+
+      const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       this.loginAttempts[email] = 0;
+
+      // Fetch user name from Firestore for the greeting
+      const userDocSnap = await getDoc(doc(this.db, FIREBASE_PATHS.userProfile(userCredential.user.uid)));
+      const userName = userDocSnap.exists() ? userDocSnap.data().name : null;
+
       toastManager.hide(loadingToast);
       modalManager.close('auth-modal');
 
       // Check for profile completion
-      await this.checkAndPromptProfileCompletion(this.auth.currentUser.uid);
+      await this.checkAndPromptProfileCompletion(userCredential.user.uid);
 
-      toastManager.success('Signed in successfully!');
+      toastManager.success(`Welcome back, ${userName || userCredential.user.displayName || 'Student'}!`);
     } catch (error) {
       toastManager.hide(loadingToast);
+      console.error("Sign in error:", error);
 
       if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        this.loginAttempts[email]++;
+        const email = loginInput.includes('@') ? loginInput : (await this.getEmailFromUsername(loginInput));
+        if (email) {
+          this.loginAttempts[email] = (this.loginAttempts[email] || 0) + 1;
 
-        if (this.loginAttempts[email] >= 5) {
-          toastManager.error('Too many failed attempts. Account locked.');
-        } else if (this.loginAttempts[email] > 1) {
-          this.showResetPasswordOption(email);
-          toastManager.error(`Wrong password. ${5 - this.loginAttempts[email]} attempts remaining.`);
+          if (this.loginAttempts[email] >= 5) {
+            toastManager.error('Too many failed attempts. Account locked.');
+          } else if (this.loginAttempts[email] > 1) {
+            this.showResetPasswordOption(email);
+            toastManager.error(`Wrong password. ${5 - this.loginAttempts[email]} attempts remaining.`);
+          } else {
+            toastManager.error('Wrong password. Try again.');
+          }
         } else {
-          toastManager.error('Wrong password. Try again.');
+          toastManager.error('Invalid credentials.');
         }
       } else if (error.code === 'auth/user-not-found') {
-        toastManager.error('No account found with this email.');
+        toastManager.error('No account found with this email/username.');
       } else if (error.code === 'auth/too-many-requests') {
         toastManager.error('Too many attempts. Please try again later.');
       } else {
         toastManager.error('Sign in failed: ' + error.message);
       }
+    }
+  }
+
+  async getEmailFromUsername(username) {
+    try {
+      const usernameRef = doc(this.db, FIREBASE_PATHS.usernameDoc(username.toLowerCase()));
+      const usernameDoc = await getDoc(usernameRef);
+      return usernameDoc.exists() ? usernameDoc.data().email : null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -235,8 +389,12 @@ class AuthService {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
       await sendEmailVerification(userCredential.user);
+      const randomUsername = await this.generateRandomUsername();
+      await this.updateUsername(userCredential.user.uid, randomUsername, email);
+
       await setDoc(doc(this.db, FIREBASE_PATHS.userProfile(userCredential.user.uid)), {
         name,
+        email,
         major: '',
         createdAt: new Date().toISOString()
       }, { merge: true });
@@ -344,7 +502,7 @@ class AuthService {
   async checkAndPromptProfileCompletion(uid) {
     try {
       const userDocRef = doc(this.db, FIREBASE_PATHS.userProfile(uid));
-      const docSnap = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(module => module.getDoc(userDocRef));
+      const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
