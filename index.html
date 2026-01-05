@@ -16,7 +16,8 @@
     <link rel="stylesheet" href="styles.css">
 
     <!-- Social Media Preview Tags -->
-    <meta property="og:title" content="Attendance Tracker - Manage Your Studies Efficiently" />
+    <meta property="og:site_name" content="Attendance Tracker">
+    <meta property="og:title" content="Manage Your Studies Efficiently" />
     <meta property="og:description"
         content="Track your daily attendance, view weekly reports, and manage your semester progress with ease. A modern tool for students." />
     <meta property="og:image" content="https://attendancetracker-app.vercel.app/assets/preview.png" />
@@ -75,7 +76,7 @@
 
     <main>
         <div class="user-bar">
-            <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-id-card">
                 <div class="avatar-container" id="header-avatar-container"
                     onclick="document.getElementById('profile-pic-input').click()">
                     <div id="header-avatar-preview" class="avatar-preview-small"></div>
@@ -87,18 +88,16 @@
                         </svg>
                     </div>
                 </div>
-                <div>
-                    <span class="user-info" id="user-info-name">Hello, Student</span><br>
-                    <span class="user-username" id="user-info-username"
-                        style="font-size: 0.8rem; color: var(--grey-text);">@username</span><br>
+                <div class="user-details">
+                    <span class="user-info" id="user-info-name">Hello, Student</span>
+                    <span class="user-username" id="user-info-username">@username</span>
                     <span class="user-major" id="user-info-major">Your Major</span>
                 </div>
             </div>
             <input type="file" id="profile-pic-input" accept="image/*" style="display: none;">
-            <div style="text-align: right;">
-                <span class="user-semester" id="user-info-semester">No semester selected</span><br>
-                <span id="streak-display"
-                    style="color: var(--green); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.25rem;">
+            <div class="user-stats-bar">
+                <span class="user-semester" id="user-info-semester">No semester selected</span>
+                <span id="streak-display">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                         style="width: 1.25em; height: 1.25em;">
                         <path fill-rule="evenodd"
