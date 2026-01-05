@@ -10,6 +10,14 @@ class NotificationService {
     this.intervalId = null;
   }
 
+  async init() {
+    if (!('Notification' in window)) return;
+    this.permission = Notification.permission;
+    if (this.permission === 'granted') {
+      this.startSchedule();
+    }
+  }
+
   async requestPermission() {
     if (!('Notification' in window)) {
       toastManager.warning('Notifications are not supported in this browser.');

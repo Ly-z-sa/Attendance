@@ -16,6 +16,7 @@ import weeklyReportPage from '../pages/weekly-report-page.js';
 import totalPage from '../pages/total-page.js';
 import settingsPage from '../pages/settings-page.js';
 import navigationManager from '../ui/navigation-manager.js';
+import notificationService from '../services/notification-service.js';
 
 class App {
   constructor() {
@@ -149,6 +150,7 @@ class App {
         });
 
         authService.updateUI(user);
+        notificationService.init();
         this.navigateTo('Dashboard');
 
       } else {
@@ -193,6 +195,7 @@ class App {
             authService.ensureUsername(this.userId);
           }
         }
+        this.updateNotificationContext();
         this.renderCurrentPage();
       }
     );
@@ -204,6 +207,7 @@ class App {
       collection(this.db, FIREBASE_PATHS.semesters(this.userId)),
       (snapshot) => {
         this.allSemesters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        this.updateNotificationContext();
         this.renderCurrentPage();
       }
     );
@@ -215,6 +219,7 @@ class App {
       collection(this.db, FIREBASE_PATHS.subjects(this.userId)),
       (snapshot) => {
         this.allSubjects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        this.updateNotificationContext();
         this.renderCurrentPage();
       }
     );
@@ -243,6 +248,15 @@ class App {
         settingsPage.render(this.userProfile, this.currentSemesterId, this.allSemesters, this.allSubjects);
         break;
     }
+  }
+
+  updateNotificationContext() {
+    notificationService.setContext(
+      attendanceService,
+      this.allSubjects,
+      this.currentSemesterId,
+      this.allSemesters.find(s => s.id === this.currentSemesterId)
+    );
   }
 
   updateHeader() {
