@@ -57,8 +57,8 @@ class App {
       settingsPage.initialize();
 
       // Sync time
-      await fetchRealTime();
-      setInterval(fetchRealTime, 60 * 60 * 1000);
+      console.log('Using local time with Cambodia timezone conversion');
+      // Remove external API dependency
 
       // Setup navigation
       this.initializeNavigation();
@@ -151,6 +151,10 @@ class App {
 
         authService.updateUI(user);
         notificationService.init();
+        
+        // Expose for debugging
+        window.notificationService = notificationService;
+        
         this.navigateTo('Dashboard');
 
       } else {

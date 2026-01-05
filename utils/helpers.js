@@ -1,34 +1,23 @@
 // utils/helpers.js
 import { DAYS_OF_WEEK, WARNING_THRESHOLDS } from '../utils/constants.js';
 
-let realTime = null;
-let timeOffset = 0;
-
+// Use Firebase server time (UTC) and convert to Cambodia time locally
 export async function fetchRealTime() {
-  try {
-    const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Bangkok');
-    const data = await response.json();
-    const serverTime = new Date(data.datetime);
-    const localTime = new Date();
-
-    timeOffset = serverTime.getTime() - localTime.getTime();
-    realTime = serverTime;
-
-    console.log('Bangkok time synced:', serverTime.toISOString());
-    return serverTime;
-  } catch (error) {
-    console.warn('Failed to fetch Bangkok time, using local time:', error);
-    return new Date();
-  }
+  // No need to fetch external API - we'll use Firebase serverTimestamp
+  console.log('Using Firebase server time (UTC) converted to Cambodia time');
+  return new Date();
 }
 
 export function getRealTime() {
-  // We want to work with the "real" time (synced with server if possible)
-  // But strictly interpreting it as Cambodia time
-  if (realTime) {
-    return new Date(new Date().getTime() + timeOffset);
-  }
+  // Return current time - will be converted to Cambodia timezone when needed
   return new Date();
+}
+
+// Get current time in Cambodia timezone (GMT+7)
+export function getCambodiaTime() {
+  const now = new Date();
+  // Convert to Cambodia time (GMT+7)
+  return new Date(now.toLocaleString("en-US", {timeZone: "Asia/Phnom_Penh"}));
 }
 
 /**
@@ -36,14 +25,13 @@ export function getRealTime() {
  * strictly for Asia/Phnom_Penh timezone.
  */
 export function getTodayDateString() {
-  const now = getRealTime();
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Phnom_Penh',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
   });
-  return formatter.format(now);
+  return formatter.format(new Date());
 }
 
 /**
@@ -51,12 +39,11 @@ export function getTodayDateString() {
  * strictly for Asia/Phnom_Penh timezone.
  */
 export function getCurrentDayName() {
-  const now = getRealTime();
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Phnom_Penh',
     weekday: 'long'
   });
-  return formatter.format(now);
+  return formatter.format(new Date());
 }
 
 export function getDayNameFromDate(dateString) {
@@ -66,11 +53,9 @@ export function getDayNameFromDate(dateString) {
 
 export function getAvailableDates() {
   const dates = [];
-  // Use current time in Cambodia
-  const now = getRealTime();
+  const now = new Date();
 
   for (let i = 0; i < 7; i++) {
-    // Create a date object sharing the same timestamp, but interpret logical day differently
     const d = new Date(now);
     d.setDate(d.getDate() - i);
 
@@ -151,7 +136,7 @@ export function formatDate(dateString) {
 
 export function getRelativeTimeString(dateString) {
   const date = new Date(dateString);
-  const today = getRealTime();
+  const today = new Date();
   const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return 'Today';

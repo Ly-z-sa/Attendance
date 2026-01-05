@@ -79,35 +79,19 @@ class NotificationService {
     // Use Cambodia time for notifications logic
     const now = new Date();
 
-    // Get hours/minutes in Cambodia
-    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+    // Get Cambodia time parts
+    const cambodiaTime = new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Phnom_Penh',
       hour: 'numeric',
       minute: 'numeric',
       hour12: false
     });
 
-    const dayFormatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Phnom_Penh',
-      weekday: 'numeric' // 1 is Monday, 7 is Sunday usually? verify
-    });
-    // Actually easier to just format parts
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Phnom_Penh',
-      hour: 'numeric',
-      minute: 'numeric',
-      weekday: 'numeric',
-      hour12: false
-    }).formatToParts(now);
-
+    const parts = cambodiaTime.formatToParts(now);
     const getPart = (type) => parts.find(p => p.type === type).value;
 
     const hour = parseInt(getPart('hour'));
     const minute = parseInt(getPart('minute'));
-    // Intl weekday: Sunday is usually 7 or 1 depending on locale? 
-    // Let's use weekday: 'long' and match string to be safer or strictly test.
-    // getDay() returns 0 for Sunday. Intl 'numeric' might return 1?
-    // Let's stick to simple day name check or standard getDay() from a string.
 
     const currentDayName = new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Phnom_Penh',
