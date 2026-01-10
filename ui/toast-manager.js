@@ -1,5 +1,6 @@
 // ui/toast-manager.js
 import { ICONS } from '../utils/icons.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 
 class ToastManager {
   constructor() {
@@ -19,35 +20,40 @@ class ToastManager {
   }
 
   show(message, duration = 3000, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.setAttribute('role', 'status');
-    toast.innerHTML = `
-      <div class="toast-content">
-        <span class="toast-icon">${this.getIcon(type)}</span>
-        <span class="toast-message">${message}</span>
-        <button class="toast-close" aria-label="Close">×</button>
-      </div>
-    `;
+    try {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.setAttribute('role', 'status');
+      toast.innerHTML = `
+        <div class="toast-content">
+          <span class="toast-icon">${this.getIcon(type)}</span>
+          <span class="toast-message">${sanitizeInput(message || 'No message')}</span>
+          <button class="toast-close" aria-label="Close">×</button>
+        </div>
+      `;
 
-    this.container.appendChild(toast);
-    this.activeToasts.add(toast);
+      this.container.appendChild(toast);
+      this.activeToasts.add(toast);
 
-    // Trigger animation
-    requestAnimationFrame(() => {
-      toast.classList.add('toast-show');
-    });
+      // Trigger animation
+      requestAnimationFrame(() => {
+        toast.classList.add('toast-show');
+      });
 
-    // Close button
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', () => this.hide(toast));
+      // Close button
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.addEventListener('click', () => this.hide(toast));
 
-    // Auto hide
-    if (duration > 0) {
-      setTimeout(() => this.hide(toast), duration);
+      // Auto hide
+      if (duration > 0) {
+        setTimeout(() => this.hide(toast), duration);
+      }
+
+      return toast;
+    } catch (error) {
+      console.error('Error showing toast:', error);
+      return null;
     }
-
-    return toast;
   }
 
   hide(toast) {
@@ -62,6 +68,24 @@ class ToastManager {
       }
       this.activeToasts.delete(toast);
     }, 300);
+  }
+
+  update(toast, message, type = null) {
+    if (!toast || !this.activeToasts.has(toast)) return;
+
+    if (message) {
+      const messageEl = toast.querySelector('.toast-message');
+      if (messageEl) messageEl.textContent = message;
+    }
+
+    if (type) {
+      // Remove old type classes
+      toast.className = 'toast toast-show'; // Reset classes
+      toast.classList.add(`toast-${type}`);
+
+      const iconEl = toast.querySelector('.toast-icon');
+      if (iconEl) iconEl.innerHTML = this.getIcon(type);
+    }
   }
 
   success(message, duration = 3000) {

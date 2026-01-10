@@ -10,6 +10,33 @@ class NavigationManager {
         this.isOpen = false;
     }
 
+    setupActiveIndicator() {
+        this.updateIndicator();
+        
+        // Update indicator when active link changes
+        const observer = new MutationObserver(() => {
+            this.updateIndicator();
+        });
+        
+        document.querySelectorAll('.nav-link').forEach(link => {
+            observer.observe(link, { attributes: true, attributeFilter: ['class'] });
+        });
+    }
+
+    updateIndicator() {
+        const activeLink = document.querySelector('.nav-link.active');
+        
+        if (activeLink && window.innerWidth > 768) {
+            const navRect = this.nav.getBoundingClientRect();
+            const linkRect = activeLink.getBoundingClientRect();
+            const left = linkRect.left - navRect.left;
+            const width = linkRect.width;
+            
+            this.nav.style.setProperty('--indicator-left', `${left}px`);
+            this.nav.style.setProperty('--indicator-width', `${width}px`);
+        }
+    }
+
     initialize() {
         this.nav = document.querySelector('.app-nav');
         this.toggleBtn = document.getElementById('mobile-menu-toggle');
@@ -22,6 +49,7 @@ class NavigationManager {
             return;
         }
 
+        this.setupActiveIndicator();
         this.toggleBtn.addEventListener('click', () => this.toggleMenu());
         this.overlay.addEventListener('click', () => this.closeMenu());
 
@@ -44,6 +72,7 @@ class NavigationManager {
             if (window.innerWidth > 768 && this.isOpen) {
                 this.closeMenu();
             }
+            this.updateIndicator();
         });
     }
 

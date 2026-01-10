@@ -1,30 +1,39 @@
 class ParticlesBackground {
     constructor() {
-        this.canvas = document.createElement('canvas');
-        this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.mouse = { x: null, y: null, radius: 150 };
+        try {
+            this.canvas = document.createElement('canvas');
+            this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
+            this.ctx = this.canvas.getContext('2d');
+            
+            if (!this.ctx) {
+                throw new Error('Canvas 2D context not supported');
+            }
+            
+            this.particles = [];
+            this.mouse = { x: null, y: null, radius: 150 };
 
-        document.body.appendChild(this.canvas);
+            document.body.appendChild(this.canvas);
 
-        this.resizeCanvas();
-        this.initParticles();
-
-        this.resizeHandler = () => {
             this.resizeCanvas();
             this.initParticles();
-        };
 
-        this.mousemoveHandler = (e) => {
-            this.mouse.x = e.x;
-            this.mouse.y = e.y;
-        };
+            this.resizeHandler = () => {
+                this.resizeCanvas();
+                this.initParticles();
+            };
 
-        window.addEventListener('resize', this.resizeHandler);
-        window.addEventListener('mousemove', this.mousemoveHandler);
+            this.mousemoveHandler = (e) => {
+                this.mouse.x = e.x;
+                this.mouse.y = e.y;
+            };
 
-        this.animate();
+            window.addEventListener('resize', this.resizeHandler);
+            window.addEventListener('mousemove', this.mousemoveHandler);
+
+            this.animate();
+        } catch (error) {
+            console.error('ParticlesBackground initialization failed:', error);
+        }
     }
 
     resizeCanvas() {
@@ -70,22 +79,24 @@ class ParticlesBackground {
             }
 
             // Mouse interaction
-            let dx = this.mouse.x - p.x;
-            let dy = this.mouse.y - p.y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
+            if (this.mouse.x !== null && this.mouse.y !== null) {
+                let dx = this.mouse.x - p.x;
+                let dy = this.mouse.y - p.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < this.mouse.radius + p.size) {
-                if (this.mouse.x < p.x && p.x < this.canvas.width - p.size * 10) {
-                    p.x += 2;
-                }
-                if (this.mouse.x > p.x && p.x > p.size * 10) {
-                    p.x -= 2;
-                }
-                if (this.mouse.y < p.y && p.y < this.canvas.height - p.size * 10) {
-                    p.y += 2;
-                }
-                if (this.mouse.y > p.y && p.y > p.size * 10) {
-                    p.y -= 2;
+                if (distance < this.mouse.radius + p.size) {
+                    if (this.mouse.x < p.x && p.x < this.canvas.width - p.size * 10) {
+                        p.x += 2;
+                    }
+                    if (this.mouse.x > p.x && p.x > p.size * 10) {
+                        p.x -= 2;
+                    }
+                    if (this.mouse.y < p.y && p.y < this.canvas.height - p.size * 10) {
+                        p.y += 2;
+                    }
+                    if (this.mouse.y > p.y && p.y > p.size * 10) {
+                        p.y -= 2;
+                    }
                 }
             }
 
@@ -135,22 +146,30 @@ class ParticlesBackground {
 
 class MatrixBackground {
     constructor() {
-        this.canvas = document.createElement('canvas');
-        this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
-        this.ctx = this.canvas.getContext('2d');
+        try {
+            this.canvas = document.createElement('canvas');
+            this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
+            this.ctx = this.canvas.getContext('2d');
+            
+            if (!this.ctx) {
+                throw new Error('Canvas 2D context not supported');
+            }
 
-        document.body.appendChild(this.canvas);
+            document.body.appendChild(this.canvas);
 
-        this.resizeCanvas();
-        this.initMatrix();
-
-        this.resizeHandler = () => {
             this.resizeCanvas();
             this.initMatrix();
-        };
 
-        window.addEventListener('resize', this.resizeHandler);
-        this.animate();
+            this.resizeHandler = () => {
+                this.resizeCanvas();
+                this.initMatrix();
+            };
+
+            window.addEventListener('resize', this.resizeHandler);
+            this.animate();
+        } catch (error) {
+            console.error('MatrixBackground initialization failed:', error);
+        }
     }
 
     resizeCanvas() {

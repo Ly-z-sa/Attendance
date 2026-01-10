@@ -15,12 +15,14 @@ import {
   signInWithPopup,
   reauthenticateWithPopup
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch, getDoc, runTransaction, query, where, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS, ADJECTIVES, NOUNS } from '../utils/constants.js';
 import { ICONS } from '../utils/icons.js';
 import { validatePassword, validateEmail, checkBadWords } from '../utils/validation.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
+import errorHandler from '../utils/error-handler.js';
 
 class AuthService {
   constructor() {
@@ -149,7 +151,7 @@ class AuthService {
       return true;
     } catch (error) {
       console.error("Update username error:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -218,6 +220,15 @@ class AuthService {
         this.handleSignUp();
       }
     });
+
+    // Forgot password link
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleForgotPassword();
+      });
+    }
   }
 
   async handleSignIn(e) {
@@ -312,9 +323,9 @@ class AuthService {
       } else if (error.code === 'auth/user-not-found') {
         toastManager.error('No account found with this email/username.');
       } else if (error.code === 'auth/too-many-requests') {
-        toastManager.error('Too many attempts. Please try again later.');
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       } else {
-        toastManager.error('Sign in failed: ' + error.message);
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       }
     }
   }
@@ -350,7 +361,88 @@ class AuthService {
       await sendPasswordResetEmail(this.auth, email);
       toastManager.success('Password reset email sent!');
     } catch (error) {
-      toastManager.error('Failed to send reset email: ' + error.message);
+      toastManager.error(errorHandler.getFriendlyMessage(error));
+    }
+  }
+
+  async handleForgotPassword() {
+    // 1. Try to get email from the sign-in input
+    const loginInput = document.getElementById('signin-email').value.trim();
+    let email = null;
+
+    if (loginInput) {
+      if (loginInput.includes('@')) {
+        email = loginInput;
+      } else {
+        // Look up email if it's a username
+        email = await this.getEmailFromUsername(loginInput);
+      }
+    }
+
+    // 2. If no email found, prompt the user
+    if (!email) {
+      email = await modalManager.input(
+        'Forgot Password',
+        'Enter your email address to receive a reset link:',
+        'your@email.com'
+      );
+    }
+
+    if (!email) return;
+
+    if (!validateEmail(email)) {
+      toastManager.error('Please enter a valid email address.');
+      return;
+    }
+
+    const loadingToast = toastManager.loading('Verifying account...');
+
+    try {
+      // Ensure we have the latest instances
+      if (!this.auth) this.auth = window.firebaseAuth;
+      if (!this.db) this.db = window.firebaseDb;
+
+      if (!this.auth || !this.db) {
+        throw new Error("Authentication system is not ready. Please refresh.");
+      }
+
+      // Manual check: See if this email exists in our registry
+
+      // I'll use query on the collection
+      const q = query(
+        collection(this.db, FIREBASE_PATHS.usernames()),
+        where("email", "==", email),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        toastManager.hide(loadingToast);
+        toastManager.error('No account found with this email address.');
+        return;
+      }
+
+      toastManager.update(loadingToast, 'Sending reset email...', 'loading');
+
+      await sendPasswordResetEmail(this.auth, email);
+      toastManager.hide(loadingToast);
+      toastManager.success('Password reset email sent! Please check your inbox.');
+    } catch (error) {
+      toastManager.hide(loadingToast);
+      console.error("Forgot password error:", error);
+
+      if (error.code === 'permission-denied') {
+        // Fallback: If query is blocked by security rules, just send the email anyway
+        // and show a generic success message to prevent enumeration vulnerabilities.
+        try {
+          await sendPasswordResetEmail(this.auth, email);
+          toastManager.success('If an account exists for this email, a reset link has been sent.');
+        } catch (authError) {
+          toastManager.error(errorHandler.getFriendlyMessage(authError));
+        }
+      } else {
+        toastManager.error(errorHandler.getFriendlyMessage(error));
+      }
     }
   }
 
@@ -406,11 +498,11 @@ class AuthService {
       toastManager.hide(loadingToast);
 
       if (error.code === 'auth/email-already-in-use') {
-        toastManager.error('An account with this email already exists.');
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       } else if (error.code === 'auth/weak-password') {
-        toastManager.error('Password is too weak. Please use a stronger password.');
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       } else {
-        toastManager.error('Sign up failed: ' + error.message);
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       }
     }
   }
@@ -451,9 +543,9 @@ class AuthService {
       toastManager.hide(loadingToast);
       console.error("Google Sign In Error:", error);
       if (error.code === 'auth/popup-closed-by-user') {
-        toastManager.info('Sign in cancelled');
+        toastManager.info(errorHandler.getFriendlyMessage(error));
       } else {
-        toastManager.error('Google Sign In failed: ' + error.message);
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       }
     }
   }
@@ -490,11 +582,11 @@ class AuthService {
       toastManager.hide(loadingToast);
       console.error("GitHub Sign In Error:", error);
       if (error.code === 'auth/popup-closed-by-user') {
-        toastManager.info('Sign in cancelled');
+        toastManager.info(errorHandler.getFriendlyMessage(error));
       } else if (error.code === 'auth/account-exists-with-different-credential') {
-        toastManager.error('An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.');
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       } else {
-        toastManager.error('GitHub Sign In failed: ' + error.message);
+        toastManager.error(errorHandler.getFriendlyMessage(error));
       }
     }
   }
@@ -571,7 +663,7 @@ class AuthService {
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error("Save profile error:", error);
-      toastManager.error('Failed to save profile: ' + error.message);
+      toastManager.error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -613,7 +705,7 @@ class AuthService {
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error('Sign out error:', error);
-      toastManager.error('Sign out failed: ' + error.message);
+      toastManager.error(errorHandler.getFriendlyMessage(error));
 
       // Ensure scroll is free even on error
       document.body.style.overflow = '';
@@ -647,7 +739,7 @@ class AuthService {
       await sendEmailVerification(this.auth.currentUser);
       toastManager.success('Verification email sent! Please check your inbox.');
     } catch (error) {
-      toastManager.error('Failed to send verification email: ' + error.message);
+      toastManager.error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -687,7 +779,7 @@ class AuthService {
       toastManager.success('Password updated successfully!');
     } catch (error) {
       toastManager.hide(loadingToast);
-      toastManager.error('Failed to update password: ' + error.message);
+      toastManager.error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -721,11 +813,7 @@ class AuthService {
     } catch (error) {
       toastManager.hide(loadingToast);
 
-      if (error.code === 'auth/email-already-in-use') {
-        toastManager.error('This email is already in use by another account.');
-      } else {
-        toastManager.error('Failed to update email: ' + error.message);
-      }
+      toastManager.error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -792,12 +880,7 @@ class AuthService {
 
     } catch (error) {
       toastManager.hide(loadingDelete);
-      // If error is "requires-recent-login" (though we just re-authed), handle it
-      if (error.code === 'auth/requires-recent-login') {
-        toastManager.error('Please sign out and sign in again to verify your identity.');
-      } else {
-        toastManager.error('Failed to delete account: ' + error.message);
-      }
+      toastManager.error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -817,6 +900,7 @@ class AuthService {
     await deleteCollection(FIREBASE_PATHS.semesters(uid));
     await deleteCollection(FIREBASE_PATHS.subjects(uid));
     await deleteCollection(FIREBASE_PATHS.attendance(uid));
+    await deleteCollection(FIREBASE_PATHS.tasks(uid));
 
     // Delete profile doc
     // Note: FIREBASE_PATHS.userProfile returns the path string "artifacts/.../profile/details"
@@ -843,8 +927,8 @@ class AuthService {
     if (!validation.hasNumber) requirements.push('1 number');
 
     strengthEl.innerHTML = `
-      <div style="color: ${strength.color}; font-weight: 500;">Strength: ${strength.strength}</div>
-      ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">Missing: ${requirements.join(', ')}</div>` : ''}
+      <div style="color: ${sanitizeInput(strength.color)}; font-weight: 500;">Strength: ${sanitizeInput(strength.strength)}</div>
+      ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">Missing: ${sanitizeInput(requirements.join(', '))}</div>` : ''}
     `;
   }
 

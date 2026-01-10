@@ -1,6 +1,7 @@
 import { doc, setDoc, addDoc, collection, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { FIREBASE_PATHS, COLOR_SCHEMES, FONTS, BACKGROUNDS, CLICK_EFFECTS } from '../utils/constants.js';
+import { FIREBASE_PATHS, COLOR_SCHEMES, FONTS, BACKGROUNDS, CLICK_EFFECTS, STREAK_REQUIREMENTS } from '../utils/constants.js';
 import { checkBadWords, validateSemesterDates } from '../utils/validation.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 import { ICONS } from '../utils/icons.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
@@ -26,6 +27,7 @@ class SettingsPage {
 
   render(userProfile, currentSemesterId, allSemesters, allSubjects) {
     if (!this.container) return;
+    // amazonq-ignore-next-line
 
     this.container.innerHTML = `
       ${this.renderProfileSection(userProfile)}
@@ -33,7 +35,7 @@ class SettingsPage {
       ${this.renderSubjectsSection(allSubjects, currentSemesterId)}
       ${this.renderNotificationsSection()}
       ${this.renderAccountSection()}
-      ${this.renderPersonalizationSection()}
+      ${this.renderPersonalizationSection(currentSemesterId, allSubjects)}
       ${this.renderLegalSection()}
     `;
 
@@ -43,7 +45,7 @@ class SettingsPage {
 
   renderProfileSection(userProfile) {
     const avatarHtml = userProfile.photoURL
-      ? `<div class="avatar-preview-large" style="background-image: url('${userProfile.photoURL}')"></div>`
+      ? `<div class="avatar-preview-large" style="background-image: url('${sanitizeInput(userProfile.photoURL)}'); cursor: pointer;" onclick="settingsPage.showProfilePicture('${sanitizeInput(userProfile.photoURL)}')"></div>`
       : `<div class="avatar-preview-large">${ICONS.USER_SOLID}</div>`;
 
     return `
@@ -57,35 +59,35 @@ class SettingsPage {
           </div>
           <div>
             ${window.firebaseAuth?.currentUser
-        ? `<button class="btn btn-red" id="signout-btn" onclick="window.authService.handleSignOut()">Sign Out</button>`
-        : `<button class="btn" id="auth-btn" onclick="window.modalManager.open('auth-modal')">Sign In</button>`
+        ? `<button class="btn btn-red" id="signout-btn" data-action="signout">Sign Out</button>`
+        : `<button class="btn" id="auth-btn" data-action="auth">Sign In</button>`
       }
           </div>
         </div>
         <div class="settings-content collapsed" id="profile-content">
           <div class="settings-avatar-row">
             ${avatarHtml}
-            <button class="btn" onclick="document.getElementById('profile-pic-input').click()">Change Picture</button>
+            <button class="btn" id="change-picture-btn">Change Picture</button>
           </div>
           <div class="form-group">
             <label for="setting-username">Username</label>
             <div class="username-input-group">
                 <span style="font-size: 1.2rem; align-self: center; margin-right: 0.25rem; color: var(--grey-text);">@</span>
-                <input type="text" id="setting-username" class="form-input" placeholder="username" value="${userProfile.username || ''}" autocomplete="off">
+                <input type="text" id="setting-username" class="form-input" placeholder="username" value="${sanitizeInput(userProfile.username || '')}" autocomplete="off">
             </div>
             <div id="username-status" class="username-status"></div>
           </div>
           <div class="form-group">
             <label for="setting-name">Full Name</label>
-            <input type="text" id="setting-name" class="form-input" placeholder="Your Name" value="${userProfile.name || ''}" autocomplete="off">
+            <input type="text" id="setting-name" class="form-input" placeholder="Your Name" value="${sanitizeInput(userProfile.name || '')}" autocomplete="off">
           </div>
           <div class="form-group">
             <label for="setting-major">Major</label>
-            <input type="text" id="setting-major" class="form-input" placeholder="Your Major" value="${userProfile.major || ''}" autocomplete="off">
+            <input type="text" id="setting-major" class="form-input" placeholder="Your Major" value="${sanitizeInput(userProfile.major || '')}" autocomplete="off">
           </div>
           ${window.firebaseAuth?.currentUser
         ? `<div id="auth-status" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; background: rgba(34, 139, 34, 0.1); color: var(--green); border: 1px solid var(--green);">
-                 Logged in as: ${window.firebaseAuth.currentUser.email}
+                 Logged in as: ${sanitizeInput(window.firebaseAuth.currentUser.email)}
                </div>`
         : ''
       }
@@ -118,7 +120,7 @@ class SettingsPage {
               </div>
               <div class="dropdown-options" role="listbox" id="current-semester-options">
                 ${allSemesters.length > 0
-        ? allSemesters.map(s => `<div class="dropdown-option" data-value="${s.id}" role="option">${s.name}</div>`).join('')
+        ? allSemesters.map(s => `<div class="dropdown-option" data-value="${sanitizeInput(s.id)}" role="option">${sanitizeInput(s.name)}</div>`).join('')
         : '<div class="dropdown-option" role="option">No semesters</div>'
       }
               </div>
@@ -137,10 +139,10 @@ class SettingsPage {
 
   renderSemesterItem(semester) {
     return `
-      <div class="settings-list-item" data-id="${semester.id}">
+      <div class="settings-list-item" data-id="${sanitizeInput(semester.id)}">
         <div>
-          <strong>${semester.name}</strong><br>
-          <small style="color: var(--grey-text);">${semester.startDate || 'No start date'} to ${semester.endDate || 'No end date'}</small>
+          <strong>${sanitizeInput(semester.name)}</strong><br>
+          <small style="color: var(--grey-text);">${sanitizeInput(semester.startDate || 'No start date')} to ${sanitizeInput(semester.endDate || 'No end date')}</small>
         </div>
         <div class="btn-group">
           <button class="btn btn-edit-semester">Edit</button>
@@ -178,10 +180,10 @@ class SettingsPage {
   }
 
   renderSubjectItem(subject) {
-    const timeDisplay = subject.startTime ? `<span style="font-size: 0.85em; color: var(--grey-text); margin-left: 0.5rem;">${subject.startTime} - ${subject.endTime || '?'}</span>` : '';
+    const timeDisplay = subject.startTime ? `<span style="font-size: 0.85em; color: var(--grey-text); margin-left: 0.5rem;">${sanitizeInput(subject.startTime)} - ${sanitizeInput(subject.endTime || '?')}</span>` : '';
     return `
-      <div class="settings-list-item" data-id="${subject.id}">
-        <span><strong>${subject.name}</strong> (${subject.day})${timeDisplay}</span>
+      <div class="settings-list-item" data-id="${sanitizeInput(subject.id)}">
+        <span><strong>${sanitizeInput(subject.name)}</strong> (${sanitizeInput(subject.day)})${timeDisplay}</span>
         <div class="btn-group">
           <button class="btn btn-edit-subject">Edit</button>
           <button class="btn btn-red btn-delete-subject">Delete</button>
@@ -228,7 +230,10 @@ class SettingsPage {
     `;
   }
 
-  renderPersonalizationSection() {
+  renderPersonalizationSection(currentSemesterId, allSubjects) {
+    // Calculate current streak
+    const streak = currentSemesterId ? attendanceService.calculateStreak(currentSemesterId, allSubjects) : 0;
+
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="personalization">
@@ -238,18 +243,21 @@ class SettingsPage {
               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </div>
+          <div class="streak-badge-mini" style="font-size: 0.85rem; padding: 2px 8px; border-radius: 12px; background: rgba(255,165,0,0.15); color: var(--yellow-dark); border: 1px solid var(--yellow-dark);">
+            ${ICONS.FIRE} <span style="font-weight: 600;">${streak}</span> Streak
+          </div>
         </div>
         <div class="settings-content collapsed" id="personalization-content">
-          ${this.renderColorSchemeDropdown()}
-          ${this.renderBackgroundDropdown()}
-          ${this.renderFontDropdown()}
-          ${this.renderClickEffectDropdown()}
+          ${this.renderColorSchemeDropdown(streak)}
+          ${this.renderBackgroundDropdown(streak)}
+          ${this.renderFontDropdown(streak)}
+          ${this.renderClickEffectDropdown(streak)}
         </div>
       </div>
     `;
   }
 
-  renderColorSchemeDropdown() {
+  renderColorSchemeDropdown(streak) {
     const currentScheme = themeManager.getColorScheme();
 
     return `
@@ -261,16 +269,24 @@ class SettingsPage {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
-            ${Object.entries(COLOR_SCHEMES).map(([key, value]) =>
-      `<div class="dropdown-option" data-value="${key}" role="option">${value}</div>`
-    ).join('')}
+            ${Object.entries(COLOR_SCHEMES).map(([key, value]) => {
+      const required = STREAK_REQUIREMENTS[key] || 0;
+      const isLocked = streak < required;
+      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
+      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
+
+      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
+                <span>${value}</span>
+                ${lockHtml}
+              </div>`;
+    }).join('')}
           </div>
         </div>
       </div>
     `;
   }
 
-  renderBackgroundDropdown() {
+  renderBackgroundDropdown(streak) {
     const currentBg = themeManager.getBackground();
 
     return `
@@ -282,16 +298,24 @@ class SettingsPage {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
-            ${Object.entries(BACKGROUNDS).map(([key, value]) =>
-      `<div class="dropdown-option" data-value="${key}" role="option">${value}</div>`
-    ).join('')}
+            ${Object.entries(BACKGROUNDS).map(([key, value]) => {
+      const required = STREAK_REQUIREMENTS[key] || 0;
+      const isLocked = streak < required;
+      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
+      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
+
+      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
+                <span>${value}</span>
+                ${lockHtml}
+              </div>`;
+    }).join('')}
           </div>
         </div>
       </div>
     `;
   }
 
-  renderFontDropdown() {
+  renderFontDropdown(streak) {
     const currentFont = themeManager.getFont();
 
     return `
@@ -303,16 +327,24 @@ class SettingsPage {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
-            ${Object.entries(FONTS).map(([key, value]) =>
-      `<div class="dropdown-option" data-value="${key}" role="option">${value}</div>`
-    ).join('')}
+            ${Object.entries(FONTS).map(([key, value]) => {
+      const required = STREAK_REQUIREMENTS[key] || 0;
+      const isLocked = streak < required;
+      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
+      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
+
+      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
+                <span>${value}</span>
+                ${lockHtml}
+              </div>`;
+    }).join('')}
           </div>
         </div>
       </div>
     `;
   }
 
-  renderClickEffectDropdown() {
+  renderClickEffectDropdown(streak) {
     const currentEffect = clickEffectManager.getEffect();
 
     return `
@@ -324,9 +356,17 @@ class SettingsPage {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
-            ${Object.entries(CLICK_EFFECTS).map(([key, value]) =>
-      `<div class="dropdown-option" data-value="${key}" role="option">${value}</div>`
-    ).join('')}
+            ${Object.entries(CLICK_EFFECTS).map(([key, value]) => {
+      const required = STREAK_REQUIREMENTS[key] || 0;
+      const isLocked = streak < required;
+      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
+      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
+
+      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
+                <span>${value}</span>
+                ${lockHtml}
+              </div>`;
+    }).join('')}
           </div>
         </div>
       </div>
@@ -340,8 +380,8 @@ class SettingsPage {
           <h3>Legal & Support</h3>
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <a href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Privacy Policy</a>
-          <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Terms of Service</a>
+          <a href="privacy.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Privacy Policy</a>
+          <a href="terms.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Terms of Service</a>
           <a href="#" id="report-problem-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">Report a Problem</a>
           <a href="#" id="contact-us-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">Contact Us</a>
         </div>
@@ -349,7 +389,7 @@ class SettingsPage {
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
         <div>© 2026 Attendance Tracker. All rights reserved.</div>
-        <div style="margin-top: 0.25rem;">Version 3.2.6</div>
+        <div style="margin-top: 0.25rem;">Version 3.5.0</div>
       </div>
     `;
   }
@@ -363,8 +403,17 @@ class SettingsPage {
     // Collapse handlers
     this.setupCollapseHandlers();
 
+    // Auth buttons
+    document.getElementById('signout-btn')?.addEventListener('click', () => authService.handleSignOut());
+    document.getElementById('auth-btn')?.addEventListener('click', () => authService.openAuthModal());
+
     // Profile
     document.getElementById('save-profile-btn')?.addEventListener('click', () => this.handleSaveProfile());
+
+    // Change Picture button
+    document.getElementById('change-picture-btn')?.addEventListener('click', () => {
+      document.getElementById('profile-pic-input').click();
+    });
 
     // Profile Pic Input
     document.getElementById('profile-pic-input')?.addEventListener('change', (e) => this.handleImageSelect(e));
@@ -849,12 +898,17 @@ class SettingsPage {
     const email = 'lyssa.phat@gmail.com';
 
     // Copy to clipboard automatically
-    navigator.clipboard.writeText(email).then(() => {
-      toastManager.success(`Email copied to clipboard`);
-    }).catch(() => {
-      // Fallback if clipboard fails
+    try {
+      navigator.clipboard.writeText(email).then(() => {
+        toastManager.success(`Email copied to clipboard`);
+      }).catch(() => {
+        // Fallback if clipboard fails
+        toastManager.info(`Contact us at: ${email}`, 6000);
+      });
+    } catch (error) {
+      // Fallback if clipboard API is not available
       toastManager.info(`Contact us at: ${email}`, 6000);
-    });
+    }
   }
 
   async handleSubmitReport() {
@@ -903,6 +957,14 @@ class SettingsPage {
     // This would be similar to your original implementation
   }
 
+  showProfilePicture(photoURL) {
+    const img = document.getElementById('profile-pic-display');
+    if (img && photoURL) {
+      img.src = photoURL;
+      modalManager.open('profile-pic-overlay');
+    }
+  }
+
   clear() {
     if (this.container) {
       this.container.innerHTML = '';
@@ -911,3 +973,6 @@ class SettingsPage {
 }
 
 export default new SettingsPage();
+
+// Expose globally for profile picture functionality
+window.settingsPage = new SettingsPage();

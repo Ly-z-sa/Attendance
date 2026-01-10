@@ -21,29 +21,37 @@ class ClickSpark {
   }
   
   init() {
-    // Create canvas
-    this.canvas = document.createElement('canvas');
-    this.canvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; user-select: none;';
-    this.ctx = this.canvas.getContext('2d');
-    
-    // Make element relative if not already positioned
-    const computedStyle = getComputedStyle(this.element);
-    if (computedStyle.position === 'static') {
-      this.element.style.position = 'relative';
+    try {
+      // Create canvas
+      this.canvas = document.createElement('canvas');
+      this.canvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; user-select: none;';
+      this.ctx = this.canvas.getContext('2d');
+      
+      if (!this.ctx) {
+        throw new Error('Canvas 2D context not supported');
+      }
+      
+      // Make element relative if not already positioned
+      const computedStyle = getComputedStyle(this.element);
+      if (computedStyle.position === 'static') {
+        this.element.style.position = 'relative';
+      }
+      
+      this.element.appendChild(this.canvas);
+      
+      // Setup resize observer
+      this.resizeCanvas();
+      this.resizeObserver = new ResizeObserver(() => this.resizeCanvas());
+      this.resizeObserver.observe(this.element);
+      
+      // Add click listener
+      this.element.addEventListener('click', (e) => this.handleClick(e));
+      
+      // Start animation loop
+      this.animate();
+    } catch (error) {
+      console.error('ClickSpark initialization failed:', error);
     }
-    
-    this.element.appendChild(this.canvas);
-    
-    // Setup resize observer
-    this.resizeCanvas();
-    this.resizeObserver = new ResizeObserver(() => this.resizeCanvas());
-    this.resizeObserver.observe(this.element);
-    
-    // Add click listener
-    this.element.addEventListener('click', (e) => this.handleClick(e));
-    
-    // Start animation loop
-    this.animate();
   }
   
   resizeCanvas() {
@@ -79,11 +87,23 @@ class ClickSpark {
         startTime: now
       });
     }
+    
+    // Restart animation if it was stopped
+    if (!this.animationId) {
+      this.animate();
+    }
   }
   
   animate() {
     const timestamp = performance.now();
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    if (this.sparks.length > 0) {
+      // Set drawing properties once
+      this.ctx.strokeStyle = this.options.sparkColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+    }
     
     this.sparks = this.sparks.filter(spark => {
       const elapsed = timestamp - spark.startTime;
@@ -102,19 +122,21 @@ class ClickSpark {
       const x2 = spark.x + (distance + lineLength) * Math.cos(spark.angle);
       const y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
       
-      this.ctx.strokeStyle = this.options.sparkColor;
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
       this.ctx.moveTo(x1, y1);
       this.ctx.lineTo(x2, y2);
-      this.ctx.stroke();
       
       return true;
     });
     
-    this.animationId = requestAnimationFrame(() => this.animate());
+    if (this.sparks.length > 0) {
+      this.ctx.stroke();
+      this.animationId = requestAnimationFrame(() => this.animate());
+    } else {
+      this.animationId = null;
+    }
   }
   
+  // amazonq-ignore-next-line
   destroy() {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);

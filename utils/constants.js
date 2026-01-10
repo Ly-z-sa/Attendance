@@ -41,6 +41,9 @@ export const FIREBASE_PATHS = {
   subjectDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/subjects/${id}`,
   attendance: (userId) => `artifacts/${APP_ID}/users/${userId}/attendanceRecords`,
   attendanceDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/attendanceRecords/${id}`,
+  tasks: (userId) => `artifacts/${APP_ID}/users/${userId}/tasks`,
+  taskDoc: (userId, id) => `artifacts/${APP_ID}/users/${userId}/tasks/${id}`,
+  focusStats: (userId) => `artifacts/${APP_ID}/users/${userId}/focus/stats`,
   bugReports: (userId) => `artifacts/${APP_ID}/users/${userId}/bug-reports`
 };
 
@@ -78,4 +81,38 @@ export const CLICK_EFFECTS = {
   ripple: 'Ripple',
   confetti: 'Confetti',
   hearts: 'Hearts'
+};
+
+export const STREAK_REQUIREMENTS = {
+  // Color Schemes
+  'default': 0,
+  'ocean': 0,
+  'forest': 3,
+  'sunset': 3,
+  'glass': 7,
+  'violet': 7,
+  'crimson': 15,
+  'emerald': 30,
+  'festive': 50,
+
+  // Backgrounds
+  'default': 0,
+  'floating-lines': 3,
+  'prism': 7,
+  'aurora': 14,
+  'particles': 21,
+  'matrix': 30,
+  'snowfall': 45,
+
+  // Fonts
+  'philosopher': 0,
+  'inter': 0,
+  'roboto': 7,
+
+  // Effects
+  'none': 0,
+  'ripple': 3,
+  'spark': 7,
+  'hearts': 14,
+  'confetti': 30
 };

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Attendance Tracker</title>
+    <meta name="description"
+        content="Privacy Policy for Attendance Tracker - Learn how we collect, use, and protect your personal information and attendance data.">
+    <meta name="keywords"
+        content="privacy policy, attendance tracker, data protection, student privacy, academic records">
+    <meta name="author" content="Attendance Tracker Team">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://attendancetracker-app.vercel.app/privacy.html">
+    <meta property="og:title" content="Privacy Policy - Attendance Tracker">
+    <meta property="og:description"
+        content="Learn how Attendance Tracker protects your privacy and handles your academic data securely.">
+    <meta property="og:image" content="https://attendancetracker-app.vercel.app/assets/preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://attendancetracker-app.vercel.app/privacy.html">
+    <meta property="twitter:title" content="Privacy Policy - Attendance Tracker">
+    <meta property="twitter:description"
+        content="Learn how Attendance Tracker protects your privacy and handles your academic data securely.">
+    <meta property="twitter:image" content="https://attendancetracker-app.vercel.app/assets/preview.png">
+
+    <link rel="icon" href="assets/att-logo.svg" type="image/svg">
+    <link rel="canonical" href="https://attendancetracker-app.vercel.app/privacy.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* CSS Variables - matching main site */
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --primary-dark: #654321;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light-grey: #F5F5DC;
+            --bg-color: #FFF8DC;
+            --dark-text: #2F1B14;
+            --grey-text: #8B7355;
+            --light-text: #ffffff;
+            --green: #228B22;
+            --border-color: #DEB887;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(139, 69, 19, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #A0522D;
+            --primary-light: #CD853F;
+            --primary-dark: #8B4513;
+            --secondary: #F4A460;
+            --accent: #DEB887;
+            --light-grey: #2C2C2C;
+            --bg-color: #1A1A1A;
+            --dark-text: #E5E5E5;
+            --grey-text: #B0B0B0;
+            --light-text: #ffffff;
+            --border-color: #404040;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-grey);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--grey-text);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        body {
+            font-family: 'Philosopher', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark-text);
+            line-height: 1.7;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-left img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .app-header h1 {
+            font-family: 'Iceberg', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .policy-container {
+            background: var(--light-grey);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .policy-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .policy-header h2 {
+            font-family: 'Iceberg', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-header .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .policy-header .last-updated {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .policy-content {
+            padding: 2rem;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            color: var(--grey-text);
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary);
+        }
+
+        .policy-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .policy-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .policy-section h3 {
+            font-family: 'Iceberg', serif;
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .policy-section h3 .icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .policy-section p {
+            margin-bottom: 0.75rem;
+            color: var(--dark-text);
+        }
+
+        .policy-section ul {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .policy-section li {
+            padding: 0.5rem 0 0.5rem 1.75rem;
+            position: relative;
+            color: var(--dark-text);
+        }
+
+        .policy-section li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.9rem;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .policy-section strong {
+            color: var(--primary);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(160, 82, 45, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Contact Card */
+        .contact-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .contact-card h3 {
+            font-family: 'Iceberg', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-card a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .contact-card a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--grey-text);
+            font-size: 0.9rem;
+        }
+
+        .page-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1rem 1.25rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .app-header h1 {
+                font-size: 1.35rem;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .policy-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .policy-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .policy-content {
+                padding: 1rem;
+            }
+
+            .policy-section {
+                padding: 1rem;
+            }
+
+            .policy-section h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <header class="app-header">
+        <div class="header-left">
+            <img src="assets/att-logo.svg" alt="Attendance Tracker Logo">
+            <h1>Attendance Tracker</h1>
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Back to App</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="policy-container">
+            <div class="policy-header">
+                <h2>Privacy Policy</h2>
+                <p class="subtitle">Your privacy matters to us</p>
+                <div class="last-updated">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor"
+                        style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    Last Updated: January 2026
+                </div>
+            </div>
+
+            <div class="policy-content">
+                <div class="intro-text">
+                    We will refer to Attendance Tracker as "We" and you as "User". This policy explains how we collect,
+                    use, and protect your personal information.
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                            </svg>
+                        </span> Information We Collect</h3>
+                    <div class="highlight-box">
+                        <p><strong>Account Information:</strong> Email address, name, profile picture, unique username,
+                            and academic major</p>
+                        <p><strong>Attendance Data:</strong> Subject names, attendance records, semester information,
+                            edit history with reasons</p>
+                        <p><strong>Usage Data:</strong> Login times, app interactions, and preference settings</p>
+                    </div>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </span> How We Use Your Information</h3>
+                    <ul>
+                        <li>Provide attendance tracking functionality</li>
+                        <li>Send attendance reminders and warnings</li>
+                        <li>Maintain your academic records and edit audit trails</li>
+                        <li>Improve app performance and features</li>
+                        <li>Personalize your experience with themes and preferences</li>
+                    </ul>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                        </span> Data Storage & Security</h3>
+                    <ul>
+                        <li>Data is stored securely in Firebase Cloud Firestore</li>
+                        <li>All data is encrypted in transit and at rest</li>
+                        <li>Access is restricted to authorized personnel only</li>
+                        <li>We implement industry-standard security measures</li>
+                        <li>Edit history is maintained for data integrity and audit purposes</li>
+                    </ul>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </span> Admin Access</h3>
+                    <ul>
+                        <li>App administrators may access user data for technical support and maintenance purposes only
+                        </li>
+                        <li>Admin access is logged and monitored</li>
+                        <li>Data is never shared with third parties without consent</li>
+                    </ul>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                            </svg>
+                        </span> Your Rights</h3>
+                    <ul>
+                        <li>View, update, or delete your account data anytime</li>
+                        <li>Export your attendance records to Excel format</li>
+                        <li>Request account deletion (data removed within 30 days)</li>
+                        <li>Opt-out of notifications</li>
+                        <li>Edit past attendance records (within 7 days) with proper justification</li>
+                    </ul>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                            </svg>
+                        </span> Data Retention</h3>
+                    <div class="highlight-box">
+                        <p><strong>Active accounts:</strong> Data retained indefinitely</p>
+                        <p><strong>Deleted accounts:</strong> Data permanently removed within 30 days (User can request
+                            immediate removal)</p>
+                        <p><strong>Backup data:</strong> Removed within 90 days</p>
+                        <p><strong>Edit audit logs:</strong> Retained for data integrity purposes</p>
+                    </div>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                            </svg>
+                        </span> New Features & Data Usage</h3>
+                    <ul>
+                        <li><strong>Edit History:</strong> When you edit past attendance, we store the original status,
+                            new status, edit reason, and timestamp for audit purposes</li>
+                        <li><strong>Milestone Tracking:</strong> We track attendance streaks and milestones for
+                            gamification features</li>
+                        <li><strong>Theme Preferences:</strong> We store your customization preferences locally and in
+                            your account</li>
+                    </ul>
+                </div>
+
+                <div class="policy-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                        </span> Changes to This Policy</h3>
+                    <p>We may update this privacy policy from time to time. We will notify users of any material changes
+                        by updating the "Last Updated" date at the top of this policy.</p>
+                </div>
+
+                <div class="contact-card">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor"
+                            style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        Questions or Concerns?
+                    </h3>
+                    <p>For privacy concerns, reach out to our team</p>
+                    <a href="mailto:lyssa.phat@gmail.com">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" style="width: 18px; height: 18px;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        lyssa.phat@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            <p>© 2026 Attendance Tracker. All rights reserved.</p>
+            <p>
+                <a href="privacy.html">Privacy Policy</a> •
+                <a href="terms.html">Terms of Service</a> •
+                <a href="index.html">Back to App</a>
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        // Apply saved theme from main site
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+
+</html>

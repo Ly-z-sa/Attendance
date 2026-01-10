@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Tracker</title>
-    <link rel="icon" href="assets/att-logo.svg" type="image/svg">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/att-logo.png">
+    <!-- <link rel="icon" href="assets/att-logo.svg" type="image/svg"> -->
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -35,11 +35,12 @@
 
     <header class="app-header">
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <img src="assets/att-logo.svg" alt="Logo" style="width: 32px; height: 32px;">
+            <img src="assets/favicon.png" alt="Attendance Tracker Logo" style="width: 48px; height: 48px;">
             <h1>Attendance Tracker</h1>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu"
+                aria-expanded="false">
                 <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -55,6 +56,7 @@
                 <a href="#" class="nav-link" data-page="Home">Attendance</a>
                 <a href="#" class="nav-link" data-page="WeeklyReport">Reports</a>
                 <a href="#" class="nav-link" data-page="Total">Total</a>
+                <a href="#" class="nav-link" data-page="Focus">Focus</a>
                 <a href="#" class="nav-link" data-page="Settings">Settings</a>
             </nav>
             <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
@@ -77,10 +79,10 @@
     <main>
         <div class="user-bar">
             <div class="user-id-card">
-                <div class="avatar-container" id="header-avatar-container"
-                    onclick="document.getElementById('profile-pic-input').click()">
+                <div class="avatar-container" id="header-avatar-container" role="button" tabindex="0"
+                    aria-label="Change profile picture">
                     <div id="header-avatar-preview" class="avatar-preview-small"></div>
-                    <div class="avatar-edit-badge">
+                    <div class="avatar-edit-badge" onclick="document.getElementById('profile-pic-input').click()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                             style="width: 11px; height: 11px; display: block;">
                             <path
@@ -200,6 +202,16 @@
                     <div class="skeleton-row"></div>
                     <div class="skeleton-row"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Focus Page -->
+        <div class="page" data-page="Focus">
+            <div class="page-header">
+                <h2>Study Timer</h2>
+            </div>
+            <div class="page-content" id="focus-content">
+                <!-- Focus timer content will be loaded here -->
             </div>
         </div>
 
@@ -351,16 +363,18 @@
                         <label for="signin-password">Password</label>
                         <input type="password" id="signin-password" class="form-input" placeholder="Password"
                             autocomplete="current-password">
+                        <div style="text-align: right; margin-top: 0.25rem;">
+                            <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
+                        </div>
                     </div>
                     <button class="btn btn-green" id="signin-btn" onclick="window.authService.handleSignIn()"
                         style="width: 100%; margin-top: 1rem;">Sign
                         In</button>
                     <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
                         By
-                        signing in, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
-                            target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
-                            href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
-                            style="color: var(--primary);">Privacy Policy</a>.</p>
+                        signing in, you agree to our <a href="terms.html" target="_blank"
+                            style="color: var(--primary);">Terms of Service</a> and <a href="privacy.html"
+                            target="_blank" style="color: var(--primary);">Privacy Policy</a>.</p>
 
                     <div style="position: relative; text-align: center; margin: 1.5rem 0;">
                         <hr style="border: 0; border-top: 1px solid var(--border-color);">
@@ -422,10 +436,9 @@
                         Account</button>
                     <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
                         By
-                        creating an account, you agree to our <a href="https://telegra.ph/TERMS-OF-SERVICE-11-17-3"
-                            target="_blank" style="color: var(--primary);">Terms of Service</a> and <a
-                            href="https://telegra.ph/PRIVACY-POLICY-11-17-295" target="_blank"
-                            style="color: var(--primary);">Privacy Policy</a>.</p>
+                        creating an account, you agree to our <a href="terms.html" target="_blank"
+                            style="color: var(--primary);">Terms of Service</a> and <a href="privacy.html"
+                            target="_blank" style="color: var(--primary);">Privacy Policy</a>.</p>
                 </div>
 
             </div>
@@ -579,6 +592,7 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
     <div id="loading-overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 3000; align-items: center; justify-content: center;">
         <div
@@ -586,67 +600,179 @@
             <div class="cute-loader"></div>
             <div style="margin-top: 1rem; color: var(--dark-text); font-weight: 500;">Processing...</div>
         </div>
-        <!-- FAB for quick attendance -->
-        <button class="fab" id="quick-attendance-fab" title="Quick mark all present" aria-label="Quick mark all present"
-            style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
-        </button>
+    </div>
 
-        <!-- External libraries -->
-        <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-        <script src="assets/clickspark.js"></script>
-        <script src="assets/prism-background.js"></script>
-        <script src="assets/aurora-background.js"></script>
-        <script src="assets/snowfall-background.js"></script>
+    <!-- FAB for assistant -->
+    <button class="fab" id="assistant-fab" title="Ask Assistant" aria-label="Open Assistant">
+        <img src="assets/new-bot-icon.png" alt="Assistant"
+            style="width: 32px; height: 32px; filter: brightness(0) invert(1);">
+    </button>
 
-        <!-- Firebase -->
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-            import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-            import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Assistant Overlay -->
+    <div class="assistant-overlay" id="assistant-overlay">
+        <div class="assistant-panel">
+            <div class="assistant-header">
+                <div class="assistant-title">
+                    <img src="assets/new-bot-icon.png" alt="Assistant" class="assistant-icon">
+                    <h4>Assistant</h4>
+                </div>
+                <button class="assistant-close" id="assistant-close">&times;</button>
+            </div>
+            <div class="assistant-content">
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Chat messages will be appended here -->
+                </div>
+            </div>
+            <div class="chat-input-section">
+                <input type="text" id="chat-input" placeholder="Ask me anything..." class="chat-input"
+                    autocomplete="off">
+                <button id="chat-send" class="chat-send-btn" aria-label="Send message">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyDsuGdds2KAY-SsBtf3oiFpANohU30ArUU",
-                authDomain: "attracker-unique-lisa.firebaseapp.com",
-                projectId: "attracker-unique-lisa",
-                storageBucket: "attracker-unique-lisa.firebasestorage.app",
-                messagingSenderId: "19799307034",
-                appId: "1:19799307034:web:c3009fbf189669a09872a3",
-                measurementId: "G-ZKLDNEW47V"
-            };
 
-            const app = initializeApp(firebaseConfig);
-            window.firebaseAuth = getAuth(app);
-            window.firebaseDb = getFirestore(app);
-        </script>
+    <!-- Edit Attendance Modal -->
+    <div class="modal-overlay" id="edit-attendance-modal" role="dialog" aria-labelledby="edit-attendance-modal-title"
+        aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="edit-attendance-modal-title">Edit Past Attendance</h4>
+                <button type="button" class="modal-close-btn" data-modal-close="edit-attendance-modal"
+                    onclick="window.modalManager.close('edit-attendance-modal')"
+                    aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-attendance-record-id">
+                <input type="hidden" id="edit-attendance-subject-id">
+                <input type="hidden" id="edit-attendance-date">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <div id="edit-attendance-subject-name"
+                        style="padding: 0.75rem; background: var(--light-grey); border-radius: var(--border-radius); color: var(--dark-text); font-weight: 500;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <div id="edit-attendance-date-display"
+                        style="padding: 0.75rem; background: var(--light-grey); border-radius: var(--border-radius); color: var(--dark-text);">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Current Status</label>
+                    <div id="edit-attendance-current-status"
+                        style="padding: 0.75rem; background: var(--light-grey); border-radius: var(--border-radius); color: var(--dark-text); font-weight: 500;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>New Status</label>
+                    <div class="custom-dropdown" id="edit-attendance-status-dropdown">
+                        <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox"
+                            aria-expanded="false">
+                            <span id="edit-attendance-status-display">Select new status...</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                                stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div class="dropdown-options" role="listbox">
+                            <div class="dropdown-option" data-value="Present" role="option">Present</div>
+                            <div class="dropdown-option" data-value="Absent" role="option">Absent</div>
+                            <div class="dropdown-option" data-value="Permission" role="option">Permission</div>
+                            <div class="dropdown-option" data-value="Late" role="option">Late</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-attendance-reason">Reason for Edit <span
+                            style="color: var(--red);">*</span></label>
+                    <textarea id="edit-attendance-reason" class="form-input" rows="3"
+                        placeholder="Please provide a valid reason for editing this attendance record..."
+                        style="resize: vertical; min-height: 80px;" required></textarea>
+                    <div style="font-size: 0.8rem; color: var(--grey-text); margin-top: 0.25rem;">This reason will be
+                        logged for audit purposes.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-modal-close="edit-attendance-modal"
+                    onclick="window.modalManager.close('edit-attendance-modal')">Cancel</button>
+                <button class="btn btn-orange" id="save-edit-attendance-btn">Update Attendance</button>
+            </div>
+        </div>
+    </div>
 
-        <!-- Backgrounds -->
-        <script src="assets/floating-lines.js"></script>
-        <script src="assets/live-backgrounds.js"></script>
+    <!-- Profile Picture Overlay -->
+    <div class="modal-overlay" id="profile-pic-overlay" role="dialog" aria-labelledby="profile-pic-title"
+        aria-modal="true" onclick="modalManager.close('profile-pic-overlay')">
+        <div class="modal-content"
+            style="max-width: 95vw; max-height: 95vh; padding: 0; background: transparent; box-shadow: none; display: flex; align-items: center; justify-content: center;"
+            onclick="event.stopPropagation()">
+            <img id="profile-pic-display" src="" alt="Profile Picture"
+                style="max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+            <button type="button" class="modal-close-btn"
+                style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 28px; cursor: pointer; z-index: 1001;"
+                onclick="modalManager.close('profile-pic-overlay')" aria-label="Close">&times;</button>
+        </div>
+    </div>
 
-        <!-- App modules -->
-        <script type="module" src="utils/constants.js"></script>
-        <script type="module" src="utils/helpers.js"></script>
-        <script type="module" src="utils/validation.js"></script>
-        <script type="module" src="services/attendance-service.js"></script>
-        <script type="module" src="services/auth-service.js"></script>
-        <script type="module" src="services/notification-service.js"></script>
-        <script type="module" src="ui/toast-manager.js"></script>
-        <script type="module" src="ui/modal-manager.js"></script>
-        <script type="module" src="ui/theme-manager.js"></script>
-        <script type="module" src="ui/dropdown-manager.js"></script>
-        <script type="module" src="ui/skeleton-loader.js"></script>
-        <script type="module" src="pages/dashboard-page.js"></script>
-        <script type="module" src="pages/home-page.js"></script>
-        <script type="module" src="pages/weekly-report-page.js"></script>
-        <script type="module" src="pages/total-page.js"></script>
-        <script type="module" src="pages/settings-page.js"></script>
-        <script type="module" src="ui/navigation-manager.js"></script>
-        <script type="module" src="app.js"></script>
+    <!-- External libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="assets/clickspark.js"></script>
+    <script src="assets/prism-background.js"></script>
+    <script src="assets/aurora-background.js"></script>
+    <script src="assets/snowfall-background.js"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsuGdds2KAY-SsBtf3oiFpANohU30ArUU",
+            authDomain: "attracker-unique-lisa.firebaseapp.com",
+            projectId: "attracker-unique-lisa",
+            storageBucket: "attracker-unique-lisa.firebasestorage.app",
+            messagingSenderId: "19799307034",
+            appId: "1:19799307034:web:c3009fbf189669a09872a3",
+            measurementId: "G-ZKLDNEW47V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.firebaseAuth = getAuth(app);
+        window.firebaseDb = getFirestore(app);
+    </script>
+
+    <!-- Backgrounds -->
+    <script src="assets/floating-lines.js"></script>
+    <script src="assets/live-backgrounds.js"></script>
+
+    <!-- App modules -->
+    <script type="module" src="utils/constants.js"></script>
+    <script type="module" src="utils/helpers.js"></script>
+    <script type="module" src="utils/validation.js"></script>
+    <script type="module" src="services/attendance-service.js"></script>
+    <script type="module" src="services/auth-service.js"></script>
+    <script type="module" src="services/notification-service.js"></script>
+    <script type="module" src="ui/toast-manager.js"></script>
+    <script type="module" src="ui/modal-manager.js"></script>
+    <script type="module" src="ui/theme-manager.js"></script>
+    <script type="module" src="ui/dropdown-manager.js"></script>
+    <script type="module" src="ui/skeleton-loader.js"></script>
+    <script type="module" src="pages/dashboard-page.js"></script>
+    <script type="module" src="pages/home-page.js"></script>
+    <script type="module" src="pages/weekly-report-page.js"></script>
+    <script type="module" src="pages/total-page.js"></script>
+    <script type="module" src="pages/settings-page.js"></script>
+    <script type="module" src="ui/navigation-manager.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>

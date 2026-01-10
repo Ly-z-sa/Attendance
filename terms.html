@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - Attendance Tracker</title>
+    <meta name="description"
+        content="Terms of Service for Attendance Tracker - Read our terms and conditions for using the attendance tracking application.">
+    <meta name="keywords"
+        content="terms of service, attendance tracker, user agreement, terms and conditions, academic app">
+    <meta name="author" content="Attendance Tracker Team">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://attendancetracker-app.vercel.app/terms.html">
+    <meta property="og:title" content="Terms of Service - Attendance Tracker">
+    <meta property="og:description" content="Read the terms and conditions for using Attendance Tracker application.">
+    <meta property="og:image" content="https://attendancetracker-app.vercel.app/assets/preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://attendancetracker-app.vercel.app/terms.html">
+    <meta property="twitter:title" content="Terms of Service - Attendance Tracker">
+    <meta property="twitter:description"
+        content="Read the terms and conditions for using Attendance Tracker application.">
+    <meta property="twitter:image" content="https://attendancetracker-app.vercel.app/assets/preview.png">
+
+    <link rel="icon" href="assets/att-logo.svg" type="image/svg">
+    <link rel="canonical" href="https://attendancetracker-app.vercel.app/terms.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* CSS Variables - matching main site */
+        :root {
+            --primary: #8B4513;
+            --primary-light: #A0522D;
+            --primary-dark: #654321;
+            --secondary: #D2691E;
+            --accent: #CD853F;
+            --light-grey: #F5F5DC;
+            --bg-color: #FFF8DC;
+            --dark-text: #2F1B14;
+            --grey-text: #8B7355;
+            --light-text: #ffffff;
+            --green: #228B22;
+            --red: #B22222;
+            --border-color: #DEB887;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(139, 69, 19, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #A0522D;
+            --primary-light: #CD853F;
+            --primary-dark: #8B4513;
+            --secondary: #F4A460;
+            --accent: #DEB887;
+            --light-grey: #2C2C2C;
+            --bg-color: #1A1A1A;
+            --dark-text: #E5E5E5;
+            --grey-text: #B0B0B0;
+            --light-text: #ffffff;
+            --red: #FF6B6B;
+            --border-color: #404040;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-grey);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--grey-text);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        body {
+            font-family: 'Philosopher', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark-text);
+            line-height: 1.7;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-left img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .app-header h1 {
+            font-family: 'Iceberg', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .terms-container {
+            background: var(--light-grey);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terms-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .terms-header h2 {
+            font-family: 'Iceberg', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-header .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .terms-header .last-updated {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .terms-content {
+            padding: 2rem;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            color: var(--grey-text);
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary);
+        }
+
+        .terms-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .terms-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .terms-section h3 {
+            font-family: 'Iceberg', serif;
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .terms-section h3 .icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .terms-section p {
+            margin-bottom: 0.75rem;
+            color: var(--dark-text);
+        }
+
+        .terms-section ul {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .terms-section li {
+            padding: 0.5rem 0 0.5rem 1.75rem;
+            position: relative;
+            color: var(--dark-text);
+        }
+
+        .terms-section li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.9rem;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .terms-section strong {
+            color: var(--primary);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(178, 34, 34, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+            border: 1px solid var(--red);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .warning-box li::before {
+            background: var(--red);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(160, 82, 45, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+        }
+
+        /* Contact Card */
+        .contact-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--light-text);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .contact-card h3 {
+            font-family: 'Iceberg', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-card a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .contact-card a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--grey-text);
+            font-size: 0.9rem;
+        }
+
+        .page-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1rem 1.25rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .app-header h1 {
+                font-size: 1.35rem;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .terms-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .terms-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .terms-content {
+                padding: 1rem;
+            }
+
+            .terms-section {
+                padding: 1rem;
+            }
+
+            .terms-section h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <header class="app-header">
+        <div class="header-left">
+            <img src="assets/att-logo.svg" alt="Attendance Tracker Logo">
+            <h1>Attendance Tracker</h1>
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Back to App</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="terms-container">
+            <div class="terms-header">
+                <h2>Terms of Service</h2>
+                <p class="subtitle">Please read these terms carefully</p>
+                <div class="last-updated">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor"
+                        style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    Last Updated: January 2026
+                </div>
+            </div>
+
+            <div class="terms-content">
+                <div class="intro-text">
+                    By using Attendance Tracker, you agree to these terms. If you disagree with any part of these terms,
+                    please discontinue use of our service.
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            </svg>
+                        </span> Service Description</h3>
+                    <p>Attendance Tracker helps students track class attendance, manage academic schedules, receive
+                        attendance warnings, and edit past attendance records with proper justification. Our app
+                        provides:</p>
+                    <ul>
+                        <li>Daily attendance tracking with multiple status options</li>
+                        <li>Weekly and monthly reporting features</li>
+                        <li>Attendance streak tracking and gamification</li>
+                        <li>Excel export functionality</li>
+                        <li>Theme customization and personalization</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </span> User Responsibilities</h3>
+                    <ul>
+                        <li>Provide accurate information</li>
+                        <li>Use the service for legitimate educational purposes only</li>
+                        <li>Maintain account security</li>
+                        <li>Do not manipulate device time/date to falsify attendance</li>
+                        <li>Provide truthful reasons when editing past attendance records</li>
+                        <li>Use the edit feature responsibly and only for legitimate corrections</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                        </span> Prohibited Uses</h3>
+                    <div class="warning-box">
+                        <ul>
+                            <li>Sharing accounts with others</li>
+                            <li>Attempting to access other users' data</li>
+                            <li>Using the service for non-educational purposes</li>
+                            <li>Circumventing security measures</li>
+                            <li>Providing false reasons for attendance edits</li>
+                            <li>Abusing the edit attendance feature</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                            </svg>
+                        </span> Account Management</h3>
+                    <ul>
+                        <li>You are responsible for your account credentials</li>
+                        <li>Notify us immediately of unauthorized access</li>
+                        <li>We may suspend accounts for terms violations</li>
+                        <li>Edit history and audit logs are maintained for account integrity</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                            </svg>
+                        </span> Service Availability</h3>
+                    <ul>
+                        <li>We strive for 99% uptime but cannot guarantee uninterrupted service</li>
+                        <li>Maintenance may cause temporary outages</li>
+                        <li>We are not liable for data loss due to technical issues</li>
+                        <li>Firebase services may affect availability</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                            </svg>
+                        </span> Intellectual Property</h3>
+                    <ul>
+                        <li>The app and its features are our intellectual property</li>
+                        <li>You retain ownership of your attendance data and edit records</li>
+                        <li>You may not reverse engineer or copy the application</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                            </svg>
+                        </span> Data Integrity & Edit Policy</h3>
+                    <div class="highlight-box">
+                        <ul>
+                            <li>Edit attendance feature is limited to <strong>7 days</strong> from original date</li>
+                            <li>All edits require valid justification and are <strong>permanently logged</strong></li>
+                            <li>Edit abuse may result in account suspension</li>
+                            <li>Original attendance data is preserved for audit purposes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
+                            </svg>
+                        </span> Limitation of Liability</h3>
+                    <ul>
+                        <li>Service provided "as is" without warranties</li>
+                        <li>We are not liable for academic consequences of attendance tracking</li>
+                        <li>Maximum liability limited to service fees (currently $0)</li>
+                        <li>Not responsible for decisions based on edited attendance data</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            </svg>
+                        </span> Termination</h3>
+                    <ul>
+                        <li>Either party may terminate service at any time</li>
+                        <li>Upon termination, your data will be deleted per our Privacy Policy</li>
+                        <li>Edit audit logs may be retained for legal compliance</li>
+                        <li>These terms survive termination where applicable</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                        </span> Changes to Terms</h3>
+                    <ul>
+                        <li>We may update these terms with notice</li>
+                        <li>Continued use constitutes acceptance of changes</li>
+                        <li>Major changes will be highlighted to users</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><span class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                            </svg>
+                        </span> Governing Law</h3>
+                    <p>These terms are governed by Cambodia's Laws. Any disputes will be resolved in accordance with
+                        local regulations.</p>
+                </div>
+
+                <div class="contact-card">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor"
+                            style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        Questions about our Terms?
+                    </h3>
+                    <p>Reach out to our team for clarification</p>
+                    <a href="mailto:lyssa.phat@gmail.com">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" style="width: 18px; height: 18px;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        lyssa.phat@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            <p>© 2026 Attendance Tracker. All rights reserved.</p>
+            <p>
+                <a href="privacy.html">Privacy Policy</a> •
+                <a href="terms.html">Terms of Service</a> •
+                <a href="index.html">Back to App</a>
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        // Apply saved theme from main site
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+
+</html>

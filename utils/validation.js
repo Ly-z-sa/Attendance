@@ -59,7 +59,3 @@ export function validateSemesterDates(startDate, endDate) {
   
   return { valid: true };
 }
-
-export function sanitizeInput(input) {
-  return input.trim().replace(/[<>]/g, '');
-}

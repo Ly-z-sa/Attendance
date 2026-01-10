@@ -2,10 +2,15 @@
 import { getTodayDateString, getCurrentDayName, getSemesterWeek, getRelativeTimeString } from '../utils/helpers.js';
 import attendanceService from '../services/attendance-service.js';
 import { ICONS } from '../utils/icons.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 
 class DashboardPage {
   constructor() {
     this.container = null;
+    this.currentSlide = 0;
+    this.slideshowInterval = null;
+    this.slides = null;
+    this.dotClickHandlers = [];
   }
 
   initialize() {
@@ -16,8 +21,11 @@ class DashboardPage {
     if (!this.container) return;
 
     const currentSem = allSemesters.find(s => s.id === currentSemesterId);
+    const slideshowHtml = this.renderSlideshow();
+
     if (!currentSem) {
-      this.container.innerHTML = this.renderEmptyState();
+      this.container.innerHTML = slideshowHtml + this.renderEmptyState();
+      this.startSlideshow();
       return;
     }
 
@@ -34,12 +42,16 @@ class DashboardPage {
     // Recent activity
     const recentAttendance = [...attendanceService.getForSemester(currentSemesterId)]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
+      // amazonq-ignore-next-line
       .slice(0, 5);
 
     this.container.innerHTML = `
+      <!-- Photo Slideshow -->
+      ${this.renderSlideshow()}
+
       <div class="dashboard-header">
         <h3>Quick Overview</h3>
-        <span class="dashboard-date">${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+        <span class="dashboard-date">${sanitizeInput(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }))}</span>
       </div>
 
       <!-- Quick Stats Cards -->
@@ -47,7 +59,7 @@ class DashboardPage {
         <div class="stat-card stat-card-primary">
           <div class="stat-icon">${ICONS.TARGET}</div>
           <div class="stat-content">
-            <div class="stat-value">${semesterStats.percentage}%</div>
+            <div class="stat-value">${sanitizeInput(semesterStats.percentage)}%</div>
             <div class="stat-label">Attendance Rate</div>
           </div>
         </div>
@@ -55,7 +67,7 @@ class DashboardPage {
         <div class="stat-card stat-card-success">
           <div class="stat-icon">${ICONS.FIRE}</div>
           <div class="stat-content">
-            <div class="stat-value">${streak}</div>
+            <div class="stat-value">${sanitizeInput(streak.toString())}</div>
             <div class="stat-label">Day Streak</div>
           </div>
         </div>
@@ -64,8 +76,8 @@ class DashboardPage {
         <div class="stat-card stat-card-info">
           <div class="stat-icon">${ICONS.CALENDAR}</div>
           <div class="stat-content">
-            <div class="stat-value">Week ${currentWeek}</div>
-            <div class="stat-label">${weekStats.counts.Present}/${weekStats.total} Present</div>
+            <div class="stat-value">Week ${sanitizeInput(currentWeek.toString())}</div>
+            <div class="stat-label">${sanitizeInput(weekStats.counts.Present.toString())}/${sanitizeInput(weekStats.total.toString())} Present</div>
           </div>
         </div>
         ` : ''}
@@ -73,7 +85,7 @@ class DashboardPage {
         <div class="stat-card ${warnings.length > 0 ? 'stat-card-warning' : 'stat-card-success'}">
           <div class="stat-icon">${warnings.length > 0 ? ICONS.WARNING : ICONS.CHECK}</div>
           <div class="stat-content">
-            <div class="stat-value">${warnings.length}</div>
+            <div class="stat-value">${sanitizeInput(warnings.length.toString())}</div>
             <div class="stat-label">Warning${warnings.length !== 1 ? 's' : ''}</div>
           </div>
         </div>
@@ -83,7 +95,7 @@ class DashboardPage {
       <div class="dashboard-section">
         <div class="section-header">
           <h3>Today's Classes</h3>
-          <span class="section-badge">${todaysSubjects.length} subjects</span>
+          <span class="section-badge">${sanitizeInput(todaysSubjects.length.toString())} subjects</span>
         </div>
         ${this.renderTodaysSubjects(todaysSubjects, todaysAttendance)}
       </div>
@@ -93,16 +105,16 @@ class DashboardPage {
       <div class="dashboard-section dashboard-warnings">
         <div class="section-header">
           <h3>Attention Needed</h3>
-          <span class="section-badge section-badge-warning">${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</span>
+          <span class="section-badge section-badge-warning">${sanitizeInput(warnings.length.toString())} warning${warnings.length !== 1 ? 's' : ''}</span>
         </div>
         <div class="warnings-list">
           ${warnings.map(w => `
             <div class="warning-item">
-              <div class="warning-icon" style="color: ${w.warning.color}">${ICONS.WARNING}</div>
+              <div class="warning-icon" style="color: ${sanitizeInput(w.warning.color)}">${ICONS.WARNING}</div>
               <div class="warning-content">
-                <div class="warning-subject">${w.subject.name}</div>
-                <div class="warning-status" style="color: ${w.warning.color}">${w.warning.status}</div>
-                <div class="warning-details">${w.counts.Absent} absent • ${w.counts.Permission} permission • ${w.counts.Late} late</div>
+                <div class="warning-subject">${sanitizeInput(w.subject.name)}</div>
+                <div class="warning-status" style="color: ${sanitizeInput(w.warning.color)}">${sanitizeInput(w.warning.status)}</div>
+                <div class="warning-details">${sanitizeInput(w.counts.Absent.toString())} absent • ${sanitizeInput(w.counts.Permission.toString())} permission • ${sanitizeInput(w.counts.Late.toString())} late</div>
               </div>
             </div>
           `).join('')}
@@ -118,6 +130,7 @@ class DashboardPage {
         ${this.renderRecentActivity(recentAttendance, allSubjects)}
       </div>
     `;
+    this.startSlideshow();
   }
 
   renderTodaysSubjects(subjects, attendance) {
@@ -134,13 +147,13 @@ class DashboardPage {
       <div class="todays-subjects">
         ${subjects.map(subject => {
       const record = attendance.find(r => r.subjectId === subject.id);
-      const statusClass = record ? `status-${record.status.toLowerCase()}` : 'status-pending';
-      const statusText = record ? record.status : 'Not marked';
+      const statusClass = record ? `status-${record.status.toLowerCase().replace(/[^a-z0-9-]/g, '')}` : 'status-pending';
+      const statusText = record ? sanitizeInput(record.status) : 'Not marked';
 
       return `
             <div class="subject-item ${statusClass}">
               <div class="subject-status-indicator"></div>
-              <div class="subject-name">${subject.name}</div>
+              <div class="subject-name">${sanitizeInput(subject.name)}</div>
               <div class="subject-status">${statusText}</div>
             </div>
           `;
@@ -163,17 +176,18 @@ class DashboardPage {
       <div class="activity-list">
         ${recentAttendance.map(record => {
       const subject = allSubjects.find(s => s.id === record.subjectId);
-      const subjectName = subject ? subject.name : 'Unknown Subject';
-      const statusClass = `status-${record.status.toLowerCase()}`;
+      if (!subject) return ''; // Skip if subject not found
+      const subjectName = sanitizeInput(subject.name);
+      const statusClass = `status-${record.status.toLowerCase().replace(/[^a-z0-9-]/g, '')}`;
 
       return `
             <div class="activity-item">
               <div class="activity-indicator ${statusClass}"></div>
               <div class="activity-content">
                 <div class="activity-subject">${subjectName}</div>
-                <div class="activity-date">${getRelativeTimeString(record.date)}</div>
+                <div class="activity-date">${sanitizeInput(getRelativeTimeString(record.date))}</div>
               </div>
-              <div class="activity-status ${statusClass}">${record.status}</div>
+              <div class="activity-status ${statusClass}">${sanitizeInput(record.status)}</div>
             </div>
           `;
     }).join('')}
@@ -193,12 +207,126 @@ class DashboardPage {
         </div>
         <h3>Welcome to Your Dashboard</h3>
         <p>Start by adding a semester and subjects to track your attendance</p>
-        <button class="btn btn-primary" onclick="window.navigateTo('Settings')">Get Started</button>
+        <button class="btn btn-primary" data-navigate="Settings">Get Started</button>
+      </div>
+    `;
+  }
+  renderSlideshow() {
+    // Dynamically detect available slideshow media (images, gifs, videos)
+    const maxSlides = 20;
+    const extensions = ['png', 'jpg', 'jpeg', 'gif', 'mp4', 'webm'];
+    this.slides = [];
+    
+    for (let i = 1; i <= maxSlides; i++) {
+      for (const ext of extensions) {
+        const testSrc = `assets/slideshow_${i}.${ext}`;
+        // Check if file exists by attempting to load it
+        const testElement = ext === 'mp4' || ext === 'webm' ? new Audio() : new Image();
+        testElement.src = testSrc;
+        if (testElement.complete || testElement.naturalWidth > 0 || testElement.readyState > 0) {
+          this.slides.push({ index: i, src: testSrc, type: ext });
+          break; // Found one, move to next index
+        }
+      }
+    }
+    
+    // Fallback to default range if no media detected
+    if (this.slides.length === 0) {
+      this.slides = [1, 2, 3, 4, 5].map(i => ({ index: i, src: `assets/slideshow_${i}.png`, type: 'png' }));
+    }
+    
+    return `
+      <div class="slideshow-section">
+        <div class="slideshow-container">
+          <div class="slideshow-track" id="slideshow-track">
+            ${this.slides.map(slide => {
+              const isVideo = slide.type === 'mp4' || slide.type === 'webm';
+              return `
+                <div class="slide">
+                  ${isVideo ? 
+                    `<video autoplay muted loop playsinline>
+                       <source src="${slide.src}" type="video/${slide.type}">
+                     </video>` :
+                    `<img src="${slide.src}" alt="Slideshow ${sanitizeInput(slide.index.toString())}" onerror="this.src='https://placehold.co/800x350?text=Slideshow+${sanitizeInput(slide.index.toString())}'; this.onerror=null;">`
+                  }
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="slideshow-dots">
+            ${this.slides.map((_, i) => `
+              <div class="dot ${i === 0 ? 'active' : ''}" data-slide="${i}"></div>
+            `).join('')}
+          </div>
+        </div>
       </div>
     `;
   }
 
+  startSlideshow() {
+    this.stopSlideshow();
+    this.setupDotListeners();
+
+    this.slideshowInterval = setInterval(() => {
+      this.currentSlide = (this.currentSlide + 1) % (this.slides?.length || 5);
+      this.showSlide(this.currentSlide);
+    }, 5000);
+  }
+
+  setupDotListeners() {
+    if (!this.container) return;
+    
+    // Remove existing listeners to prevent memory leaks
+    this.removeDotListeners();
+    
+    const dots = this.container.querySelectorAll('.dot');
+    this.dotClickHandlers = [];
+    
+    dots.forEach((dot, index) => {
+      const handler = () => {
+        this.showSlide(index);
+        this.startSlideshow(); // Restart timer on manual click
+      };
+      dot.addEventListener('click', handler);
+      this.dotClickHandlers.push({ element: dot, handler });
+    });
+  }
+  removeDotListeners() {
+    if (this.dotClickHandlers) {
+      this.dotClickHandlers.forEach(({ element, handler }) => {
+        element.removeEventListener('click', handler);
+      });
+      this.dotClickHandlers = [];
+    }
+  }
+
+  stopSlideshow() {
+    if (this.slideshowInterval) {
+      clearInterval(this.slideshowInterval);
+      this.slideshowInterval = null;
+    }
+  }
+
+  showSlide(index) {
+    if (!this.container) return;
+    
+    this.currentSlide = index;
+    const track = this.container.querySelector('#slideshow-track');
+
+    if (track) {
+      track.style.transform = `translateX(-${index * 20}%)`;
+    }
+
+    if (this.dotClickHandlers.length > 0) {
+      this.dotClickHandlers.forEach(({ element }, i) => {
+        element.classList.toggle('active', i === index);
+      });
+    }
+  }
+
   clear() {
+    this.stopSlideshow();
+    this.removeDotListeners();
     if (this.container) {
       this.container.innerHTML = '';
     }

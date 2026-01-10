@@ -2,8 +2,10 @@
 import { getTodayDateString, getDayNameFromDate, getAvailableDates, getSemesterWeek } from '../utils/helpers.js';
 import attendanceService from '../services/attendance-service.js';
 import { ICONS } from '../utils/icons.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
+import { validateCSRFToken } from '../utils/csrf-protection.js';
 
 class HomePage {
   constructor() {
@@ -23,16 +25,6 @@ class HomePage {
         this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
       });
     }
-
-    // Setup FAB
-    this.setupFAB();
-  }
-
-  setupFAB() {
-    const fab = document.getElementById('quick-attendance-fab');
-    if (fab) {
-      fab.addEventListener('click', () => this.handleQuickMarkAll());
-    }
   }
 
   render(currentSemesterId, allSemesters, allSubjects) {
@@ -49,7 +41,6 @@ class HomePage {
     const currentSem = allSemesters.find(s => s.id === currentSemesterId);
     if (!this.isDateInSemester(currentDate, currentSem)) {
       this.container.innerHTML = this.renderOutOfRangeMessage(currentSem);
-      this.hideFAB();
       return;
     }
 
@@ -57,7 +48,6 @@ class HomePage {
     const daysDiff = Math.floor((new Date(getTodayDateString()) - new Date(currentDate)) / (1000 * 60 * 60 * 24));
     if (daysDiff > 7) {
       this.container.innerHTML = this.renderTooOldMessage();
-      this.hideFAB();
       return;
     }
 
@@ -66,16 +56,7 @@ class HomePage {
 
     if (subjectsForDay.length === 0) {
       this.container.innerHTML = this.renderNoSubjectsMessage(dayName);
-      this.hideFAB();
       return;
-    }
-
-    // Show FAB if there are unmarked subjects
-    const hasUnmarked = subjectsForDay.some(s => !attendanceForDay.find(r => r.subjectId === s.id));
-    if (hasUnmarked && isToday) {
-      this.showFAB();
-    } else {
-      this.hideFAB();
     }
 
     this.container.innerHTML = this.renderAttendanceForm(
@@ -98,12 +79,12 @@ class HomePage {
     if (!dateOptionsContainer || !selectedDateDisplay || !dateSelector) return;
 
     dateOptionsContainer.innerHTML = availableDates.map(date =>
-      `<div class="dropdown-option" data-value="${date.dateString}" role="option">${date.displayName}</div>`
+      `<div class="dropdown-option" data-value="${sanitizeInput(date.dateString)}" role="option">${sanitizeInput(date.displayName)}</div>`
     ).join('');
 
     const selectedDateObj = availableDates.find(d => d.dateString === currentDate);
-    selectedDateDisplay.textContent = selectedDateObj ? selectedDateObj.displayName : getDayNameFromDate(currentDate);
-    dateSelector.dataset.value = currentDate;
+    selectedDateDisplay.textContent = selectedDateObj ? sanitizeInput(selectedDateObj.displayName) : sanitizeInput(getDayNameFromDate(currentDate));
+    dateSelector.dataset.value = sanitizeInput(currentDate);
   }
 
   isDateInSemester(dateString, semester) {
@@ -122,7 +103,7 @@ class HomePage {
         <div class="empty-icon">${ICONS.CALENDAR}</div>
         <h3>Date Out of Range</h3>
         <p>The selected date is outside of the semester period</p>
-        ${semester ? `<p class="text-muted">${semester.startDate} to ${semester.endDate}</p>` : ''}
+        ${semester ? `<p class="text-muted">${sanitizeInput(semester.startDate)} to ${sanitizeInput(semester.endDate)}</p>` : ''}
       </div>
     `;
   }
@@ -142,42 +123,13 @@ class HomePage {
       <div class="empty-state">
         <div class="empty-icon">${ICONS.BOOK}</div>
         <h3>No Classes Today</h3>
-        <p>No subjects are scheduled for ${dayName}</p>
+        <p>No subjects are scheduled for ${sanitizeInput(dayName)}</p>
       </div>
     `;
   }
 
   renderAttendanceForm(subjects, attendance, date, semester) {
-    const unmarkedCount = subjects.filter(s => !attendance.find(r => r.subjectId === s.id)).length;
-
     let html = '';
-
-    // Bulk attendance option if multiple unmarked subjects
-    if (unmarkedCount > 1) {
-      html += `
-        <div class="bulk-attendance-card">
-          <div class="bulk-header">
-            <span class="bulk-icon">${ICONS.LIGHTNING}</span>
-            <span class="bulk-title">Quick Mark</span>
-            <span class="bulk-badge">${unmarkedCount} subjects</span>
-          </div>
-          <div class="bulk-actions">
-            <button class="bulk-btn bulk-btn-present" data-status="Present">
-              <span class="bulk-btn-icon">✓</span> All Present
-            </button>
-            <button class="bulk-btn bulk-btn-absent" data-status="Absent">
-              <span class="bulk-btn-icon">✗</span> All Absent
-            </button>
-            <button class="bulk-btn bulk-btn-permission" data-status="Permission">
-              <span class="bulk-btn-icon">📋</span> All Permission
-            </button>
-            <button class="bulk-btn bulk-btn-late" data-status="Late">
-              <span class="bulk-btn-icon">⏰</span> All Late
-            </button>
-          </div>
-        </div>
-      `;
-    }
 
     // Individual subject rows
     html += subjects.map((subject, index) => {
@@ -185,17 +137,19 @@ class HomePage {
       const status = record ? record.status : "Select";
       const statusClass = record ? `status-${status.toLowerCase()}` : "status-present";
       const isDisabled = !!record;
+      const isToday = date === getTodayDateString();
 
       return `
-        <div class="data-row ${isDisabled ? 'data-row-completed' : ''}" style="animation-delay: ${index * 0.05}s;" data-subject-id="${subject.id}">
+        <div class="data-row ${isDisabled ? 'data-row-completed' : ''}" style="animation-delay: ${index * 0.05}s;" data-subject-id="${sanitizeInput(subject.id)}">
           <div class="subject-info">
-            <span class="subject-name">${subject.name}</span>
+            <span class="subject-name">${sanitizeInput(subject.name)}</span>
             ${isDisabled ? '<span class="subject-marked-badge">✓ Marked</span>' : ''}
+            ${record && record.editReason ? '<span class="subject-edited-badge" title="This record has been edited">Edited</span>' : ''}
           </div>
           <div class="subject-row-right">
-            <div class="custom-dropdown status-dropdown" data-value="${status}" data-subject-id="${subject.id}">
+            <div class="custom-dropdown status-dropdown" data-value="${sanitizeInput(status)}" data-subject-id="${sanitizeInput(subject.id)}">
               <div class="dropdown-selected ${statusClass}" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-                <span>${status}</span>
+                <span>${sanitizeInput(status)}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
               </div>
               <div class="dropdown-options" role="listbox">
@@ -205,7 +159,12 @@ class HomePage {
                 <div class="dropdown-option" data-value="Late" role="option">Late</div>
               </div>
             </div>
-            <button class="tick-btn" data-subject-id="${subject.id}" title="Submit Attendance" aria-label="Submit attendance" ${isDisabled ? 'disabled' : ''}>
+            ${isDisabled && !isToday ? `
+              <button class="edit-btn" data-record-id="${sanitizeInput(record.id)}" data-subject-id="${sanitizeInput(subject.id)}" data-subject-name="${sanitizeInput(subject.name)}" data-current-status="${sanitizeInput(status)}" data-date="${sanitizeInput(date)}" title="Edit Attendance" aria-label="Edit attendance">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+              </button>
+            ` : ''}
+            <button class="tick-btn" data-subject-id="${sanitizeInput(subject.id)}" title="Submit Attendance" aria-label="Submit attendance" ${isDisabled ? 'disabled' : ''}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
             </button>
           </div>
@@ -222,12 +181,9 @@ class HomePage {
       btn.addEventListener('click', (e) => this.handleSubmitAttendance(e, date, semester));
     });
 
-    // Bulk submit buttons
-    this.container.querySelectorAll('.bulk-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const status = e.currentTarget.dataset.status;
-        this.handleBulkSubmit(status, date, semester);
-      });
+    // Edit buttons
+    this.container.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.handleEditAttendance(e));
     });
   }
 
@@ -235,6 +191,12 @@ class HomePage {
     const btn = e.currentTarget;
     const subjectId = btn.dataset.subjectId;
     const dropdown = this.container.querySelector(`.custom-dropdown[data-subject-id="${subjectId}"]`);
+    
+    if (!dropdown) {
+      toastManager.error('Unable to find status dropdown');
+      return;
+    }
+    
     const status = dropdown.dataset.value;
 
     if (status === 'Select') {
@@ -253,7 +215,10 @@ class HomePage {
       const row = btn.closest('.data-row');
       if (row) {
         row.classList.add('data-row-completed');
-        row.querySelector('.subject-info').innerHTML += '<span class="subject-marked-badge">✓ Marked</span>';
+        const subjectInfo = row.querySelector('.subject-info');
+        if (subjectInfo) {
+          subjectInfo.innerHTML += '<span class="subject-marked-badge">✓ Marked</span>';
+        }
       }
     } catch (error) {
       btn.disabled = false;
@@ -262,54 +227,40 @@ class HomePage {
     }
   }
 
-  async handleBulkSubmit(status, date, semester) {
-    const confirmed = await modalManager.confirm(
-      'Mark All Subjects',
-      `Mark all unmarked subjects as ${status}?`
-    );
+  handleEditAttendance(e) {
+    const btn = e.currentTarget;
+    const recordId = btn.dataset.recordId;
+    const subjectId = btn.dataset.subjectId;
+    const subjectName = btn.dataset.subjectName;
+    const currentStatus = btn.dataset.currentStatus;
+    const date = btn.dataset.date;
 
-    if (!confirmed) return;
+    const recordData = {
+      recordId,
+      subjectId,
+      subjectName,
+      currentStatus,
+      date
+    };
 
-    const loadingToast = toastManager.loading('Marking attendance...');
-
-    try {
-      const subjectsForDay = window.app.allSubjects.filter(
-        s => s.day === getDayNameFromDate(date) && s.semesterId === window.app.currentSemesterId
-      );
-
-      const count = await attendanceService.bulkSubmitAttendance(
-        subjectsForDay,
-        window.app.currentSemesterId,
-        date,
-        status,
-        semester
-      );
-
-      toastManager.hide(loadingToast);
-      toastManager.success(`✓ Marked ${count} subject${count !== 1 ? 's' : ''} as ${status}`);
-    } catch (error) {
-      toastManager.hide(loadingToast);
-      toastManager.error(error.message || 'Failed to save attendance');
-    }
+    modalManager.editAttendance(recordData).then(async (result) => {
+      if (result.success) {
+        try {
+          await attendanceService.editAttendance(recordId, result.newStatus, result.reason);
+          toastManager.success('✓ Attendance updated successfully');
+          
+          // Refresh the page to show updated data
+          this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
+        } catch (error) {
+          toastManager.error(error.message || 'Failed to update attendance');
+        }
+      } else if (result.error) {
+        toastManager.warning(result.error);
+      }
+    });
   }
 
-  async handleQuickMarkAll() {
-    await this.handleBulkSubmit('Present', getTodayDateString(), window.app.allSemesters.find(s => s.id === window.app.currentSemesterId));
-  }
 
-  showFAB() {
-    const fab = document.getElementById('quick-attendance-fab');
-    if (fab) {
-      fab.style.display = 'flex';
-    }
-  }
-
-  hideFAB() {
-    const fab = document.getElementById('quick-attendance-fab');
-    if (fab) {
-      fab.style.display = 'none';
-    }
-  }
 }
 
 export default new HomePage();

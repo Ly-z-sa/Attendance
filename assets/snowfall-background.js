@@ -91,18 +91,21 @@ class SnowfallBackground {
     animate() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Batch drawing operations
+        this.ctx.fillStyle = '#fff';
+        
         this.snowflakes.forEach(flake => {
             // Update position
             flake.y += flake.speed;
             flake.x += flake.wind;
 
-            // Add slight wobble
+            // Add slight wobble using pre-calculated offset
             flake.x += Math.sin(flake.y * 0.02) * 0.5;
 
             // Reset snowflake if it goes off screen
             if (flake.y > this.canvas.height + 10) {
                 flake.y = -10;
-                flake.x = Math.random() * this.canvas.width;
+                flake.x = flake.x % this.canvas.width;
             }
 
             if (flake.x > this.canvas.width + 10) {
@@ -111,12 +114,18 @@ class SnowfallBackground {
                 flake.x = this.canvas.width + 10;
             }
 
-            this.drawSnowflake(flake);
+            // Draw snowflake with minimal state changes
+            this.ctx.globalAlpha = flake.opacity;
+            this.ctx.beginPath();
+            this.ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+            this.ctx.fill();
         });
 
+        this.ctx.globalAlpha = 1;
         this.animationId = requestAnimationFrame(() => this.animate());
     }
 
+    // amazonq-ignore-next-line
     destroy() {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);

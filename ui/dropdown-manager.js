@@ -1,4 +1,5 @@
 // ui/dropdown-manager.js
+import { sanitizeInput } from '../utils/sanitizer.js';
 
 class DropdownManager {
   constructor() {
@@ -22,6 +23,10 @@ class DropdownManager {
           // Handle dropdown option click
           const option = e.target.closest('.dropdown-option');
           if (option && owner.classList.contains('custom-dropdown')) {
+            // Check if option is locked
+            if (option.classList.contains('locked-option') || option.dataset.locked === 'true') {
+              return; // Ignore click for locked options
+            }
             this.selectOption(owner, option);
           }
         }
@@ -293,7 +298,7 @@ class DropdownManager {
 
     const selectedText = options.find(opt => opt.value === selectedValue);
     selected.innerHTML = `
-      <span>${selectedText ? selectedText.label : 'Select...'}</span>
+      <span>${selectedText ? sanitizeInput(selectedText.label) : 'Select...'}</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
       </svg>
@@ -306,9 +311,9 @@ class DropdownManager {
     options.forEach(option => {
       const optionEl = document.createElement('div');
       optionEl.className = 'dropdown-option';
-      optionEl.dataset.value = option.value;
+      optionEl.dataset.value = sanitizeInput(option.value);
       optionEl.setAttribute('role', 'option');
-      optionEl.textContent = option.label;
+      optionEl.textContent = sanitizeInput(option.label);
       optionsContainer.appendChild(optionEl);
     });
 

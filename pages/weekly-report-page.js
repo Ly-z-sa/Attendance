@@ -2,6 +2,7 @@
 import { getTodayDateString, getSemesterWeek } from '../utils/helpers.js';
 import attendanceService from '../services/attendance-service.js';
 import { ICONS } from '../utils/icons.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 
 class WeeklyReportPage {
   constructor() {
@@ -109,7 +110,7 @@ class WeeklyReportPage {
 
     if (validWeeks.length > 0) {
       weekOptionsContainer.innerHTML = validWeeks.map(week =>
-        `<div class="dropdown-option" data-value="${week}" role="option">Week ${week}</div>`
+        `<div class="dropdown-option" data-value="${sanitizeInput(week.toString())}" role="option">Week ${sanitizeInput(week.toString())}</div>`
       ).join('');
     } else {
       weekOptionsContainer.innerHTML = '<div class="dropdown-option" data-value="1" role="option">Week 1</div>';
@@ -142,22 +143,22 @@ class WeeklyReportPage {
     return `
       <div class="warnings-grid">
         ${warnings.map(w => `
-          <div class="warning-card" style="border-left: 4px solid ${w.warning.color}">
+          <div class="warning-card" style="border-left: 4px solid ${sanitizeInput(w.warning.color)}">
             <div class="warning-card-header">
-              <span class="warning-subject-name">${w.subject.name}</span>
-              <span class="warning-status-badge" style="background: ${w.warning.color}">${w.warning.status}</span>
+              <span class="warning-subject-name">${sanitizeInput(w.subject.name)}</span>
+              <span class="warning-status-badge" style="background: ${sanitizeInput(w.warning.color)}">${sanitizeInput(w.warning.status)}</span>
             </div>
             <div class="warning-stats">
               <div class="warning-stat">
-                <span class="warning-stat-value">${w.counts.Absent}</span>
+                <span class="warning-stat-value">${sanitizeInput(w.counts.Absent.toString())}</span>
                 <span class="warning-stat-label">Absent</span>
               </div>
               <div class="warning-stat">
-                <span class="warning-stat-value">${w.counts.Permission}</span>
+                <span class="warning-stat-value">${sanitizeInput(w.counts.Permission.toString())}</span>
                 <span class="warning-stat-label">Permission</span>
               </div>
               <div class="warning-stat">
-                <span class="warning-stat-value">${w.counts.Late}</span>
+                <span class="warning-stat-value">${sanitizeInput(w.counts.Late.toString())}</span>
                 <span class="warning-stat-label">Late</span>
               </div>
             </div>

@@ -1,11 +1,16 @@
 // assets/prism-background.js
 class PrismBackground {
   constructor() {
-    this.canvas = document.createElement('canvas');
-    this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
-    this.ctx = this.canvas.getContext('2d');
+    try {
+      this.canvas = document.createElement('canvas');
+      this.canvas.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;';
+      this.ctx = this.canvas.getContext('2d');
+      
+      if (!this.ctx) {
+        throw new Error('Canvas 2D context not supported');
+      }
 
-    document.body.appendChild(this.canvas);
+      document.body.appendChild(this.canvas);
 
     this.resizeCanvas();
     this.resizeHandler = () => this.resizeCanvas();
@@ -15,7 +20,10 @@ class PrismBackground {
     this.crystals = [];
     this.initCrystals();
 
-    this.animate();
+      this.animate();
+    } catch (error) {
+      console.error('PrismBackground initialization failed:', error);
+    }
   }
 
   resizeCanvas() {

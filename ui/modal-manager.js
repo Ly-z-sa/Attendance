@@ -1,5 +1,6 @@
 // ui/modal-manager.js
 import { validatePassword, getPasswordStrength } from '../utils/validation.js';
+import { sanitizeInput } from '../utils/sanitizer.js';
 import dropdownManager from './dropdown-manager.js';
 
 class ModalManager {
@@ -7,7 +8,6 @@ class ModalManager {
     this.activeModals = new Set();
     // Expose globally immediately
     window.modalManager = this;
-    console.log('ModalManager initialized and exposed to window');
   }
 
   initialize() {
@@ -166,8 +166,8 @@ class ModalManager {
         confirmBtn.disabled = !isValid;
 
         validationEl.innerHTML = `
-          <div style="color: ${strength.color}; font-weight: 500;">Strength: ${strength.strength}</div>
-          ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">Missing: ${requirements.join(', ')}</div>` : ''}
+          <div style="color: ${sanitizeInput(strength.color)}; font-weight: 500;">Strength: ${sanitizeInput(strength.strength)}</div>
+          ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">Missing: ${sanitizeInput(requirements.join(', '))}</div>` : ''}
         `;
       };
 
@@ -365,6 +365,83 @@ class ModalManager {
   // Alert modal for information
   alert(title, message) {
     return this.confirm(title, message);
+  }
+
+  // Edit attendance modal
+  editAttendance(recordData) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('edit-attendance-modal');
+      const recordIdEl = document.getElementById('edit-attendance-record-id');
+      const subjectIdEl = document.getElementById('edit-attendance-subject-id');
+      const dateEl = document.getElementById('edit-attendance-date');
+      const subjectNameEl = document.getElementById('edit-attendance-subject-name');
+      const dateDisplayEl = document.getElementById('edit-attendance-date-display');
+      const currentStatusEl = document.getElementById('edit-attendance-current-status');
+      const reasonEl = document.getElementById('edit-attendance-reason');
+      const dropdown = document.getElementById('edit-attendance-status-dropdown');
+      const display = document.getElementById('edit-attendance-status-display');
+      const confirmBtn = document.getElementById('save-edit-attendance-btn');
+
+      // Populate fields
+      recordIdEl.value = recordData.recordId;
+      subjectIdEl.value = recordData.subjectId;
+      dateEl.value = recordData.date;
+      subjectNameEl.textContent = recordData.subjectName;
+      dateDisplayEl.textContent = new Date(recordData.date).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      currentStatusEl.textContent = recordData.currentStatus;
+      reasonEl.value = '';
+      
+      // Reset dropdown
+      dropdown.dataset.value = '';
+      display.textContent = 'Select new status...';
+
+      const handleConfirm = () => {
+        const newStatus = dropdown.dataset.value;
+        const reason = reasonEl.value.trim();
+        
+        if (!newStatus) {
+          resolve({ success: false, error: 'Please select a new status.' });
+          return;
+        }
+        
+        if (!reason || reason.length < 10) {
+          resolve({ success: false, error: 'Please provide a detailed reason (minimum 10 characters).' });
+          return;
+        }
+        
+        this.close('edit-attendance-modal');
+        cleanup();
+        resolve({ success: true, newStatus, reason });
+      };
+
+      const handleCancel = () => {
+        this.close('edit-attendance-modal');
+        cleanup();
+        resolve({ success: false });
+      };
+
+      const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+          btn.removeEventListener('click', handleCancelWrap);
+        });
+      };
+
+      const handleCancelWrap = () => handleCancel();
+
+      modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', handleCancelWrap);
+      });
+
+      confirmBtn.addEventListener('click', handleConfirm);
+
+      this.open('edit-attendance-modal');
+    });
   }
 }
 

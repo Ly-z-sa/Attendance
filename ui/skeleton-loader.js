@@ -1,4 +1,5 @@
 // ui/skeleton-loader.js
+import { sanitizeInput } from '../utils/sanitizer.js';
 
 class SkeletonLoader {
   constructor() {
@@ -6,7 +7,7 @@ class SkeletonLoader {
   }
 
   show(containerId, type = 'default') {
-    const container = document.getElementById(containerId);
+    const container = document.getElementById(sanitizeInput(containerId));
     if (!container) return;
 
     let skeleton;
@@ -29,7 +30,7 @@ class SkeletonLoader {
   }
 
   hide(containerId) {
-    this.loaders.delete(containerId);
+    this.loaders.delete(sanitizeInput(containerId));
   }
 
   createDefaultSkeleton() {

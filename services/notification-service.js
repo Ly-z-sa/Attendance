@@ -115,6 +115,14 @@ class NotificationService {
       this.lastNotificationDate = today;
     }
 
+    // Morning schedule notification at 7:00 AM
+    if (hour === 7 && minute === 0) {
+      this.sendDailySchedule();
+    }
+
+    // Check for class reminders (1 hour before each class)
+    this.checkClassReminders(hour, minute, currentDayName);
+
     // First reminder at 5:30 PM (17:30)
     if (hour === 17 && minute === 30) {
       this.checkMissedAttendance();
@@ -135,6 +143,51 @@ class NotificationService {
     if (dayOfWeek === 0 && hour === 20 && minute === 0) {
       this.sendWeeklyReport();
     }
+  }
+
+  sendDailySchedule() {
+    if (!this.subjects || !this.currentSemesterId) return;
+
+    const today = getCurrentDayName();
+    const todaySubjects = this.subjects.filter(
+      s => s.day === today && s.semesterId === this.currentSemesterId
+    );
+
+    if (todaySubjects.length === 0) return; // Don't send if no classes today
+
+    const subjectList = todaySubjects
+      .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''))
+      .map(s => `${s.name}${s.startTime ? ` at ${s.startTime}` : ''}`)
+      .join(', ');
+
+    const message = todaySubjects.length === 1
+      ? `You have 1 class today: ${subjectList}. Have a great day!`
+      : `You have ${todaySubjects.length} classes today: ${subjectList}. Have a great day!`;
+
+    this.send('Today\'s Schedule', message);
+  }
+
+  checkClassReminders(currentHour, currentMinute, currentDayName) {
+    if (!this.subjects || !this.currentSemesterId) return;
+
+    const todaySubjects = this.subjects.filter(
+      s => s.day === currentDayName && s.semesterId === this.currentSemesterId && s.startTime
+    );
+
+    todaySubjects.forEach(subject => {
+      const [startHour, startMinute] = subject.startTime.split(':').map(Number);
+      const reminderHour = startHour - 1;
+      const reminderMinute = startMinute;
+
+      // Check if current time matches reminder time (1 hour before class)
+      if (currentHour === reminderHour && currentMinute === reminderMinute) {
+        const endTime = subject.endTime ? ` - ${subject.endTime}` : '';
+        this.send(
+          'Class Reminder',
+          `${subject.name} starts in 1 hour at ${subject.startTime}${endTime}. Get ready!`
+        );
+      }
+    });
   }
 
   checkMissedAttendance() {

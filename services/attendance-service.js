@@ -13,6 +13,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS } from '../utils/constants.js';
 import { getSemesterWeek, calculateWarning, getTodayDateString, getRealTime } from '../utils/helpers.js';
+import errorHandler from '../utils/error-handler.js';
 
 class AttendanceService {
   constructor() {
@@ -54,6 +55,10 @@ class AttendanceService {
 
   notifyListeners() {
     this.listeners.forEach(callback => callback(this.allAttendance));
+    // Check milestone after attendance update
+    if (window.app && window.app.checkMilestone) {
+      setTimeout(() => window.app.checkMilestone(), 100);
+    }
   }
 
   getForSemester(semesterId) {
@@ -90,7 +95,7 @@ class AttendanceService {
       return docRef.id;
     } catch (error) {
       console.error("Error adding subject:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -108,7 +113,7 @@ class AttendanceService {
       );
     } catch (error) {
       console.error("Error updating subject:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -124,7 +129,7 @@ class AttendanceService {
       return docRef.id;
     } catch (error) {
       console.error("Error adding semester:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -139,7 +144,7 @@ class AttendanceService {
       );
     } catch (error) {
       console.error("Error updating semester:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -173,7 +178,7 @@ class AttendanceService {
       return { id: docRef.id, ...record };
     } catch (error) {
       console.error("Error saving attendance:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
@@ -213,6 +218,42 @@ class AttendanceService {
     }
   }
 
+  async editAttendance(recordId, newStatus, reason) {
+    if (!reason || reason.trim().length < 10) {
+      throw new Error('Please provide a detailed reason (minimum 10 characters) for editing this attendance record.');
+    }
+
+    const record = this.allAttendance.find(r => r.id === recordId);
+    if (!record) {
+      throw new Error('Attendance record not found.');
+    }
+
+    // Check if record is within 7 days
+    const daysDiff = Math.floor((new Date(getTodayDateString()) - new Date(record.date)) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 7) {
+      throw new Error('Cannot edit attendance records older than 7 days.');
+    }
+
+    if (record.status === newStatus) {
+      throw new Error('New status must be different from current status.');
+    }
+
+    try {
+      await updateDoc(
+        doc(this.db, FIREBASE_PATHS.attendanceDoc(this.userId, recordId)),
+        {
+          status: newStatus,
+          editReason: reason.trim(),
+          editedAt: serverTimestamp(),
+          originalStatus: record.status
+        }
+      );
+    } catch (error) {
+      console.error("Error editing attendance:", error);
+      throw new Error(errorHandler.getFriendlyMessage(error));
+    }
+  }
+
   async deleteAttendance(recordId) {
     try {
       await deleteDoc(
@@ -220,7 +261,7 @@ class AttendanceService {
       );
     } catch (error) {
       console.error("Error deleting attendance:", error);
-      throw error;
+      throw new Error(errorHandler.getFriendlyMessage(error));
     }
   }
 
