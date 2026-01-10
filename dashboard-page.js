@@ -212,39 +212,26 @@ class DashboardPage {
     `;
   }
   renderSlideshow() {
-    // Static configuration for production - update this array when adding new files
-    this.slides = [
-      { index: 1, src: 'assets/slideshow_1.png', type: 'png' },
-      { index: 2, src: 'assets/slideshow_2.png', type: 'png' },
-      { index: 3, src: 'assets/slideshow_3.png', type: 'png' },
-      { index: 4, src: 'assets/slideshow_4.png', type: 'png' },
-      { index: 5, src: 'assets/slideshow_5.png', type: 'png' },
-      { index: 6, src: 'assets/slideshow_6.png', type: 'png' },
-      { index: 7, src: 'assets/slideshow_7.png', type: 'png' }
-    ];
-    
     return `
       <div class="slideshow-section">
         <div class="slideshow-container">
           <div class="slideshow-track" id="slideshow-track">
-            ${this.slides.map(slide => {
-              const isVideo = slide.type === 'mp4' || slide.type === 'webm';
-              return `
-                <div class="slide">
-                  ${isVideo ? 
-                    `<video autoplay muted loop playsinline>
-                       <source src="${slide.src}" type="video/${slide.type}">
-                     </video>` :
-                    `<img src="${slide.src}" alt="Slideshow ${sanitizeInput(slide.index.toString())}" onerror="this.src='https://placehold.co/800x350?text=Slideshow+${sanitizeInput(slide.index.toString())}'; this.onerror=null;">`
-                  }
-                </div>
-              `;
-            }).join('')}
+            <div class="slide slide-0"><img src="assets/slideshow_1.png" alt="Slide 1"></div>
+            <div class="slide slide-1"><img src="assets/slideshow_2.png" alt="Slide 2"></div>
+            <div class="slide slide-2"><img src="assets/slideshow_3.png" alt="Slide 3"></div>
+            <div class="slide slide-3"><img src="assets/slideshow_4.png" alt="Slide 4"></div>
+            <div class="slide slide-4"><img src="assets/slideshow_5.png" alt="Slide 5"></div>
+            <div class="slide slide-5"><img src="assets/slideshow_6.png" alt="Slide 6"></div>
+            <div class="slide slide-6"><img src="assets/slideshow_7.png" alt="Slide 7"></div>
           </div>
           <div class="slideshow-dots">
-            ${this.slides.map((_, i) => `
-              <div class="dot ${i === 0 ? 'active' : ''}" data-slide="${i}"></div>
-            `).join('')}
+            <div class="dot active" onclick="goToSlide(0)"></div>
+            <div class="dot" onclick="goToSlide(1)"></div>
+            <div class="dot" onclick="goToSlide(2)"></div>
+            <div class="dot" onclick="goToSlide(3)"></div>
+            <div class="dot" onclick="goToSlide(4)"></div>
+            <div class="dot" onclick="goToSlide(5)"></div>
+            <div class="dot" onclick="goToSlide(6)"></div>
           </div>
         </div>
       </div>
@@ -253,23 +240,42 @@ class DashboardPage {
 
   startSlideshow() {
     this.stopSlideshow();
-    this.setupDotListeners();
 
-    this.slideshowInterval = setInterval(() => {
-      this.currentSlide = (this.currentSlide + 1) % (this.slides?.length || 5);
+    setTimeout(() => {
+      const track = document.getElementById('slideshow-track');
+      if (!track) return;
+
+      const slideCount = 7;
+
+      const next = () => {
+        const nextSlide = (this.currentSlide + 1) % slideCount;
+        this.showSlide(nextSlide);
+      };
+
+      const start = () => {
+        this.stopSlideshow();
+        this.slideshowInterval = setInterval(next, 5000);
+      };
+
+      window.goToSlide = (n) => {
+        this.showSlide(n);
+        start();
+      };
+
       this.showSlide(this.currentSlide);
-    }, 5000);
+      start();
+    }, 100);
   }
 
   setupDotListeners() {
     if (!this.container) return;
-    
+
     // Remove existing listeners to prevent memory leaks
     this.removeDotListeners();
-    
+
     const dots = this.container.querySelectorAll('.dot');
     this.dotClickHandlers = [];
-    
+
     dots.forEach((dot, index) => {
       const handler = () => {
         this.showSlide(index);
@@ -296,20 +302,18 @@ class DashboardPage {
   }
 
   showSlide(index) {
-    if (!this.container) return;
-    
-    this.currentSlide = index;
-    const track = this.container.querySelector('#slideshow-track');
+    const track = document.querySelector('#slideshow-track');
+    const dots = document.querySelectorAll('.slideshow-dots .dot');
 
     if (track) {
-      track.style.transform = `translateX(-${index * 20}%)`;
+      track.style.transform = `translateX(-${index * 14.2857}%)`;
     }
 
-    if (this.dotClickHandlers.length > 0) {
-      this.dotClickHandlers.forEach(({ element }, i) => {
-        element.classList.toggle('active', i === index);
-      });
-    }
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+
+    this.currentSlide = index;
   }
 
   clear() {
@@ -321,4 +325,20 @@ class DashboardPage {
   }
 }
 
-export default new DashboardPage();
+const dashboardPageInstance = new DashboardPage();
+
+export default dashboardPageInstance;
+
+// Make the same instance globally accessible for onclick handlers
+window.dashboardPage = dashboardPageInstance;
+
+// Global function for dot clicks - redirects to the instance's startSlideshow if needed
+// or uses the one set up in startSlideshow()
+if (typeof window.goToSlide !== 'function') {
+  window.goToSlide = function (index) {
+    if (window.dashboardPage) {
+      window.dashboardPage.showSlide(index);
+      window.dashboardPage.startSlideshow();
+    }
+  };
+}
