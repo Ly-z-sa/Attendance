@@ -221,14 +221,17 @@ body {
 .app-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: var(--light-text);
-    padding: 1.25rem 2.5rem;
+    padding: 0.875rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
-    top: 0;
+    top: 12px;
     z-index: 1100;
+    margin: 12px 20px 0 20px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
 }
 
 .app-header h1 {
@@ -266,6 +269,36 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+}
+
+.nav-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background-color: var(--red);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    line-height: 1;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
 }
 
 .nav-link::before {
@@ -741,88 +774,7 @@ main {
     color: var(--dark-text);
 }
 
-/* ============================================
-   SLIDESHOW STYLES
-   ============================================ */
-.slideshow-section {
-    margin-bottom: 2rem;
-}
 
-.slideshow-container {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    background: var(--light-grey);
-}
-
-.slideshow-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    width: 700%; /* 7 slides * 100% */
-}
-
-.slide {
-    width: 14.2857%; /* 100% / 7 slides */
-    flex-shrink: 0;
-    position: relative;
-    aspect-ratio: 3/1;
-    background: var(--light-grey);
-}
-
-.slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.slide-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-    color: white;
-    padding: 2rem 1.5rem 1.5rem;
-    text-align: center;
-}
-
-.slide-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.slideshow-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; gap: 8px; z-index: 10; }
-
-.dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); cursor: pointer; transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.8); }
-
-.dot.active { background: rgba(255, 255, 255, 0.9); transform: scale(1.2); }
-
-.dot:hover { background: rgba(255, 255, 255, 0.7); transform: scale(1.1); }
-
-@media (max-width: 768px) {
-    .slideshow-container {
-        margin: 0 -0.75rem;
-        border-radius: 0;
-    }
-    
-    .slide {
-        aspect-ratio: 2/1;
-    }
-    
-    .slide-title {
-        font-size: 1.2rem;
-    }
-    
-    .slide-overlay {
-        padding: 1.5rem 1rem 1rem;
-    }
-}
 
 /* ============================================
    DASHBOARD STYLES
@@ -854,11 +806,13 @@ main {
 .slideshow-track {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    width: 700%; /* 7 slides * 100% */
+    width: 700%;
+    /* 7 slides * 100% */
 }
 
 .slide {
-    width: 14.2857%; /* 100% / 7 slides */
+    width: 14.2857%;
+    /* 100% / 7 slides */
     flex-shrink: 0;
     position: relative;
     aspect-ratio: 3/1;
@@ -889,28 +843,46 @@ main {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.slideshow-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; gap: 8px; z-index: 10; }
+.slideshow-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+}
 
-.dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); cursor: pointer; transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.8); }
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
 
-.dot.active { background: rgba(255, 255, 255, 0.9); transform: scale(1.2); }
+.dot.active {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+}
 
-.dot:hover { background: rgba(255, 255, 255, 0.7); transform: scale(1.1); }
+.dot:hover {
+    background: rgba(255, 255, 255, 0.7);
+    transform: scale(1.1);
+}
 
 @media (max-width: 768px) {
-    .slideshow-container {
-        margin: 0 -0.75rem;
-        border-radius: 0;
-    }
-    
     .slide {
-        aspect-ratio: 2/1;
+        aspect-ratio: 3/1;
     }
-    
+
     .slide-title {
         font-size: 1.2rem;
     }
-    
+
     .slide-overlay {
         padding: 1.5rem 1rem 1rem;
     }
@@ -1080,6 +1052,34 @@ main {
 
 .subject-item.status-pending .subject-status-indicator {
     background: var(--grey-text);
+}
+
+/* Today's Classes Contrast Fix */
+.subject-item.status-present {
+    background-color: var(--green) !important;
+    border: 1px solid var(--green);
+}
+
+.subject-item.status-present .subject-name,
+.subject-item.status-present .subject-status {
+    color: white;
+    font-weight: 600;
+}
+
+.subject-item.status-present .subject-status-indicator {
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Dark Mode Overrides for Lime Green background */
+[data-theme="dark"] .subject-item.status-present .subject-name,
+[data-theme="dark"] .subject-item.status-present .subject-status {
+    color: #003300;
+    /* Dark green text for better contrast on lime green */
+}
+
+[data-theme="dark"] .subject-item.status-present .subject-status-indicator {
+    background-color: #003300;
 }
 
 .subject-name {
@@ -1452,7 +1452,14 @@ main {
 }
 
 .bulk-btn-icon {
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bulk-btn-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
 }
 
 /* ============================================
@@ -2320,19 +2327,35 @@ main {
     margin-bottom: 1.5rem;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 1rem;
+    transition: border-color var(--transition);
 }
 
 .settings-header.collapsible {
     cursor: pointer;
     user-select: none;
-    transition: var(--transition);
+    /* Move layout properties here from :hover to prevent jumping */
+    /* Reduced bottom margin and padding to fix "hollow" look */
+    margin: 0 -1rem 0.5rem -1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border-bottom: 2px solid transparent;
+    /* Hide default border, let it be handled by section or specific spacing */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Ensure vertically centered */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
+/* Restore the separator line visually if needed, or rely on spacing. 
+   Given the previous design had border-bottom, let's keep it subtle or handle it via margin.
+   Actually, let's keep the visual 'row' feel without the jarring layout shift. */
+
 .settings-header.collapsible:hover {
-    background: rgba(0, 0, 0, 0.02);
-    margin: 0 -1rem;
-    padding: 0.5rem 1rem 1rem 1rem;
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
+    /* No margin/padding changes here! */
+    transform: translateY(-1px);
 }
 
 .settings-header h3 {
@@ -2343,7 +2366,8 @@ main {
 .collapse-icon {
     width: 20px;
     height: 20px;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Bouncy spring effect */
     color: var(--grey-text);
 }
 
@@ -2352,7 +2376,7 @@ main {
 }
 
 .settings-content {
-    transition: max-height 0.3s ease, opacity 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
     overflow: hidden;
     max-height: 2000px;
 }
@@ -2371,15 +2395,20 @@ main {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.25rem;
-    border-radius: 8px;
+    border-radius: 12px;
+    /* Slightly rounder */
     background-color: var(--bg-color);
     margin-bottom: 0.75rem;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    /* Prevent border jump if added later */
 }
 
 .settings-list-item:hover {
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    /* Premium lift effect */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.05);
 }
 
 .btn-group {
@@ -3711,13 +3740,16 @@ button:focus-visible,
 /* TABLET & MOBILE (Up to 768px) */
 @media (max-width: 768px) {
     .app-header {
-        padding: 0.75rem 1rem;
+        padding: 0.625rem 1rem;
         flex-direction: row !important;
         /* FORCE SINGLE LINE */
         justify-content: space-between;
         align-items: center;
         height: auto;
         gap: 0.5rem;
+        margin: 8px 12px 0 12px;
+        top: 8px;
+        border-radius: 40px;
     }
 
     .app-header>div:first-child {
@@ -4626,3 +4658,21 @@ button:focus-visible,
     text-decoration: underline;
 }
 
+/* Fix excessive gap in Auth Modal */
+#auth-modal .modal-header {
+    border-bottom: none;
+    padding-bottom: 0.5rem;
+}
+
+#auth-modal .modal-body {
+    padding-top: 0.5rem;
+}
+
+/* Fix gap between password and sign in button */
+#signin-form .form-group:last-of-type {
+    margin-bottom: 0.25rem;
+}
+
+#signin-btn {
+    margin-top: 0.5rem !important;
+}

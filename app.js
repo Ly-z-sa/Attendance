@@ -1,6 +1,7 @@
 // app.js
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { onSnapshot, collection, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getTodayDateString, getCurrentDayName } from './utils/helpers.js';
 import { FIREBASE_PATHS, STREAK_REQUIREMENTS } from './utils/constants.js';
 import { ICONS } from './utils/icons.js';
 import csrfProtection from './utils/csrf-protection.js';
@@ -360,6 +361,7 @@ class App {
       if (!this.userId) return;
 
       this.updateHeader();
+      this.updateNotificationBadge();
 
       switch (this.currentPage) {
         case 'Dashboard':
@@ -573,6 +575,49 @@ class App {
       }
     } catch (error) {
       console.error('Error updating header:', error);
+    }
+  }
+
+  updateNotificationBadge() {
+    try {
+      if (!this.userId || !this.currentSemesterId) return;
+
+      const today = getTodayDateString();
+      const dayName = getCurrentDayName();
+
+      const todaysSubjects = this.allSubjects.filter(s =>
+        s.semesterId === this.currentSemesterId &&
+        s.day === dayName
+      );
+
+      const todaysAttendance = attendanceService.getForDate(today);
+
+      const unmarkedCount = todaysSubjects.filter(subject =>
+        !todaysAttendance.find(r => r.subjectId === subject.id)
+      ).length;
+
+      const navLink = document.querySelector('.nav-link[data-page="Home"]');
+      if (navLink) {
+        let badge = navLink.querySelector('.nav-badge');
+        if (unmarkedCount > 0) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'nav-badge';
+            navLink.appendChild(badge);
+          }
+          badge.textContent = unmarkedCount > 9 ? '9+' : unmarkedCount;
+          navLink.classList.add('has-badge');
+          // Add extra padding to prevent text overlap
+          navLink.style.paddingRight = '26px';
+        } else {
+          if (badge) badge.remove();
+          navLink.classList.remove('has-badge');
+          navLink.style.paddingRight = '';
+        }
+      }
+
+    } catch (e) {
+      console.error("Error updating badge", e);
     }
   }
 

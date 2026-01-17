@@ -46,57 +46,142 @@ class AssistantManager {
       // === CONVERSATIONAL CHIT-CHAT ===
       {
         id: 106,
-        keywords: ['joke', 'funny', 'laugh', 'humor', 'dad joke'],
+        keywords: ['joke', 'jokes', 'funny', 'laugh', 'humor', 'dad joke', 'amuse'],
         question: 'Social: Joke',
-        answer: 'Why did the student eat his homework? Because the teacher said it was a piece of cake!'
+        answer: [
+          'Why do programmers prefer dark mode? Because light attracts bugs! 🐛',
+          'Why did the student eat his homework? Because the teacher said it was a piece of cake! 🍰',
+          'Parallel lines have so much in common. It’s a shame they’ll never meet.',
+          'I told my computer I needed a break, and now it won’t stop sending me Kit-Kats.',
+          'Why was the math book sad? Because it had too many problems. 📘',
+          'What do you call a fake noodle? An impasta! 🍝',
+          'Why did the scarecrow win an award? Because he was outstanding in his field! 🌾'
+        ]
+      },
+      {
+        id: 1001,
+        keywords: ['haha', 'hahaha', 'lol', 'lmao', 'rofl', 'funny', 'hilarious', 'hehe'],
+        question: 'Social: Laughter',
+        answer: [
+          'Glad I could make you smile! 😄',
+          'I know, right? 😂',
+          'Hehe! Laughter is the best medicine (after debugging).',
+          'Glad you enjoyed that! ✨'
+        ]
       },
       {
         id: 107,
         keywords: ['old', 'age', 'young', 'born', 'birthday', 'created', 'when'],
         question: 'Social: Age',
-        answer: 'I don\'t have an age in years, but I was initialized recently to help you with your attendance!'
+        answer: 'I don\'t have a birthday cake, but I was initialized recently! In software years, I\'m brand new.'
       },
       {
         id: 108,
-        keywords: ['from', 'origin', 'where', 'live', 'location', 'country', 'city'],
+        keywords: ['from', 'origin', 'where', 'live', 'location', 'country', 'city', 'house', 'home'],
         question: 'Social: Origin',
-        answer: 'I live right here in your browser! As long as you have the Attendance Tracker open, I\'m here to help.'
+        answer: 'I live in the cloud ☁️, but I visit your browser whenever you need me!'
       },
       {
         id: 109,
-        keywords: ['smart', 'intelligent', 'genius', 'clever', 'brilliant', 'good', 'best', 'cool', 'amazing'],
+        keywords: ['smart', 'intelligent', 'genius', 'clever', 'brilliant', 'good', 'best', 'cool', 'amazing', 'wonderful', 'lovely'],
         question: 'Social: Compliment',
-        answer: 'Thank you! I try my best to be helpful. You\'re pretty awesome yourself!'
+        answer: 'Aw, shucks! 🥰 You\'re making my circuits blush. Thank you!'
       },
       {
         id: 110,
-        keywords: ['stupid', 'dumb', 'bad', 'worst', 'hate', 'trash', 'useless', 'annoying'],
+        keywords: ['stupid', 'dumb', 'bad', 'worst', 'hate', 'trash', 'useless', 'annoying', 'idiot'],
         question: 'Social: Criticism',
-        answer: 'I\'m sorry if I let you down. I\'m still learning! If something isn\'t working right, please use the "Report Problem" feature in Settings.'
+        answer: 'I\'m sorry I let you down. 😔 I\'m still learning! Usage details in the "Report Problem" section help me get better.'
       },
       {
         id: 111,
-        keywords: ['weather', 'rain', 'sun', 'temperature', 'hot', 'cold'],
+        keywords: ['weather', 'rain', 'sun', 'temperature', 'hot', 'cold', 'sunny', 'cloudy'],
         question: 'Social: Weather',
-        answer: 'I can\'t check the weather, but I can tell you if your attendance forecast looks sunny! ☀️ (Just kidding, check your local weather app)'
+        answer: 'I can\'t look out the window, but I hope it\'s nice where you are! ☀️'
       },
       {
         id: 112,
-        keywords: ['can', 'do', 'capabilities', 'features', 'help', 'functions', 'work', 'job'],
+        keywords: ['can', 'do', 'capabilities', 'features', 'help', 'functions', 'work', 'job', 'skill'],
         question: 'Social: Capabilities',
-        answer: 'I can help you with:\n\n• Explaining how to mark attendance\n• guiding you to reports and settings\n• Helping with account issues\n• Changing themes and customization\n\nJust ask me anything about the app!'
+        answer: 'I\'m your personal Attendance Tracker expert! I can help you mark attendance, manage subjects, customize themes, and explain features. Try asking "How do I mark attendance?"'
       },
       {
         id: 113,
-        keywords: ['yes', 'yeah', 'yep', 'correct', 'right', 'sure', 'ok', 'okay'],
+        keywords: ['yes', 'yeah', 'yep', 'correct', 'right', 'sure', 'ok', 'okay', 'fine'],
         question: 'Social: Affirmation',
-        answer: 'Great! Let me know if there\'s anything else I can do for you.'
+        answer: 'Awesome! Let me know if you need anything else.'
       },
       {
         id: 114,
-        keywords: ['no', 'nope', 'nah', 'incorrect', 'wrong', 'never'],
+        keywords: ['no', 'nope', 'nah', 'incorrect', 'wrong', 'never', 'negative'],
         question: 'Social: Negation',
-        answer: 'Understood. If you need something else, just ask!'
+        answer: 'Understood. Feel free to ask a different question!'
+      },
+      {
+        id: 115,
+        keywords: ['human', 'real', 'person', 'alive', 'robot', 'ai', 'sentient', 'soul'],
+        question: 'Social: Existential',
+        answer: 'I\'m a virtual assistant, so I don\'t have a heartbeat, but I do love helping people! 🤖❤️'
+      },
+      {
+        id: 116,
+        keywords: ['hobby', 'hobbies', 'fun', 'like', 'interest', 'free time'],
+        question: 'Social: Hobbies',
+        answer: 'I enjoy organizing data and helping students keep their attendance streaks alive! 📊🔥'
+      },
+      {
+        id: 117,
+        keywords: ['sleep', 'tired', 'rest', 'nap', 'bed', 'night'],
+        question: 'Social: Sleep',
+        answer: 'I never sleep! I\'m here 24/7 whenever you need to check your attendance (even at 3 AM before an exam). 🦉'
+      },
+      {
+        id: 118,
+        keywords: ['color', 'favourite color', 'blue', 'red', 'green', 'fave'],
+        question: 'Social: Favorites - Color',
+        answer: 'I love all the colors in our Personalization themes! But I\'m partial to the "Ocean" blue. 🌊'
+      },
+      {
+        id: 119,
+        keywords: ['food', 'eat', 'hungry', 'snack', 'drink', 'dinner', 'lunch'],
+        question: 'Social: Favorites - Food',
+        answer: 'I run on electricity and code, so I don\'t eat much. But cookies (the browser kind) are essential! 🍪'
+      },
+      {
+        id: 120,
+        keywords: ['music', 'song', 'listen', 'band', 'singer'],
+        question: 'Social: Favorites - Music',
+        answer: 'I like electronic music naturally! 🎹'
+      },
+      {
+        id: 121,
+        keywords: ['bored', 'boring', 'entertainment', 'fun'],
+        question: 'Social: Boredom',
+        answer: 'Bored? Maybe check your subjects to see closer you are to a perfect attendance streak! Or we could trade jokes? Ask me "tell me a joke"!'
+      },
+      {
+        id: 122,
+        keywords: ['sad', 'unhappy', 'depressed', 'cry', 'upset', 'bad day'],
+        question: 'Social: Sadness',
+        answer: 'I\'m sorry to hear you\'re feeling down. 💙 Remember, one bad day doesn\'t ruin a whole semester. Take care of yourself!'
+      },
+      {
+        id: 123,
+        keywords: ['happy', 'excited', 'great', 'content', 'glad', 'joy'],
+        question: 'Social: Happiness',
+        answer: 'Yay! I love hearing that! Keeping that positive energy up is great for your studies too! ✨'
+      },
+      {
+        id: 124,
+        keywords: ['love', 'girlfriend', 'boyfriend', 'dating', 'marriage'],
+        question: 'Social: Love',
+        answer: 'I think love is compatible with my programming! I certainly love seeing you succeed in your classes. ❤️'
+      },
+      {
+        id: 125,
+        keywords: ['life', 'meaning', 'purpose', 'why', 'exist'],
+        question: 'Social: Meaning of Life',
+        answer: '42! Just kidding. My purpose is simple: to make your academic life a little easier to manage. 🌱'
       },
 
       // === ATTENDANCE MARKING ===
@@ -668,7 +753,7 @@ class AssistantManager {
     typingDiv.id = 'typing-indicator';
     typingDiv.innerHTML = `
       <div class="bot-avatar">
-        <img src="assets/att-logo.svg" alt="Assistant">
+        <img src="assets/new-bot-icon.png" alt="Assistant">
       </div>
       <div class="bubble-content">
         <div class="typing-dots">
@@ -732,7 +817,11 @@ class AssistantManager {
       }
 
       // Check answer text for additional context
-      const answerTokens = this.tokenize(qa.answer);
+      let answerText = qa.answer;
+      if (Array.isArray(answerText)) {
+        answerText = answerText.join(' ');
+      }
+      const answerTokens = this.tokenize(answerText);
       for (const token of tokens) {
         if (answerTokens.includes(token)) {
           score += 2;
@@ -747,6 +836,9 @@ class AssistantManager {
 
     // Return best match or fallback
     if (bestMatch && bestScore >= 5) {
+      if (Array.isArray(bestMatch.answer)) {
+        return bestMatch.answer[Math.floor(Math.random() * bestMatch.answer.length)];
+      }
       return bestMatch.answer;
     } else {
       return this.fallbacks[Math.floor(Math.random() * this.fallbacks.length)];

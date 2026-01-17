@@ -33,9 +33,9 @@ class SettingsPage {
       ${this.renderProfileSection(userProfile)}
       ${this.renderSemestersSection(allSemesters, currentSemesterId)}
       ${this.renderSubjectsSection(allSubjects, currentSemesterId)}
+      ${this.renderPersonalizationSection(currentSemesterId, allSubjects)}
       ${this.renderNotificationsSection()}
       ${this.renderAccountSection()}
-      ${this.renderPersonalizationSection(currentSemesterId, allSubjects)}
       ${this.renderLegalSection()}
     `;
 
@@ -389,7 +389,7 @@ class SettingsPage {
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
         <div>© 2026 Attendance Tracker. All rights reserved.</div>
-        <div style="margin-top: 0.25rem;">Version 3.5.0</div>
+        <div style="margin-top: 0.25rem;">Version 3.6.8</div>
       </div>
     `;
   }
@@ -662,7 +662,8 @@ class SettingsPage {
     const modal = document.getElementById('semester-modal');
     const title = modal.querySelector('#semester-modal-title');
     const idInput = modal.querySelector('#semester-modal-id');
-    const nameInput = modal.querySelector('#semester-modal-name');
+    const yearInput = document.getElementById('semester-year-input');
+    const termInput = document.getElementById('semester-term-input');
     const startDateInput = modal.querySelector('#semester-modal-start-date');
     const endDateInput = modal.querySelector('#semester-modal-end-date');
     const startDisplay = document.getElementById('semester-start-date-display');
@@ -671,7 +672,15 @@ class SettingsPage {
     if (semester) {
       title.textContent = 'Edit Semester';
       idInput.value = semester.id;
-      nameInput.value = semester.name;
+
+      // Parse existing semester name to extract year and term
+      // Expected format: "Year X, Semester Y" or similar
+      const yearMatch = semester.name.match(/Year\s*(\d+)/i);
+      const termMatch = semester.name.match(/(?:Semester|Term)\s*(\d+)/i);
+
+      yearInput.value = yearMatch ? yearMatch[1] : '';
+      termInput.value = termMatch ? termMatch[1] : '';
+
       startDateInput.value = semester.startDate || '';
       endDateInput.value = semester.endDate || '';
 
@@ -689,7 +698,8 @@ class SettingsPage {
     } else {
       title.textContent = 'Add Semester';
       idInput.value = '';
-      nameInput.value = '';
+      yearInput.value = '';
+      termInput.value = '';
       startDateInput.value = '';
       endDateInput.value = '';
       startDisplay.textContent = 'Select start date';
@@ -802,21 +812,31 @@ class SettingsPage {
   async handleAddSemester() {
     const modal = document.getElementById('semester-modal');
     const idInput = modal.querySelector('#semester-modal-id');
-    const nameInput = modal.querySelector('#semester-modal-name');
+    const yearInput = document.getElementById('semester-year-input');
+    const termInput = document.getElementById('semester-term-input');
     const startDateInput = modal.querySelector('#semester-modal-start-date');
     const endDateInput = modal.querySelector('#semester-modal-end-date');
 
     const id = idInput.value;
-    const name = nameInput.value.trim();
+    const year = yearInput.value.trim();
+    const term = termInput.value.trim();
     const startDate = startDateInput.value;
     const endDate = endDateInput.value;
 
     const todayString = new Date().toISOString().split('T')[0];
 
-    if (!name) {
-      toastManager.error('Please enter a semester name');
+    if (!year || isNaN(parseInt(year)) || parseInt(year) < 1) {
+      toastManager.error('Please enter a valid year (1 or higher)');
       return;
     }
+
+    if (!term || isNaN(parseInt(term)) || parseInt(term) < 1 || parseInt(term) > 4) {
+      toastManager.error('Please enter a valid term (1-4)');
+      return;
+    }
+
+    // Construct the semester name
+    const name = `Year ${year}, Semester ${term}`;
 
     if (!startDate || !endDate) {
       toastManager.error('Please select both start and end dates');

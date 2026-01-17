@@ -279,10 +279,19 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="semester-modal-id">
-                <div class="form-group">
-                    <label for="semester-modal-name">Semester Name</label>
-                    <input type="text" id="semester-modal-name" class="form-input"
-                        placeholder="e.g., Year 1, Semester I" autocomplete="off">
+                <div class="form-row" style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="semester-year-input">Year</label>
+                        <input type="text" id="semester-year-input" class="form-input" placeholder="e.g., 1, 2, 3..."
+                            inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="semester-term-input">Term / Semester</label>
+                        <input type="text" id="semester-term-input" class="form-input" placeholder="1-4"
+                            inputmode="numeric" pattern="[1-4]" autocomplete="off"
+                            oninput="this.value = this.value.replace(/[^1-4]/g, '').slice(0, 1)">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Start Date</label>
@@ -722,7 +731,7 @@
     </div>
 
     <!-- External libraries -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script src="assets/clickspark.js"></script>
