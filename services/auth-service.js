@@ -23,6 +23,8 @@ import { sanitizeInput } from '../utils/sanitizer.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
 import errorHandler from '../utils/error-handler.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class AuthService {
   constructor() {
@@ -108,18 +110,18 @@ class AuthService {
 
   async updateUsername(userId, newUsername, userEmail = null) {
     if (!newUsername) {
-      throw new Error("Username is required");
+      throw new Error(i18nService.t('settings.username') + " is required");
     }
 
     const cleanedUsername = newUsername.trim().toLowerCase();
     const usernameRegex = /^[a-z0-9_]{4,20}$/;
 
     if (!usernameRegex.test(cleanedUsername)) {
-      throw new Error("Username must be 4-20 characters and contain only lowercase letters, numbers, and underscores.");
+      throw new Error(i18nService.t('auth.usernameInvalid'));
     }
 
     if (await checkBadWords(cleanedUsername)) {
-      throw new Error("Invalid username content");
+      throw new Error(i18nService.t('auth.badWordsInUsername'));
     }
 
     // Fallback to current user email if not provided
@@ -135,7 +137,7 @@ class AuthService {
       await runTransaction(this.db, async (transaction) => {
         const usernameDoc = await transaction.get(usernameRef);
         if (usernameDoc.exists() && usernameDoc.data().userId !== userId) {
-          throw new Error("Username already taken");
+          throw new Error(i18nService.t('auth.usernameTaken'));
         }
 
         const userDoc = await transaction.get(userRef);
@@ -169,7 +171,7 @@ class AuthService {
 
         document.getElementById('signin-form').style.display = tabType === 'signin' ? 'block' : 'none';
         document.getElementById('signup-form').style.display = tabType === 'signup' ? 'block' : 'none';
-        document.getElementById('auth-modal-title').textContent = tabType === 'signin' ? 'Sign In' : 'Sign Up';
+        document.getElementById('auth-modal-title').textContent = tabType === 'signin' ? i18nService.t('auth.authModalTitleSignIn') : i18nService.t('auth.authModalTitleSignUp');
 
       });
     });
@@ -247,11 +249,11 @@ class AuthService {
     const password = document.getElementById('signin-password').value.trim();
 
     if (!loginInput || !password) {
-      toastManager.warning('Please fill in all fields.');
+      toastManager.warning(i18nService.t('auth.fillAllFields'));
       return;
     }
 
-    const loadingToast = toastManager.loading('Signing in...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.signingIn'));
 
     try {
       let email = loginInput;
@@ -263,7 +265,7 @@ class AuthService {
 
         if (!usernameDoc.exists()) {
           toastManager.hide(loadingToast);
-          toastManager.error("Username not found. Please check your spelling or use your email.");
+          toastManager.error(i18nService.t('auth.usernameNotFound'));
           return;
         }
 
@@ -271,7 +273,7 @@ class AuthService {
 
         if (!email) {
           toastManager.hide(loadingToast);
-          toastManager.error("Username link incomplete. Please sign in with your email address once to fix this.");
+          toastManager.error(i18nService.t('auth.usernameLinkIncomplete'));
           return;
         }
       }
@@ -282,7 +284,7 @@ class AuthService {
 
       if (this.loginAttempts[email] >= 5) {
         toastManager.hide(loadingToast);
-        toastManager.error('Too many failed attempts. Account locked. Contact admin at lyssa.phat@gmail.com');
+        toastManager.error(i18nService.t('auth.accountLocked'));
         return;
       }
 
@@ -299,7 +301,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(userCredential.user.uid);
 
-      toastManager.success(`Welcome back, ${userName || userCredential.user.displayName || 'Student'}!`);
+      toastManager.success(i18nService.t('auth.welcomeBack', { name: userName || userCredential.user.displayName || i18nService.t('dashboard.helloStudent') }));
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error("Sign in error:", error);
@@ -310,18 +312,18 @@ class AuthService {
           this.loginAttempts[email] = (this.loginAttempts[email] || 0) + 1;
 
           if (this.loginAttempts[email] >= 5) {
-            toastManager.error('Too many failed attempts. Account locked.');
+            toastManager.error(i18nService.t('auth.accountLocked'));
           } else if (this.loginAttempts[email] > 1) {
             this.showResetPasswordOption(email);
-            toastManager.error(`Wrong password. ${5 - this.loginAttempts[email]} attempts remaining.`);
+            toastManager.error(i18nService.t('auth.wrongPassword') + ' ' + i18nService.t('auth.attemptsRemaining', { count: 5 - this.loginAttempts[email] }));
           } else {
-            toastManager.error('Wrong password. Try again.');
+            toastManager.error(i18nService.t('auth.wrongPassword'));
           }
         } else {
-          toastManager.error('Invalid credentials.');
+          toastManager.error(i18nService.t('auth.invalidCredentials'));
         }
       } else if (error.code === 'auth/user-not-found') {
-        toastManager.error('No account found with this email/username.');
+        toastManager.error(i18nService.t('auth.userNotFound'));
       } else if (error.code === 'auth/too-many-requests') {
         toastManager.error(errorHandler.getFriendlyMessage(error));
       } else {
@@ -348,7 +350,7 @@ class AuthService {
       resetBtn = document.createElement('button');
       resetBtn.id = 'reset-password-btn';
       resetBtn.className = 'btn';
-      resetBtn.textContent = 'Reset Password';
+      resetBtn.textContent = i18nService.t('auth.changePassword');
       resetBtn.style.width = '100%';
       resetBtn.style.marginTop = '0.5rem';
       resetBtn.onclick = () => this.handlePasswordReset(email);
@@ -359,7 +361,7 @@ class AuthService {
   async handlePasswordReset(email) {
     try {
       await sendPasswordResetEmail(this.auth, email);
-      toastManager.success('Password reset email sent!');
+      toastManager.success(i18nService.t('auth.passwordResetSent'));
     } catch (error) {
       toastManager.error(errorHandler.getFriendlyMessage(error));
     }
@@ -382,8 +384,8 @@ class AuthService {
     // 2. If no email found, prompt the user
     if (!email) {
       email = await modalManager.input(
-        'Forgot Password',
-        'Enter your email address to receive a reset link:',
+        i18nService.t('auth.forgotPassword'),
+        i18nService.t('auth.forgotPasswordPrompt'),
         'your@email.com'
       );
     }
@@ -391,11 +393,11 @@ class AuthService {
     if (!email) return;
 
     if (!validateEmail(email)) {
-      toastManager.error('Please enter a valid email address.');
+      toastManager.error(i18nService.t('auth.invalidEmail'));
       return;
     }
 
-    const loadingToast = toastManager.loading('Verifying account...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.verifyingAccount'));
 
     try {
       // Ensure we have the latest instances
@@ -418,7 +420,7 @@ class AuthService {
 
       if (querySnapshot.empty) {
         toastManager.hide(loadingToast);
-        toastManager.error('No account found with this email address.');
+        toastManager.error(i18nService.t('auth.userNotFound'));
         return;
       }
 
@@ -426,7 +428,7 @@ class AuthService {
 
       await sendPasswordResetEmail(this.auth, email);
       toastManager.hide(loadingToast);
-      toastManager.success('Password reset email sent! Please check your inbox.');
+      toastManager.success(i18nService.t('auth.passwordResetSent'));
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error("Forgot password error:", error);
@@ -455,28 +457,28 @@ class AuthService {
     const name = document.getElementById('signup-name').value.trim();
 
     if (!email || !password || !name) {
-      toastManager.warning('Please fill in all fields');
+      toastManager.warning(i18nService.t('auth.fillAllFields'));
       return;
     }
 
     if (!validateEmail(email)) {
-      toastManager.error('Please enter a valid email address');
+      toastManager.error(i18nService.t('auth.invalidEmail'));
       return;
     }
 
     // Check for bad words in name
     if (await checkBadWords(name)) {
-      toastManager.error('Please use appropriate language for your name.');
+      toastManager.error(i18nService.t('auth.badWordsInName'));
       return;
     }
 
     const validation = validatePassword(password);
     if (!validation.valid) {
-      toastManager.error('Password must be at least 6 characters with 1 capital letter and 1 number');
+      toastManager.error(i18nService.t('auth.weakPassword'));
       return;
     }
 
-    const loadingToast = toastManager.loading('Creating account...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.signingUp'));
 
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
@@ -493,7 +495,7 @@ class AuthService {
 
       toastManager.hide(loadingToast);
       modalManager.close('auth-modal');
-      toastManager.success('Account created! Please check your email to verify your account.');
+      toastManager.success(i18nService.t('auth.emailSent'));
     } catch (error) {
       toastManager.hide(loadingToast);
 
@@ -511,7 +513,7 @@ class AuthService {
     // Ensure we have the latest auth instance
     if (!this.auth) this.auth = window.firebaseAuth;
 
-    const loadingToast = toastManager.loading('Connecting to Google...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.googleConnecting'));
 
     try {
       const provider = new GoogleAuthProvider();
@@ -537,7 +539,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(user.uid);
 
-      toastManager.success(`Welcome, ${user.displayName || 'User'}!`);
+      toastManager.success(i18nService.t('auth.welcomeUser', { name: user.displayName || 'User' }));
 
     } catch (error) {
       toastManager.hide(loadingToast);
@@ -554,7 +556,7 @@ class AuthService {
     // Ensure we have the latest auth instance
     if (!this.auth) this.auth = window.firebaseAuth;
 
-    const loadingToast = toastManager.loading('Connecting to GitHub...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.githubConnecting'));
 
     try {
       const provider = new GithubAuthProvider();
@@ -576,7 +578,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(user.uid);
 
-      toastManager.success(`Welcome, ${user.displayName || 'User'}!`);
+      toastManager.success(i18nService.t('auth.welcomeUser', { name: user.displayName || 'User' }));
 
     } catch (error) {
       toastManager.hide(loadingToast);
@@ -620,16 +622,16 @@ class AuthService {
     const major = majorInput.value.trim();
 
     if (!name || !major) {
-      toastManager.warning('Please fill in both Name and Major.');
+      toastManager.warning(i18nService.t('auth.profileIncompleteWarning'));
       return;
     }
 
     if (await checkBadWords(name) || await checkBadWords(major)) {
-      toastManager.error('Please use appropriate language.');
+      toastManager.error(i18nService.t('auth.badWordsGeneral'));
       return;
     }
 
-    const loadingToast = toastManager.loading('Saving profile...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.savingProfile'));
 
     try {
       // Ensure auth is initialized
@@ -653,7 +655,7 @@ class AuthService {
 
       toastManager.hide(loadingToast);
       modalManager.close('onboarding-modal');
-      toastManager.success('Profile updated! Welcome.');
+      toastManager.success(i18nService.t('auth.profileUpdated'));
 
       // Trigger any post-login UI updates (like sidebar name)
       // This might require a page reload or a specific event, checking app.js might be verified.
@@ -671,13 +673,13 @@ class AuthService {
     // Ensure we have the latest auth instance
     if (!this.auth) this.auth = window.firebaseAuth;
 
-    const confirmed = await modalManager.confirm('Sign Out', 'Are you sure you want to sign out?');
+    const confirmed = await modalManager.confirm(i18nService.t('auth.signOutConfirm'), i18nService.t('auth.signOutConfirmMsg'));
     if (!confirmed) return;
 
     // Force close any remaining modals immediately to prevent stacking issues
     modalManager.closeAll();
 
-    const loadingToast = toastManager.loading('Signing out...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.signingOut'));
 
     try {
       // 1. Reset UI immediately to avoid race conditions with auth state listeners
@@ -689,7 +691,7 @@ class AuthService {
       await signOut(this.auth);
 
       toastManager.hide(loadingToast);
-      toastManager.success('Signed out successfully');
+      toastManager.success(i18nService.t('auth.signedOut'));
 
       // 3. Ensure scroll is free
       document.body.style.overflow = '';
@@ -719,13 +721,13 @@ class AuthService {
       const semEl = document.getElementById('user-info-semester');
       const streakEl = document.getElementById('streak-display');
 
-      if (nameEl) nameEl.textContent = 'Hello, Student';
-      if (majorEl) majorEl.textContent = 'Your Major';
-      if (semEl) semEl.textContent = 'No semester selected';
+      if (nameEl) nameEl.textContent = i18nService.t('dashboard.helloStudent');
+      if (majorEl) majorEl.textContent = i18nService.t('settings.major');
+      if (semEl) semEl.textContent = i18nService.t('settings.noSemesterSelected');
       if (streakEl) {
         streakEl.innerHTML = `
             ${ICONS?.FIRE || '🔥'}
-            0 day streak
+            ${i18nService.t('dashboard.streakCount', { count: 0 })}
         `;
         streakEl.style.color = 'var(--grey-text)';
       }
@@ -737,7 +739,7 @@ class AuthService {
   async sendVerificationEmail() {
     try {
       await sendEmailVerification(this.auth.currentUser);
-      toastManager.success('Verification email sent! Please check your inbox.');
+      toastManager.success(i18nService.t('auth.emailSent'));
     } catch (error) {
       toastManager.error(errorHandler.getFriendlyMessage(error));
     }
@@ -745,9 +747,9 @@ class AuthService {
 
   async changePassword() {
     const currentPassword = await modalManager.input(
-      'Change Password',
-      'Enter your current password:',
-      'Current password',
+      i18nService.t('auth.changePassword'),
+      i18nService.t('auth.enterCurrentPassword'),
+      i18nService.t('auth.enterCurrentPassword'),
       true
     );
     if (!currentPassword) return;
@@ -757,26 +759,26 @@ class AuthService {
       const credential = EmailAuthProvider.credential(this.auth.currentUser.email, currentPassword);
       await reauthenticateWithCredential(this.auth.currentUser, credential);
     } catch (error) {
-      toastManager.error('Current password is incorrect');
+      toastManager.error(i18nService.t('auth.currentPasswordIncorrect'));
       return;
     }
 
     const newPassword = await modalManager.input(
-      'Change Password',
-      'Enter new password (min 6 chars, 1 capital, 1 number):',
-      'New password',
+      i18nService.t('auth.changePassword'),
+      i18nService.t('auth.enterNewPassword'),
+      i18nService.t('auth.enterNewPassword'),
       true,
       validatePassword,
       currentPassword
     );
     if (!newPassword) return;
 
-    const loadingToast = toastManager.loading('Updating password...');
+    const loadingToast = toastManager.loading(i18nService.t('auth.savingProfile'));
 
     try {
       await updatePassword(this.auth.currentUser, newPassword);
       toastManager.hide(loadingToast);
-      toastManager.success('Password updated successfully!');
+      toastManager.success(i18nService.t('auth.passwordUpdated'));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error(errorHandler.getFriendlyMessage(error));

@@ -3,6 +3,8 @@ import { getTodayDateString, getSemesterWeek } from '../utils/helpers.js';
 import attendanceService from '../services/attendance-service.js';
 import { ICONS } from '../utils/icons.js';
 import { sanitizeInput } from '../utils/sanitizer.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class WeeklyReportPage {
   constructor() {
@@ -56,19 +58,19 @@ class WeeklyReportPage {
       <!-- Stats Cards -->
       <div class="weekly-stats-grid">
         <div class="stat-column">
-          <span class="stat-label">Present</span>
+          <span class="stat-label">${i18nService.t('status.present')}</span>
           <div class="count-bubble count-green">${weekStats.counts.Present}</div>
         </div>
         <div class="stat-column">
-          <span class="stat-label">Absent</span>
+          <span class="stat-label">${i18nService.t('status.absent')}</span>
           <div class="count-bubble count-red">${weekStats.counts.Absent}</div>
         </div>
         <div class="stat-column">
-          <span class="stat-label">Permit</span>
+          <span class="stat-label">${i18nService.t('common.permit')}</span>
           <div class="count-bubble count-blue">${weekStats.counts.Permission}</div>
         </div>
         <div class="stat-column">
-          <span class="stat-label">Late</span>
+          <span class="stat-label">${i18nService.t('status.late')}</span>
           <div class="count-bubble count-yellow">${weekStats.counts.Late}</div>
         </div>
       </div>
@@ -79,20 +81,20 @@ class WeeklyReportPage {
           <div class="summary-icon">${ICONS.CHART}</div>
           <div class="summary-content">
             <div class="summary-value">${weekStats.percentage}%</div>
-            <div class="summary-label">Attendance Rate</div>
+            <div class="summary-label">${i18nService.t('dashboard.attendanceRate')}</div>
           </div>
         </div>
         <div class="summary-card">
           <div class="summary-icon">${ICONS.CALENDAR}</div>
           <div class="summary-content">
             <div class="summary-value">${weekStats.total}</div>
-            <div class="summary-label">Total Classes</div>
+            <div class="summary-label">${i18nService.t('common.totalClasses')}</div>
           </div>
         </div>
       </div>
 
       <!-- Warnings Section -->
-      <h3 style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Iceberg', serif;">Warnings</h3>
+      <h3 style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Iceberg', serif;">${i18nService.t('dashboard.warnings')}</h3>
       ${this.renderWarnings(warnings)}
     `;
   }
@@ -110,10 +112,10 @@ class WeeklyReportPage {
 
     if (validWeeks.length > 0) {
       weekOptionsContainer.innerHTML = validWeeks.map(week =>
-        `<div class="dropdown-option" data-value="${sanitizeInput(week.toString())}" role="option">Week ${sanitizeInput(week.toString())}</div>`
+        `<div class="dropdown-option" data-value="${sanitizeInput(week.toString())}" role="option">${i18nService.t('reports.weekNum', { count: week })}</div>`
       ).join('');
     } else {
-      weekOptionsContainer.innerHTML = '<div class="dropdown-option" data-value="1" role="option">Week 1</div>';
+      weekOptionsContainer.innerHTML = `<div class="dropdown-option" data-value="1" role="option">${i18nService.t('reports.weekNum', { count: 1 })}</div>`;
     }
 
     const currentWeek = getSemesterWeek(getTodayDateString(), semester);
@@ -126,7 +128,7 @@ class WeeklyReportPage {
     let weekToDisplay = this.selectedWeek;
 
     weekDropdown.dataset.value = weekToDisplay;
-    selectedWeekDisplay.textContent = `Week ${weekToDisplay}`;
+    selectedWeekDisplay.textContent = i18nService.t('reports.weekNum', { count: weekToDisplay });
   }
 
   renderWarnings(warnings) {
@@ -134,8 +136,8 @@ class WeeklyReportPage {
       return `
         <div class="empty-state-mini success-state">
           <div class="empty-icon">✓</div>
-          <div class="empty-text">No warnings! All subjects are in good standing.</div>
-          <div class="empty-subtext">Keep up the great work!</div>
+          <div class="empty-text">${i18nService.t('common.noWarnings')}</div>
+          <div class="empty-subtext">${i18nService.t('common.keepItUp')}</div>
         </div>
       `;
     }
@@ -146,20 +148,26 @@ class WeeklyReportPage {
           <div class="warning-card" style="border-left: 4px solid ${sanitizeInput(w.warning.color)}">
             <div class="warning-card-header">
               <span class="warning-subject-name">${sanitizeInput(w.subject.name)}</span>
-              <span class="warning-status-badge" style="background: ${sanitizeInput(w.warning.color)}">${sanitizeInput(w.warning.status)}</span>
+              <span class="warning-status-badge" style="background: ${sanitizeInput(w.warning.color)}">
+                ${w.warning.status === 'Good' ? i18nService.t('common.statusGood') :
+        w.warning.status === 'FIRST WARNING' ? i18nService.t('common.statusFirstWarning') :
+          w.warning.status === 'LAST WARNING' ? i18nService.t('common.statusLastWarning') :
+            w.warning.status === 'RED ERROR WARNING' ? i18nService.t('common.statusError') :
+              sanitizeInput(w.warning.status)}
+              </span>
             </div>
             <div class="warning-stats">
               <div class="warning-stat">
                 <span class="warning-stat-value">${sanitizeInput(w.counts.Absent.toString())}</span>
-                <span class="warning-stat-label">Absent</span>
+                <span class="warning-stat-label">${i18nService.t('status.absent')}</span>
               </div>
               <div class="warning-stat">
                 <span class="warning-stat-value">${sanitizeInput(w.counts.Permission.toString())}</span>
-                <span class="warning-stat-label">Permission</span>
+                <span class="warning-stat-label">${i18nService.t('common.permit')}</span>
               </div>
               <div class="warning-stat">
                 <span class="warning-stat-value">${sanitizeInput(w.counts.Late.toString())}</span>
-                <span class="warning-stat-label">Late</span>
+                <span class="warning-stat-label">${i18nService.t('status.late')}</span>
               </div>
             </div>
           </div>
@@ -172,8 +180,8 @@ class WeeklyReportPage {
     return `
       <div class="empty-state">
         <div class="empty-icon">${ICONS.CHART}</div>
-        <h3>No Reports Available</h3>
-        <p>Start tracking attendance to see weekly reports</p>
+        <h3>${i18nService.t('reports.noReports')}</h3>
+        <p>${i18nService.t('reports.startTracking')}</p>
       </div>
     `;
   }

@@ -1,5 +1,6 @@
 // ui/dropdown-manager.js
 import { sanitizeInput } from '../utils/sanitizer.js';
+import i18nService from '../services/i18n-service.js';
 
 class DropdownManager {
   constructor() {
@@ -297,8 +298,15 @@ class DropdownManager {
     selected.setAttribute('aria-expanded', 'false');
 
     const selectedText = options.find(opt => opt.value === selectedValue);
+    let label = selectedText ? selectedText.label : i18nService.t('common.select');
+
+    // Check if it's a day of week
+    if (i18nService.languages[i18nService.getCurrentLanguage()].days[label.toLowerCase()]) {
+      label = i18nService.t(`days.${label.toLowerCase()}`);
+    }
+
     selected.innerHTML = `
-      <span>${selectedText ? sanitizeInput(selectedText.label) : 'Select...'}</span>
+      <span>${sanitizeInput(label)}</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
       </svg>
@@ -313,7 +321,11 @@ class DropdownManager {
       optionEl.className = 'dropdown-option';
       optionEl.dataset.value = sanitizeInput(option.value);
       optionEl.setAttribute('role', 'option');
-      optionEl.textContent = sanitizeInput(option.label);
+      let optLabel = option.label;
+      if (i18nService.languages[i18nService.getCurrentLanguage()].days[optLabel.toLowerCase()]) {
+        optLabel = i18nService.t(`days.${optLabel.toLowerCase()}`);
+      }
+      optionEl.textContent = sanitizeInput(optLabel);
       optionsContainer.appendChild(optionEl);
     });
 
@@ -344,7 +356,7 @@ class DropdownManager {
     textInput.type = 'text';
     textInput.className = 'time-manual-input';
     textInput.value = initialValue;
-    textInput.placeholder = 'HH:MM'; // Updated placeholder
+    textInput.placeholder = i18nService.t('modals.timePlaceholder'); // Need key
     textInput.maxLength = 5; // HH:MM
 
     // Auto-format logic (1245 -> 12:45)
@@ -545,13 +557,13 @@ class DropdownManager {
       const [y, m, d] = hiddenInput.value.split('-');
       selectedDate = new Date(y, m - 1, d);
       currentDate = new Date(selectedDate);
-      if (displaySpan) displaySpan.textContent = selectedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      if (displaySpan) displaySpan.textContent = i18nService.formatDate(selectedDate, { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
     // Render function
     const render = () => {
       // Update Header
-      const monthName = currentDate.toLocaleDateString(undefined, { month: 'long' });
+      const monthName = i18nService.formatDate(currentDate, { month: 'long' });
       monthYearDisplay.textContent = `${monthName} ${currentDate.getFullYear()}`;
 
       grid.innerHTML = '';
@@ -604,7 +616,7 @@ class DropdownManager {
             const val = `${formatY}-${formatM}-${formatD}`;
 
             if (hiddenInput) hiddenInput.value = val;
-            if (displaySpan) displaySpan.textContent = selectedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            if (displaySpan) displaySpan.textContent = i18nService.formatDate(selectedDate, { year: 'numeric', month: 'short', day: 'numeric' });
 
             // Re-render to show selection
             render();

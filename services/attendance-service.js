@@ -14,6 +14,7 @@ import {
 import { FIREBASE_PATHS } from '../utils/constants.js';
 import { getSemesterWeek, calculateWarning, getTodayDateString, getRealTime } from '../utils/helpers.js';
 import errorHandler from '../utils/error-handler.js';
+import i18nService from './i18n-service.js';
 
 class AttendanceService {
   constructor() {
@@ -81,7 +82,7 @@ class AttendanceService {
 
   async addSubject(semesterId, subjectData) {
     if (!subjectData.name || typeof subjectData.name !== 'string' || !subjectData.name.trim()) {
-      throw new Error("Subject name is required and must be a valid string.");
+      throw new Error(i18nService.t('errors.subjectNameRequired'));
     }
     try {
       const docRef = await addDoc(
@@ -101,7 +102,7 @@ class AttendanceService {
 
   async updateSubject(semesterId, subjectId, subjectData) {
     if (subjectData.name !== undefined && (!subjectData.name || typeof subjectData.name !== 'string' || !subjectData.name.trim())) {
-      throw new Error("Subject name cannot be empty.");
+      throw new Error(i18nService.t('errors.subjectNameEmpty'));
     }
     try {
       await updateDoc(
@@ -156,7 +157,7 @@ class AttendanceService {
     );
 
     if (existingRecord) {
-      throw new Error('Attendance already submitted for this subject on this date.');
+      throw new Error(i18nService.t('errors.attendanceAlreadySubmitted'));
     }
 
     const semesterWeek = getSemesterWeek(date, semester);
@@ -189,7 +190,7 @@ class AttendanceService {
     );
 
     if (unmarkedSubjects.length === 0) {
-      throw new Error('All subjects for this date have already been marked!');
+      throw new Error(i18nService.t('errors.allSubjectsMarked'));
     }
 
     const semesterWeek = getSemesterWeek(date, semester);
@@ -220,22 +221,22 @@ class AttendanceService {
 
   async editAttendance(recordId, newStatus, reason) {
     if (!reason || reason.trim().length < 10) {
-      throw new Error('Please provide a detailed reason (minimum 10 characters) for editing this attendance record.');
+      throw new Error(i18nService.t('errors.editReasonMin'));
     }
 
     const record = this.allAttendance.find(r => r.id === recordId);
     if (!record) {
-      throw new Error('Attendance record not found.');
+      throw new Error(i18nService.t('errors.recordNotFound'));
     }
 
     // Check if record is within 7 days
     const daysDiff = Math.floor((new Date(getTodayDateString()) - new Date(record.date)) / (1000 * 60 * 60 * 24));
     if (daysDiff > 7) {
-      throw new Error('Cannot edit attendance records older than 7 days.');
+      throw new Error(i18nService.t('errors.tooOldToEdit'));
     }
 
     if (record.status === newStatus) {
-      throw new Error('New status must be different from current status.');
+      throw new Error(i18nService.t('errors.statusSame'));
     }
 
     try {

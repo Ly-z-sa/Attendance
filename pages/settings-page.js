@@ -10,6 +10,8 @@ import authService from '../services/auth-service.js';
 import notificationService from '../services/notification-service.js';
 import attendanceService from '../services/attendance-service.js';
 import clickEffectManager from '../ui/click-effect-manager.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class SettingsPage {
   constructor() {
@@ -51,47 +53,45 @@ class SettingsPage {
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="profile">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <h3>Profile</h3>
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-          <div>
-            ${window.firebaseAuth?.currentUser
-        ? `<button class="btn btn-red" id="signout-btn" data-action="signout">Sign Out</button>`
-        : `<button class="btn" id="auth-btn" data-action="auth">Sign In</button>`
-      }
-          </div>
+          <h3>${i18nService.t('settings.profile')}</h3>
+          <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
         <div class="settings-content collapsed" id="profile-content">
           <div class="settings-avatar-row">
             ${avatarHtml}
-            <button class="btn" id="change-picture-btn">Change Picture</button>
+            <button class="btn" id="change-picture-btn">${i18nService.t('settings.changePicture')}</button>
           </div>
           <div class="form-group">
-            <label for="setting-username">Username</label>
+            <label for="setting-username">${i18nService.t('settings.username')}</label>
             <div class="username-input-group">
                 <span style="font-size: 1.2rem; align-self: center; margin-right: 0.25rem; color: var(--grey-text);">@</span>
-                <input type="text" id="setting-username" class="form-input" placeholder="username" value="${sanitizeInput(userProfile.username || '')}" autocomplete="off">
+                <input type="text" id="setting-username" class="form-input" placeholder="${i18nService.t('settings.usernamePlaceholder')}" value="${sanitizeInput(userProfile.username || '')}" autocomplete="off">
             </div>
             <div id="username-status" class="username-status"></div>
           </div>
           <div class="form-group">
-            <label for="setting-name">Full Name</label>
-            <input type="text" id="setting-name" class="form-input" placeholder="Your Name" value="${sanitizeInput(userProfile.name || '')}" autocomplete="off">
+            <label for="setting-name">${i18nService.t('settings.fullName')}</label>
+            <input type="text" id="setting-name" class="form-input" placeholder="${i18nService.t('settings.yourName')}" value="${sanitizeInput(userProfile.name || '')}" autocomplete="off">
           </div>
           <div class="form-group">
-            <label for="setting-major">Major</label>
-            <input type="text" id="setting-major" class="form-input" placeholder="Your Major" value="${sanitizeInput(userProfile.major || '')}" autocomplete="off">
+            <label for="setting-major">${i18nService.t('settings.major')}</label>
+            <input type="text" id="setting-major" class="form-input" placeholder="${i18nService.t('settings.yourMajor')}" value="${sanitizeInput(userProfile.major || '')}" autocomplete="off">
           </div>
           ${window.firebaseAuth?.currentUser
         ? `<div id="auth-status" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; background: rgba(34, 139, 34, 0.1); color: var(--green); border: 1px solid var(--green);">
-                 Logged in as: ${sanitizeInput(window.firebaseAuth.currentUser.email)}
+                 ${i18nService.t('settings.loggedInAs', { email: sanitizeInput(window.firebaseAuth.currentUser.email) })}
                </div>`
         : ''
       }
-          <button class="btn btn-green" id="save-profile-btn">Save Profile</button>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+            <button class="btn btn-green" id="save-profile-btn">${i18nService.t('settings.saveProfile')}</button>
+            ${window.firebaseAuth?.currentUser
+        ? `<button class="btn btn-red" id="signout-btn" data-action="signout">${i18nService.t('settings.signOut')}</button>`
+        : `<button class="btn" id="auth-btn" data-action="auth">${i18nService.t('settings.signIn')}</button>`
+      }
+          </div>
         </div>
       </div>
     `;
@@ -101,27 +101,25 @@ class SettingsPage {
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="semesters">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <h3>Manage Semesters</h3>
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-          <button class="btn btn-green" id="add-semester-btn">Add Semester</button>
+          <h3>${i18nService.t('settings.manageSemesters')}</h3>
+          <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
         <div class="settings-content collapsed" id="semesters-content">
-          <p style="margin-bottom: 1rem; color: var(--grey-text);">Manage your academic semesters:</p>
+          <button class="btn btn-green" id="add-semester-btn" style="margin-bottom: 1rem;">${i18nService.t('settings.addSemester')}</button>
+          <p style="margin-bottom: 1rem; color: var(--grey-text);">${i18nService.t('settings.manageSemestersDesc')}</p>
           <div class="form-group">
-            <label>Current Semester</label>
+            <label>${i18nService.t('settings.currentSemester')}</label>
             <div class="custom-dropdown" id="current-semester-dropdown">
               <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-                <span id="current-semester-display">Select a semester...</span>
+                <span id="current-semester-display">${i18nService.t('settings.selectSemester')}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
               </div>
               <div class="dropdown-options" role="listbox" id="current-semester-options">
                 ${allSemesters.length > 0
         ? allSemesters.map(s => `<div class="dropdown-option" data-value="${sanitizeInput(s.id)}" role="option">${sanitizeInput(s.name)}</div>`).join('')
-        : '<div class="dropdown-option" role="option">No semesters</div>'
+        : `<div class="dropdown-option" role="option">${i18nService.t('settings.noSemesters')}</div>`
       }
               </div>
             </div>
@@ -129,7 +127,7 @@ class SettingsPage {
           <div id="semesters-list">
             ${allSemesters.length > 0
         ? allSemesters.map(s => this.renderSemesterItem(s)).join('')
-        : '<div class="empty-state-mini"><div class="empty-text">No semesters added yet</div></div>'
+        : `<div class="empty-state-mini"><div class="empty-text">${i18nService.t('settings.noSemesters')}</div></div>`
       }
           </div>
         </div>
@@ -142,11 +140,11 @@ class SettingsPage {
       <div class="settings-list-item" data-id="${sanitizeInput(semester.id)}">
         <div>
           <strong>${sanitizeInput(semester.name)}</strong><br>
-          <small style="color: var(--grey-text);">${sanitizeInput(semester.startDate || 'No start date')} to ${sanitizeInput(semester.endDate || 'No end date')}</small>
+          <small style="color: var(--grey-text);">${sanitizeInput(semester.startDate || i18nService.t('settings.noStartDate'))} ${i18nService.t('settings.to')} ${sanitizeInput(semester.endDate || i18nService.t('settings.noEndDate'))}</small>
         </div>
         <div class="btn-group">
-          <button class="btn btn-edit-semester">Edit</button>
-          <button class="btn btn-red btn-delete-semester">Delete</button>
+          <button class="btn btn-edit-semester">${i18nService.t('common.edit')}</button>
+          <button class="btn btn-red btn-delete-semester">${i18nService.t('common.delete')}</button>
         </div>
       </div>
     `;
@@ -158,20 +156,18 @@ class SettingsPage {
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="subjects">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <h3>Manage Subjects</h3>
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-          <button class="btn btn-green" id="add-subject-btn">Add Subject</button>
+          <h3>${i18nService.t('settings.manageSubjects')}</h3>
+          <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
         <div class="settings-content collapsed" id="subjects-content">
-          <p style="margin-bottom: 1rem; color: var(--grey-text);">Subjects for current semester:</p>
+          <button class="btn btn-green" id="add-subject-btn" style="margin-bottom: 1rem;">${i18nService.t('settings.addSubject')}</button>
+          <p style="margin-bottom: 1rem; color: var(--grey-text);">${i18nService.t('settings.subjectsForSem')}</p>
           <div id="subjects-list">
             ${currentSemSubjects.length > 0
         ? currentSemSubjects.map(s => this.renderSubjectItem(s)).join('')
-        : '<div class="empty-state-mini"><div class="empty-text">No subjects added for this semester</div></div>'
+        : `<div class="empty-state-mini"><div class="empty-text">${i18nService.t('settings.noSubjects')}</div></div>`
       }
           </div>
         </div>
@@ -183,10 +179,31 @@ class SettingsPage {
     const timeDisplay = subject.startTime ? `<span style="font-size: 0.85em; color: var(--grey-text); margin-left: 0.5rem;">${sanitizeInput(subject.startTime)} - ${sanitizeInput(subject.endTime || '?')}</span>` : '';
     return `
       <div class="settings-list-item" data-id="${sanitizeInput(subject.id)}">
-        <span><strong>${sanitizeInput(subject.name)}</strong> (${sanitizeInput(subject.day)})${timeDisplay}</span>
+        <span><strong>${sanitizeInput(subject.name)}</strong> (${i18nService.getDayTranslation(subject.day)})${timeDisplay}</span>
         <div class="btn-group">
-          <button class="btn btn-edit-subject">Edit</button>
-          <button class="btn btn-red btn-delete-subject">Delete</button>
+          <button class="btn btn-edit-subject">${i18nService.t('common.edit')}</button>
+          <button class="btn btn-red btn-delete-subject">${i18nService.t('common.delete')}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderLanguageDropdown() {
+    const currentLang = i18nService.getCurrentLanguage();
+    const langNames = { en: 'English', fr: 'Français' };
+
+    return `
+      <div class="form-group">
+        <label>${i18nService.t('settings.language')}</label>
+        <div class="custom-dropdown" id="language-dropdown" data-value="${currentLang}">
+          <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+            <span id="language-display">${langNames[currentLang]}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+          </div>
+          <div class="dropdown-options" role="listbox">
+            <div class="dropdown-option" data-value="en" role="option">English</div>
+            <div class="dropdown-option" data-value="fr" role="option">Français</div>
+          </div>
         </div>
       </div>
     `;
@@ -196,18 +213,16 @@ class SettingsPage {
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="notifications">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <h3>Notifications</h3>
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
+          <h3>${i18nService.t('settings.notifications')}</h3>
+          <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
         <div class="settings-content collapsed" id="notifications-content">
-          <p style="color: var(--grey-text); margin-bottom: 1rem;">Get reminders for missed attendance and warnings</p>
+          <p style="color: var(--grey-text); margin-bottom: 1rem;">${i18nService.t('settings.notificationsDesc')}</p>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="btn btn-green" id="enable-notifications-btn">Enable Notifications</button>
-            <button class="btn btn-red" id="disable-notifications-btn">Disable Notifications</button>
+            <button class="btn btn-green" id="enable-notifications-btn">${i18nService.t('settings.enableNotifications')}</button>
+            <button class="btn btn-red" id="disable-notifications-btn">${i18nService.t('settings.disableNotifications')}</button>
           </div>
         </div>
       </div>
@@ -219,65 +234,52 @@ class SettingsPage {
     return `
       <div class="settings-section" id="account-management">
         <div class="settings-header">
-          <h3>Account Management</h3>
+          <h3>${i18nService.t('settings.accountManagement')}</h3>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-          <button class="btn" id="change-password-btn">Change Password</button>
-          <button class="btn" id="change-email-btn">Change Email</button>
-          <button class="btn btn-red" id="delete-account-btn">Delete Account</button>
+          <button class="btn" id="change-password-btn">${i18nService.t('settings.changePassword')}</button>
+          <button class="btn" id="change-email-btn">${i18nService.t('settings.changeEmail')}</button>
+          <button class="btn btn-red" id="delete-account-btn">${i18nService.t('settings.deleteAccount')}</button>
         </div>
       </div>
     `;
   }
 
   renderPersonalizationSection(currentSemesterId, allSubjects) {
-    // Calculate current streak
-    const streak = currentSemesterId ? attendanceService.calculateStreak(currentSemesterId, allSubjects) : 0;
-
     return `
       <div class="settings-section">
         <div class="settings-header collapsible collapsed" data-collapse="personalization">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <h3>Personalization</h3>
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-          <div class="streak-badge-mini" style="font-size: 0.85rem; padding: 2px 8px; border-radius: 12px; background: rgba(255,165,0,0.15); color: var(--yellow-dark); border: 1px solid var(--yellow-dark);">
-            ${ICONS.FIRE} <span style="font-weight: 600;">${streak}</span> Streak
-          </div>
+          <h3>${i18nService.t('settings.personalization')}</h3>
+          <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
         <div class="settings-content collapsed" id="personalization-content">
-          ${this.renderColorSchemeDropdown(streak)}
-          ${this.renderBackgroundDropdown(streak)}
-          ${this.renderFontDropdown(streak)}
-          ${this.renderClickEffectDropdown(streak)}
+          ${this.renderLanguageDropdown()}
+          ${this.renderColorSchemeDropdown()}
+          ${this.renderBackgroundDropdown()}
+          ${this.renderFontDropdown()}
+          ${this.renderClickEffectDropdown()}
         </div>
       </div>
     `;
   }
 
-  renderColorSchemeDropdown(streak) {
+  renderColorSchemeDropdown() {
     const currentScheme = themeManager.getColorScheme();
 
     return `
       <div class="form-group">
-        <label>Color Scheme</label>
+        <label>${i18nService.t('settings.colorScheme')}</label>
         <div class="custom-dropdown" id="color-scheme-dropdown" data-value="${currentScheme}">
           <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-            <span id="color-scheme-display">${COLOR_SCHEMES[currentScheme]}</span>
+            <span id="color-scheme-display">${i18nService.t(`schemes.${currentScheme}`)}</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
             ${Object.entries(COLOR_SCHEMES).map(([key, value]) => {
-      const required = STREAK_REQUIREMENTS[key] || 0;
-      const isLocked = streak < required;
-      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
-      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
-
-      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
-                <span>${value}</span>
-                ${lockHtml}
+      return `<div class="dropdown-option" data-value="${key}" role="option">
+                <span>${i18nService.t(`schemes.${key}`)}</span>
               </div>`;
     }).join('')}
           </div>
@@ -286,27 +288,21 @@ class SettingsPage {
     `;
   }
 
-  renderBackgroundDropdown(streak) {
+  renderBackgroundDropdown() {
     const currentBg = themeManager.getBackground();
 
     return `
       <div class="form-group">
-        <label>Background</label>
+        <label>${i18nService.t('settings.background')}</label>
         <div class="custom-dropdown" id="background-dropdown" data-value="${currentBg}">
           <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-            <span id="background-display">${BACKGROUNDS[currentBg]}</span>
+            <span id="background-display">${i18nService.t(`backgrounds.${currentBg}`)}</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
             ${Object.entries(BACKGROUNDS).map(([key, value]) => {
-      const required = STREAK_REQUIREMENTS[key] || 0;
-      const isLocked = streak < required;
-      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
-      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
-
-      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
-                <span>${value}</span>
-                ${lockHtml}
+      return `<div class="dropdown-option" data-value="${key}" role="option">
+                <span>${i18nService.t(`backgrounds.${key}`)}</span>
               </div>`;
     }).join('')}
           </div>
@@ -315,12 +311,12 @@ class SettingsPage {
     `;
   }
 
-  renderFontDropdown(streak) {
+  renderFontDropdown() {
     const currentFont = themeManager.getFont();
 
     return `
       <div class="form-group">
-        <label>Font Style</label>
+        <label>${i18nService.t('settings.fontStyle')}</label>
         <div class="custom-dropdown" id="font-dropdown" data-value="${currentFont}">
           <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
             <span id="font-display">${FONTS[currentFont]}</span>
@@ -328,14 +324,8 @@ class SettingsPage {
           </div>
           <div class="dropdown-options" role="listbox">
             ${Object.entries(FONTS).map(([key, value]) => {
-      const required = STREAK_REQUIREMENTS[key] || 0;
-      const isLocked = streak < required;
-      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
-      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
-
-      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
+      return `<div class="dropdown-option" data-value="${key}" role="option">
                 <span>${value}</span>
-                ${lockHtml}
               </div>`;
     }).join('')}
           </div>
@@ -344,27 +334,21 @@ class SettingsPage {
     `;
   }
 
-  renderClickEffectDropdown(streak) {
+  renderClickEffectDropdown() {
     const currentEffect = clickEffectManager.getEffect();
 
     return `
       <div class="form-group">
-        <label>Click Animation</label>
+        <label>${i18nService.t('settings.clickAnimation')}</label>
         <div class="custom-dropdown" id="click-effect-dropdown" data-value="${currentEffect}">
           <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-            <span id="click-effect-display">${CLICK_EFFECTS[currentEffect]}</span>
+            <span id="click-effect-display">${i18nService.t(`effects.${currentEffect}`)}</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
           </div>
           <div class="dropdown-options" role="listbox">
             ${Object.entries(CLICK_EFFECTS).map(([key, value]) => {
-      const required = STREAK_REQUIREMENTS[key] || 0;
-      const isLocked = streak < required;
-      const lockHtml = isLocked ? `<span class="lock-badge">${ICONS.LOCK} ${required}d</span>` : '';
-      const classList = `dropdown-option ${isLocked ? 'locked-option' : ''}`;
-
-      return `<div class="${classList}" data-value="${key}" role="option" ${isLocked ? 'data-locked="true"' : ''}>
-                <span>${value}</span>
-                ${lockHtml}
+      return `<div class="dropdown-option" data-value="${key}" role="option">
+                <span>${i18nService.t(`effects.${key}`)}</span>
               </div>`;
     }).join('')}
           </div>
@@ -377,19 +361,19 @@ class SettingsPage {
     return `
       <div class="settings-section">
         <div class="settings-header">
-          <h3>Legal & Support</h3>
+          <h3>${i18nService.t('settings.legalSupport')}</h3>
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <a href="privacy.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Privacy Policy</a>
-          <a href="terms.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">Terms of Service</a>
-          <a href="#" id="report-problem-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">Report a Problem</a>
-          <a href="#" id="contact-us-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">Contact Us</a>
+          <a href="privacy.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">${i18nService.t('settings.privacyPolicy')}</a>
+          <a href="terms.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">${i18nService.t('settings.termsOfService')}</a>
+          <a href="#" id="report-problem-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">${i18nService.t('settings.reportProblem')}</a>
+          <a href="#" id="contact-us-btn" style="color: var(--primary); text-decoration: none; font-weight: 500;">${i18nService.t('settings.contactUs')}</a>
         </div>
       </div>
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
-        <div>© 2026 Attendance Tracker. All rights reserved.</div>
-        <div style="margin-top: 0.25rem;">Version 3.6.8</div>
+        <div>© 2026 Attendance Tracker. ${i18nService.t('settings.allRightsReserved')}</div>
+        <div style="margin-top: 0.25rem;">${i18nService.t('settings.version')} 3.6.8</div>
       </div>
     `;
   }
@@ -459,6 +443,12 @@ class SettingsPage {
     document.getElementById('disable-notifications-btn')?.addEventListener('click', () =>
       notificationService.disable()
     );
+
+    // Language
+    document.getElementById('language-dropdown')?.addEventListener('change', (e) => {
+      const newLang = e.currentTarget.dataset.value;
+      i18nService.setLanguage(newLang);
+    });
 
     // Account management
     document.getElementById('change-password-btn')?.addEventListener('click', () =>
@@ -564,7 +554,7 @@ class SettingsPage {
         { merge: true }
       );
       toastManager.hide(loadingToast);
-      toastManager.success('Profile saved successfully!');
+      toastManager.success(i18nService.t('auth.profileUpdated'));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error(error.message);
@@ -576,7 +566,7 @@ class SettingsPage {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toastManager.error('Please select an image file');
+      toastManager.error(i18nService.t('settings.invalidImage')); // Need key
       return;
     }
 
@@ -611,7 +601,7 @@ class SettingsPage {
   async handleApplyCrop() {
     if (!this.cropper) return;
 
-    const loadingToast = toastManager.loading('Processing image...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       const canvas = this.cropper.getCroppedCanvas({
@@ -630,7 +620,7 @@ class SettingsPage {
 
       toastManager.hide(loadingToast);
       modalManager.close('crop-modal');
-      toastManager.success('Profile picture updated!');
+      toastManager.success(i18nService.t('auth.profileUpdated'));
 
       // Clear input
       document.getElementById('profile-pic-input').value = '';
@@ -642,7 +632,7 @@ class SettingsPage {
   }
 
   async handleCurrentSemesterChange(newSemesterId) {
-    const loadingToast = toastManager.loading('Updating semester...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       await setDoc(
@@ -651,7 +641,7 @@ class SettingsPage {
         { merge: true }
       );
       toastManager.hide(loadingToast);
-      toastManager.success('Current semester updated!');
+      toastManager.success(i18nService.t('settings.currentSemesterUpdated')); // Need key
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error updating semester: ' + error.message);
@@ -670,7 +660,7 @@ class SettingsPage {
     const endDisplay = document.getElementById('semester-end-date-display');
 
     if (semester) {
-      title.textContent = 'Edit Semester';
+      title.textContent = i18nService.t('modals.editSemester');
       idInput.value = semester.id;
 
       // Parse existing semester name to extract year and term
@@ -685,25 +675,25 @@ class SettingsPage {
       endDateInput.value = semester.endDate || '';
 
       if (semester.startDate) {
-        startDisplay.textContent = new Date(semester.startDate + 'T00:00:00').toLocaleDateString('en-US', {
+        startDisplay.textContent = i18nService.formatDate(semester.startDate, {
           year: 'numeric', month: 'long', day: 'numeric'
         });
       }
 
       if (semester.endDate) {
-        endDisplay.textContent = new Date(semester.endDate + 'T00:00:00').toLocaleDateString('en-US', {
+        endDisplay.textContent = i18nService.formatDate(semester.endDate, {
           year: 'numeric', month: 'long', day: 'numeric'
         });
       }
     } else {
-      title.textContent = 'Add Semester';
+      title.textContent = i18nService.t('modals.addSemester');
       idInput.value = '';
       yearInput.value = '';
       termInput.value = '';
       startDateInput.value = '';
       endDateInput.value = '';
-      startDisplay.textContent = 'Select start date';
-      endDisplay.textContent = 'Select end date';
+      startDisplay.textContent = i18nService.t('modals.selectStartDate');
+      endDisplay.textContent = i18nService.t('modals.selectEndDate');
     }
 
     modalManager.open('semester-modal');
@@ -723,13 +713,17 @@ class SettingsPage {
     const attendanceToDelete = window.app.allAttendance?.filter(r => r.semesterId === id) || [];
 
     const confirmed = await modalManager.confirm(
-      'Delete Semester',
-      `Delete "${semester?.name || 'this semester'}"? This will also delete ${subjectsToDelete.length} subjects and ${attendanceToDelete.length} attendance records. This cannot be undone.`
+      i18nService.t('modals.deleteSemesterTitle'),
+      i18nService.t('modals.deleteSemesterMsg', {
+        name: semester?.name || i18nService.t('settings.currentSemester'),
+        subjectCount: subjectsToDelete.length,
+        attendanceCount: attendanceToDelete.length
+      })
     );
 
     if (!confirmed) return;
 
-    const loadingToast = toastManager.loading('Deleting semester...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.semesterDoc(window.app.userId, id)));
@@ -746,18 +740,18 @@ class SettingsPage {
     const targetSemesterId = semesterId || this.currentSemesterId;
 
     const inputs = await modalManager.multiInput(
-      subject ? 'Edit Subject' : 'Add Subject',
+      subject ? i18nService.t('modals.editSubject') : i18nService.t('modals.addSubject'),
       [
-        { name: 'name', label: 'Subject Name', type: 'text', value: subject ? subject.name : '', placeholder: 'e.g. Mathematics' },
+        { name: 'name', label: i18nService.t('modals.subjectName'), type: 'text', value: subject ? subject.name : '', placeholder: i18nService.t('modals.subjectNamePlaceholder') },
         {
           name: 'day',
-          label: 'Day of Week',
+          label: i18nService.t('modals.dayOfWeek'),
           type: 'select',
-          options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], // These will be translated in modalManager/dropdownManager
           value: subject ? subject.day : 'Monday'
         },
-        { name: 'startTime', label: 'Start Time', type: 'time', value: subject?.startTime || '' },
-        { name: 'endTime', label: 'End Time', type: 'time', value: subject?.endTime || '' }
+        { name: 'startTime', label: i18nService.t('modals.startTime'), type: 'time', value: subject?.startTime || '' },
+        { name: 'endTime', label: i18nService.t('modals.endTime'), type: 'time', value: subject?.endTime || '' }
       ]
     );
 
@@ -765,7 +759,7 @@ class SettingsPage {
       const name = inputs.name ? inputs.name.trim() : '';
 
       if (!name) {
-        toastManager.error('Subject name is required');
+        toastManager.error(i18nService.t('errors.subjectNameRequired'));
         return;
       }
 
@@ -775,7 +769,7 @@ class SettingsPage {
       }
 
       if (inputs.startTime && inputs.endTime && inputs.startTime >= inputs.endTime) {
-        toastManager.error('End time must be after start time.');
+        toastManager.error(i18nService.t('errors.endAfterStart'));
         return;
       }
 
@@ -790,7 +784,7 @@ class SettingsPage {
           toastManager.success('Subject updated successfully');
         } else {
           if (!targetSemesterId) {
-            toastManager.error('No semester selected');
+            toastManager.error(i18nService.t('errors.noSemesterSelected'));
             return;
           }
           await attendanceService.addSubject(targetSemesterId, {
@@ -826,34 +820,34 @@ class SettingsPage {
     const todayString = new Date().toISOString().split('T')[0];
 
     if (!year || isNaN(parseInt(year)) || parseInt(year) < 1) {
-      toastManager.error('Please enter a valid year (1 or higher)');
+      toastManager.error(i18nService.t('errors.invalidYear'));
       return;
     }
 
     if (!term || isNaN(parseInt(term)) || parseInt(term) < 1 || parseInt(term) > 4) {
-      toastManager.error('Please enter a valid term (1-4)');
+      toastManager.error(i18nService.t('errors.invalidTerm'));
       return;
     }
 
     // Construct the semester name
-    const name = `Year ${year}, Semester ${term}`;
+    const name = i18nService.t('modals.semesterName', { year, term });
 
     if (!startDate || !endDate) {
-      toastManager.error('Please select both start and end dates');
+      toastManager.error(i18nService.t('errors.fillDates'));
       return;
     }
 
     if (startDate < todayString && !id) { // Only for new semesters
-      toastManager.error('Start date cannot be in the past');
+      toastManager.error(i18nService.t('errors.pastStartDate'));
       return;
     }
 
     if (startDate > endDate) {
-      toastManager.error('Start date must be before end date');
+      toastManager.error(i18nService.t('errors.endAfterStart')); // reuse or add endBeforeStartDate?
       return;
     }
 
-    const loadingToast = toastManager.loading('Saving semester...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       if (id) {
@@ -896,13 +890,12 @@ class SettingsPage {
     const subject = this.allSubjects ? this.allSubjects.find(s => s.id === id) : window.app.allSubjects.find(s => s.id === id);
 
     const confirmed = await modalManager.confirm(
-      'Delete Subject',
-      `Delete "${subject?.name || 'this subject'}"? This cannot be undone.`
+      i18nService.t('modals.deleteSubjectTitle'),
+      i18nService.t('modals.deleteSubjectMsg', { name: subject?.name || i18nService.t('settings.manageSubjects') })
     );
 
     if (!confirmed) return;
-
-    const loadingToast = toastManager.loading('Deleting subject...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.subjectDoc(window.app.userId, id)));
@@ -954,7 +947,7 @@ class SettingsPage {
       userId: window.app.userId || 'anonymous'
     };
 
-    const loadingToast = toastManager.loading('Submitting report...');
+    const loadingToast = toastManager.loading(i18nService.t('modals.processing'));
 
     try {
       await addDoc(collection(window.firebaseDb, FIREBASE_PATHS.bugReports(window.app.userId)), reportData);
@@ -964,7 +957,7 @@ class SettingsPage {
 
       // Clear form
       document.getElementById('report-type-dropdown').dataset.value = '';
-      document.getElementById('report-type-display').textContent = 'Select problem type...';
+      document.getElementById('report-type-display').textContent = i18nService.t('report.selectType');
       document.getElementById('report-description').value = '';
     } catch (error) {
       toastManager.hide(loadingToast);

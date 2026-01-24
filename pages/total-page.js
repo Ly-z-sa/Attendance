@@ -1,6 +1,8 @@
 // pages/total-page.js
 import attendanceService from '../services/attendance-service.js';
 import toastManager from '../ui/toast-manager.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class TotalPage {
   constructor() {
@@ -19,7 +21,7 @@ class TotalPage {
           this.handleExport(exportType);
           // Reset dropdown
           e.currentTarget.dataset.value = '';
-          document.getElementById('export-type-display').textContent = 'Export to Excel';
+          document.getElementById('export-type-display').textContent = i18nService.t('common.exportToExcel');
         }
       });
     }
@@ -36,13 +38,13 @@ class TotalPage {
     }
 
     let html = `
-      <div class="mobile-hide" style="display: flex; justify-content: flex-end; padding: 0 1.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--grey-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-        <div style="flex: 1;"></div>
-        <div style="display: flex; gap: 1rem; width: 232px; justify-content: space-around;">
-          <div style="width: 48px; text-align: center;">PRS</div>
-          <div style="width: 48px; text-align: center;">ABS</div>
-          <div style="width: 48px; text-align: center;">PER</div>
-          <div style="width: 48px; text-align: center;">LAT</div>
+      <div class="total-header-labels mobile-hide">
+        <div class="total-header-spacer"></div>
+        <div class="total-header-counts">
+          <div class="total-header-label">PRS</div>
+          <div class="total-header-label">ABS</div>
+          <div class="total-header-label">PER</div>
+          <div class="total-header-label">LAT</div>
         </div>
       </div>
     `;
@@ -51,28 +53,32 @@ class TotalPage {
       const stats = attendanceService.calculateSubjectStats(subject.id);
 
       return `
-        <div class="total-subject-row">
-          <div class="data-row" style="animation-delay: ${index * 0.05}s;">
+        <div class="total-subject-wrapper" style="animation-delay: ${index * 0.05}s;">
+          <div class="total-subject-bar">
             <div class="subject-info-detailed">
               <div class="subject-header">
                 <span class="subject-name-large">${subject.name}</span>
-                <span class="subject-day-badge">${subject.day}</span>
+                <span class="subject-day-badge">${i18nService.getDayTranslation(subject.day)}</span>
               </div>
               <div class="subject-status-row">
                 <span class="subject-warning" style="color: ${stats.warning.color}; font-weight: 600;">
-                  ${stats.warning.status}
+                  ${stats.warning.status === 'Good' ? i18nService.t('common.statusGood') :
+          stats.warning.status === 'FIRST WARNING' ? i18nService.t('common.statusFirstWarning') :
+            stats.warning.status === 'LAST WARNING' ? i18nService.t('common.statusLastWarning') :
+              stats.warning.status === 'RED ERROR WARNING' ? i18nService.t('common.statusError') :
+                sanitizeInput(stats.warning.status)}
                 </span>
                 <span class="subject-percentage" style="color: ${this.getPercentageColor(stats.percentage)}">
-                  ${stats.percentage}% attendance
+                  ${i18nService.t('common.attendanceCount', { count: stats.percentage })}
                 </span>
               </div>
             </div>
-            <div class="data-row-right">
-              <div class="count-bubble count-green" title="Present">${stats.counts.Present}</div>
-              <div class="count-bubble count-red" title="Absent">${stats.counts.Absent}</div>
-              <div class="count-bubble count-blue" title="Permission">${stats.counts.Permission}</div>
-              <div class="count-bubble count-yellow" title="Late">${stats.counts.Late}</div>
-            </div>
+          </div>
+          <div class="total-count-circles">
+            <div class="count-circle count-green" title="${i18nService.t('status.present')}">${stats.counts.Present}</div>
+            <div class="count-circle count-red" title="${i18nService.t('status.absent')}">${stats.counts.Absent}</div>
+            <div class="count-circle count-blue" title="${i18nService.t('common.permit')}">${stats.counts.Permission}</div>
+            <div class="count-circle count-yellow" title="${i18nService.t('status.late')}">${stats.counts.Late}</div>
           </div>
         </div>
       `;
@@ -110,10 +116,10 @@ class TotalPage {
       link.download = filename;
       link.click();
 
-      toastManager.success(`${type.charAt(0).toUpperCase() + type.slice(1)} report exported successfully!`);
+      toastManager.success(i18nService.t('common.exportSuccess', { type: type.charAt(0).toUpperCase() + type.slice(1) }));
     } catch (error) {
       console.error('Export error:', error);
-      toastManager.error('Failed to export report');
+      toastManager.error(i18nService.t('common.exportError'));
     }
   }
 
@@ -128,9 +134,9 @@ class TotalPage {
             <line x1="30" y1="75" x2="80" y2="75" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3>No Subjects Found</h3>
-        <p>Add subjects to this semester to track attendance</p>
-        <button class="btn btn-primary" onclick="window.navigateTo('Settings')">Add Subjects</button>
+        <h3>${i18nService.t('total.noSubjects')}</h3>
+        <p>${i18nService.t('total.addSubjectsDesc')}</p>
+        <button class="btn btn-primary" onclick="window.navigateTo('Settings')">${i18nService.t('total.addSubjectsBtn')}</button>
       </div>
     `;
   }

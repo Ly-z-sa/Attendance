@@ -3,6 +3,8 @@ import { getTodayDateString, getCurrentDayName, getSemesterWeek, getRelativeTime
 import attendanceService from '../services/attendance-service.js';
 import { ICONS } from '../utils/icons.js';
 import { sanitizeInput } from '../utils/sanitizer.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class DashboardPage {
   constructor() {
@@ -50,8 +52,8 @@ class DashboardPage {
       ${this.renderSlideshow()}
 
       <div class="dashboard-header">
-        <h3>Quick Overview</h3>
-        <span class="dashboard-date">${sanitizeInput(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }))}</span>
+        <h3>${i18nService.t('dashboard.quickOverview')}</h3>
+        <span class="dashboard-date">${sanitizeInput(new Date().toLocaleDateString(i18nService.getCurrentLanguage(), { weekday: 'long', month: 'long', day: 'numeric' }))}</span>
       </div>
 
       <!-- Quick Stats Cards -->
@@ -60,7 +62,7 @@ class DashboardPage {
           <div class="stat-icon">${ICONS.TARGET}</div>
           <div class="stat-content">
             <div class="stat-value">${sanitizeInput(semesterStats.percentage)}%</div>
-            <div class="stat-label">Attendance Rate</div>
+            <div class="stat-label">${i18nService.t('dashboard.attendanceRate')}</div>
           </div>
         </div>
         
@@ -68,7 +70,7 @@ class DashboardPage {
           <div class="stat-icon">${ICONS.FIRE}</div>
           <div class="stat-content">
             <div class="stat-value">${sanitizeInput(streak.toString())}</div>
-            <div class="stat-label">Day Streak</div>
+            <div class="stat-label">${i18nService.t('dashboard.dayStreak')}</div>
           </div>
         </div>
         
@@ -76,8 +78,8 @@ class DashboardPage {
         <div class="stat-card stat-card-info">
           <div class="stat-icon">${ICONS.CALENDAR}</div>
           <div class="stat-content">
-            <div class="stat-value">Week ${sanitizeInput(currentWeek.toString())}</div>
-            <div class="stat-label">${sanitizeInput(weekStats.counts.Present.toString())}/${sanitizeInput(weekStats.total.toString())} Present</div>
+            <div class="stat-value">${i18nService.t('dashboard.week')} ${sanitizeInput(currentWeek.toString())}</div>
+            <div class="stat-label">${i18nService.t('dashboard.presentOutOf', { present: weekStats.counts.Present, total: weekStats.total })}</div>
           </div>
         </div>
         ` : ''}
@@ -86,7 +88,7 @@ class DashboardPage {
           <div class="stat-icon">${warnings.length > 0 ? ICONS.WARNING : ICONS.CHECK}</div>
           <div class="stat-content">
             <div class="stat-value">${sanitizeInput(warnings.length.toString())}</div>
-            <div class="stat-label">Warning${warnings.length !== 1 ? 's' : ''}</div>
+            <div class="stat-label">${warnings.length === 1 ? i18nService.t('dashboard.warning') : i18nService.t('dashboard.warnings')}</div>
           </div>
         </div>
       </div>
@@ -94,8 +96,8 @@ class DashboardPage {
       <!-- Today's Subjects -->
       <div class="dashboard-section">
         <div class="section-header">
-          <h3>Today's Classes</h3>
-          <span class="section-badge">${sanitizeInput(todaysSubjects.length.toString())} subjects</span>
+          <h3>${i18nService.t('dashboard.todaysClasses')}</h3>
+          <span class="section-badge">${i18nService.t('dashboard.subjectsCount', { count: todaysSubjects.length })}</span>
         </div>
         ${this.renderTodaysSubjects(todaysSubjects, todaysAttendance)}
       </div>
@@ -104,8 +106,8 @@ class DashboardPage {
       ${warnings.length > 0 ? `
       <div class="dashboard-section dashboard-warnings">
         <div class="section-header">
-          <h3>Attention Needed</h3>
-          <span class="section-badge section-badge-warning">${sanitizeInput(warnings.length.toString())} warning${warnings.length !== 1 ? 's' : ''}</span>
+          <h3>${i18nService.t('dashboard.attentionNeeded')}</h3>
+          <span class="section-badge section-badge-warning">${warnings.length === 1 ? i18nService.t('dashboard.warningCount', { count: warnings.length }) : i18nService.t('dashboard.warningsCount', { count: warnings.length })}</span>
         </div>
         <div class="warnings-list">
           ${warnings.map(w => `
@@ -113,8 +115,14 @@ class DashboardPage {
               <div class="warning-icon" style="color: ${sanitizeInput(w.warning.color)}">${ICONS.WARNING}</div>
               <div class="warning-content">
                 <div class="warning-subject">${sanitizeInput(w.subject.name)}</div>
-                <div class="warning-status" style="color: ${sanitizeInput(w.warning.color)}">${sanitizeInput(w.warning.status)}</div>
-                <div class="warning-details">${sanitizeInput(w.counts.Absent.toString())} absent • ${sanitizeInput(w.counts.Permission.toString())} permission • ${sanitizeInput(w.counts.Late.toString())} late</div>
+                <div class="warning-status" style="color: ${sanitizeInput(w.warning.color)}">
+                  ${w.warning.status === 'Good' ? i18nService.t('common.statusGood') :
+        w.warning.status === 'FIRST WARNING' ? i18nService.t('common.statusFirstWarning') :
+          w.warning.status === 'LAST WARNING' ? i18nService.t('common.statusLastWarning') :
+            w.warning.status === 'RED ERROR WARNING' ? i18nService.t('common.statusError') :
+              sanitizeInput(w.warning.status)}
+                </div>
+                <div class="warning-details">${sanitizeInput(w.counts.Absent.toString())} ${i18nService.t('status.absent').toLowerCase()} • ${sanitizeInput(w.counts.Permission.toString())} ${i18nService.t('common.permit').toLowerCase()} • ${sanitizeInput(w.counts.Late.toString())} ${i18nService.t('status.late').toLowerCase()}</div>
               </div>
             </div>
           `).join('')}
@@ -125,7 +133,7 @@ class DashboardPage {
       <!-- Recent Activity -->
       <div class="dashboard-section">
         <div class="section-header">
-          <h3>Recent Activity</h3>
+          <h3>${i18nService.t('dashboard.recentActivity')}</h3>
         </div>
         ${this.renderRecentActivity(recentAttendance, allSubjects)}
       </div>
@@ -138,7 +146,7 @@ class DashboardPage {
       return `
         <div class="empty-state-mini">
           <div class="empty-icon">${ICONS.BOOK}</div>
-          <div class="empty-text">No classes scheduled for today</div>
+          <div class="empty-text">${i18nService.t('dashboard.noClasses')}</div>
         </div>
       `;
     }
@@ -148,7 +156,7 @@ class DashboardPage {
         ${subjects.map(subject => {
       const record = attendance.find(r => r.subjectId === subject.id);
       const statusClass = record ? `status-${record.status.toLowerCase().replace(/[^a-z0-9-]/g, '')}` : 'status-pending';
-      const statusText = record ? sanitizeInput(record.status) : 'Not marked';
+      const statusText = record ? i18nService.t(`status.${record.status.toLowerCase()}`) : i18nService.t('attendance.notMarked');
 
       return `
             <div class="subject-item ${statusClass}">
@@ -167,7 +175,7 @@ class DashboardPage {
       return `
         <div class="empty-state-mini">
           <div class="empty-icon">${ICONS.CLIPBOARD}</div>
-          <div class="empty-text">No recent activity</div>
+          <div class="empty-text">${i18nService.t('dashboard.noActivity')}</div>
         </div>
       `;
     }
@@ -185,9 +193,9 @@ class DashboardPage {
               <div class="activity-indicator ${statusClass}"></div>
               <div class="activity-content">
                 <div class="activity-subject">${subjectName}</div>
-                <div class="activity-date">${sanitizeInput(getRelativeTimeString(record.date))}</div>
+                <div class="activity-date">${sanitizeInput(i18nService.getRelativeTimeTranslation(record.date))}</div>
               </div>
-              <div class="activity-status ${statusClass}">${sanitizeInput(record.status)}</div>
+              <div class="activity-status ${statusClass}">${i18nService.t(`status.${record.status.toLowerCase()}`)}</div>
             </div>
           `;
     }).join('')}
@@ -205,9 +213,9 @@ class DashboardPage {
             <circle cx="60" cy="60" r="45" stroke="var(--border-color)" stroke-width="2" fill="none"/>
           </svg>
         </div>
-        <h3>Welcome to Your Dashboard</h3>
-        <p>Start by adding a semester and subjects to track your attendance</p>
-        <button class="btn btn-primary" data-navigate="Settings">Get Started</button>
+        <h3>${i18nService.t('dashboard.welcomeTitle')}</h3>
+        <p>${i18nService.t('dashboard.welcomeDesc')}</p>
+        <button class="btn btn-primary" data-navigate="Settings">${i18nService.t('dashboard.getStarted')}</button>
       </div>
     `;
   }

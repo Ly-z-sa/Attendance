@@ -20,6 +20,7 @@ import settingsPage from './pages/settings-page.js';
 import focusPage from './pages/focus-page.js';
 import navigationManager from './ui/navigation-manager.js';
 import notificationService from './services/notification-service.js';
+import i18nService from './services/i18n-service.js';
 import errorHandler from './utils/error-handler.js';
 
 class App {
@@ -71,6 +72,10 @@ class App {
 
       // Initialize Click Effect Manager
       clickEffectManager.initialize();
+
+      // Update static UI translations
+      this.updateStaticTranslations();
+
 
     } catch (error) {
       console.error('Error initializing app:', error);
@@ -483,20 +488,299 @@ class App {
 
   getMilestoneMessage(streak) {
     const messages = {
-      3: '🔥 3-Day Streak! You\'re on fire!',
-      7: '🌟 One Week Strong! Amazing consistency!',
-      10: '💪 10 Days! You\'re building great habits!',
-      15: '🚀 15-Day Streak! Unstoppable!',
-      21: '💎 21 Days! Habit formation complete!',
-      30: '👑 30-Day Streak! You\'re a champion!',
-      50: '🏆 50 Days! Incredible dedication!',
-      75: '⭐ 75-Day Streak! You\'re a legend!',
-      100: '🎯 100 DAYS! Absolutely phenomenal!',
-      150: '🌈 150 Days! Beyond amazing!',
-      200: '🎊 200-Day Streak! You\'re unstoppable!',
-      365: '🎉 ONE YEAR STREAK! You\'re absolutely incredible!'
+      1: i18nService.t('milestones.day1'),
+      3: i18nService.t('milestones.day3'),
+      5: i18nService.t('milestones.day5'),
+      7: i18nService.t('milestones.day7'),
+      10: i18nService.t('milestones.day10'),
+      14: i18nService.t('milestones.day14'),
+      30: i18nService.t('milestones.day30'),
+      50: i18nService.t('milestones.day50'),
+      100: i18nService.t('milestones.day100'),
+      150: i18nService.t('milestones.day150'),
+      200: i18nService.t('milestones.day200'),
+      365: i18nService.t('milestones.day365')
     };
-    return messages[streak] || `🔥 ${streak}-Day Streak! Keep it up!`;
+    return messages[streak] || `🔥 ${streak}-${i18nService.t('dashboard.streakCount', { count: streak })}!`;
+  }
+
+  updateStaticTranslations() {
+    // Update navigation links
+    document.querySelectorAll('.nav-link').forEach(link => {
+      const page = link.dataset.page;
+      const key = page.toLowerCase();
+      if (i18nService.languages[i18nService.getCurrentLanguage()].nav[key]) {
+        // Keep the badge if it exists
+        const badge = link.querySelector('.nav-badge');
+        link.textContent = i18nService.t(`nav.${key}`);
+        if (badge) link.appendChild(badge);
+      }
+    });
+
+    // Update Page Headers
+    const headers = {
+      'Dashboard': 'dashboard.title',
+      'Home': 'attendance.title',
+      'WeeklyReport': 'nav.weeklyreport',
+      'Total': 'nav.total',
+      'Focus': 'nav.focus',
+      'Settings': 'nav.settings'
+    };
+
+    Object.entries(headers).forEach(([page, key]) => {
+      const header = document.querySelector(`.page[data-page="${page}"] .page-header h2`);
+      if (header) {
+        header.textContent = i18nService.t(key);
+      }
+    });
+
+    // Update common static elements
+    const welcomeName = document.getElementById('user-info-name');
+    if (welcomeName && welcomeName.textContent === 'Hello, Student') {
+      welcomeName.textContent = i18nService.t('dashboard.helloStudent');
+    }
+
+    const majorElement = document.getElementById('user-info-major');
+    if (majorElement && majorElement.textContent === 'Your Major') {
+      majorElement.textContent = i18nService.t('settings.major');
+    }
+
+    const semesterElement = document.getElementById('user-info-semester');
+    if (semesterElement && semesterElement.textContent === 'No semester selected') {
+      semesterElement.textContent = i18nService.t('settings.noSemesterSelected');
+    }
+
+    const todayDateDisplay = document.getElementById('selected-date-display');
+    if (todayDateDisplay && todayDateDisplay.textContent === 'Today') {
+      todayDateDisplay.textContent = i18nService.t('common.today');
+    }
+
+    const homeDayTitle = document.getElementById('home-day-title');
+    if (homeDayTitle) {
+      homeDayTitle.textContent = i18nService.t('attendance.title');
+    }
+
+    // Update Onboarding Modal
+    const onboardingTitle = document.getElementById('onboarding-modal-title');
+    if (onboardingTitle) onboardingTitle.textContent = i18nService.t('onboarding.title');
+
+    const onboardingSubtitle = document.querySelector('#onboarding-modal .modal-body p');
+    if (onboardingSubtitle) onboardingSubtitle.textContent = i18nService.t('onboarding.subtitle');
+
+    const nameLabel = document.querySelector('label[for="onboarding-name"]');
+    if (nameLabel) nameLabel.textContent = i18nService.t('settings.fullName');
+
+    const majorLabel = document.querySelector('label[for="onboarding-major"]');
+    if (majorLabel) majorLabel.textContent = i18nService.t('settings.major');
+
+    const onboardingSaveBtn = document.getElementById('onboarding-save-btn');
+    if (onboardingSaveBtn) onboardingSaveBtn.textContent = i18nService.t('onboarding.saveAndContinue');
+
+    // Update Report Modal
+    const reportTitle = document.querySelector('#report-modal h4');
+    if (reportTitle) reportTitle.textContent = i18nService.t('report.title');
+
+    const problemTypeLabel = document.querySelector('#report-modal .form-group label');
+    if (problemTypeLabel) problemTypeLabel.textContent = i18nService.t('report.type');
+
+    const reportTypeDisplay = document.getElementById('report-type-display');
+    if (reportTypeDisplay) reportTypeDisplay.textContent = i18nService.t('report.selectType');
+
+    const reportOptions = document.querySelectorAll('#report-modal .dropdown-option');
+    const reportOptionKeys = ['Bug', 'Crash', 'Feature', 'Other'];
+    const reportTranslationKeys = ['report.bug', 'report.crash', 'report.feature', 'report.other'];
+    reportOptions.forEach(opt => {
+      const idx = reportOptionKeys.indexOf(opt.dataset.value);
+      if (idx !== -1) opt.textContent = i18nService.t(reportTranslationKeys[idx]);
+    });
+
+    const reportDescLabel = document.querySelector('label[for="report-description"]');
+    if (reportDescLabel) reportDescLabel.textContent = i18nService.t('report.description');
+
+    const reportDescInput = document.getElementById('report-description');
+    if (reportDescInput) reportDescInput.placeholder = i18nService.t('report.placeholder');
+
+    const submitReportBtn = document.getElementById('submit-report-btn');
+    if (submitReportBtn) submitReportBtn.textContent = i18nService.t('report.submit');
+
+    // Update Confirm Modal
+    const confirmTitle = document.getElementById('confirm-modal-title');
+    if (confirmTitle) confirmTitle.textContent = 'Confirm Action'; // This is usually dynamic via modal-manager
+
+    const confirmCancelBtn = document.querySelector('#confirm-modal .btn[data-modal-close="confirm-modal"]');
+    if (confirmCancelBtn) confirmCancelBtn.textContent = i18nService.t('common.cancel');
+
+    const confirmConfirmBtn = document.getElementById('confirm-modal-confirm');
+    if (confirmConfirmBtn) confirmConfirmBtn.textContent = i18nService.t('common.save'); // Usually dynamic
+
+    // Update Subject Modal
+    const subjectTitle = document.getElementById('subject-modal-title');
+    if (subjectTitle) {
+      const isEdit = document.getElementById('subject-modal-id')?.value;
+      subjectTitle.textContent = isEdit ? i18nService.t('modals.editSubject') : i18nService.t('modals.addSubject');
+    }
+    const subjectNameLabel = document.querySelector('label[for="subject-modal-name"]');
+    if (subjectNameLabel) subjectNameLabel.textContent = i18nService.t('modals.subjectName');
+    const subjectNameInput = document.getElementById('subject-modal-name');
+    if (subjectNameInput) subjectNameInput.placeholder = i18nService.t('modals.subjectNamePlaceholder');
+    const subjectDayLabel = document.querySelector('#subject-modal .form-group:nth-child(3) label');
+    if (subjectDayLabel) subjectDayLabel.textContent = i18nService.t('modals.dayOfWeek');
+    const subjectDayDisplay = document.getElementById('subject-modal-day-display');
+    if (subjectDayDisplay && subjectDayDisplay.textContent === 'Select a day...') {
+      subjectDayDisplay.textContent = i18nService.t('modals.selectDay');
+    }
+    const subjectSaveBtn = document.getElementById('save-subject-btn');
+    if (subjectSaveBtn) subjectSaveBtn.textContent = i18nService.t('modals.saveSubject');
+    const subjectCancelBtn = document.querySelector('#subject-modal .btn[data-modal-close="subject-modal"]');
+    if (subjectCancelBtn) subjectCancelBtn.textContent = i18nService.t('common.cancel');
+
+    // Update Semester Modal
+    const semesterTitle = document.getElementById('semester-modal-title');
+    if (semesterTitle) {
+      const isEdit = document.getElementById('semester-modal-id')?.value;
+      semesterTitle.textContent = isEdit ? i18nService.t('modals.editSemester') : i18nService.t('modals.addSemester');
+    }
+    const semesterYearLabel = document.querySelector('label[for="semester-year-input"]');
+    if (semesterYearLabel) semesterYearLabel.textContent = i18nService.t('modals.year');
+    const semesterYearInput = document.getElementById('semester-year-input');
+    if (semesterYearInput) semesterYearInput.placeholder = i18nService.t('modals.yearPlaceholder');
+    const semesterTermLabel = document.querySelector('label[for="semester-term-input"]');
+    if (semesterTermLabel) semesterTermLabel.textContent = i18nService.t('modals.term');
+    const semesterStartLabel = document.querySelector('#semester-modal .form-group:nth-child(3) label');
+    if (semesterStartLabel) semesterStartLabel.textContent = i18nService.t('modals.startDate');
+    const semesterEndLabel = document.querySelector('#semester-modal .form-group:nth-child(4) label');
+    if (semesterEndLabel) semesterEndLabel.textContent = i18nService.t('modals.endDate');
+    const semesterStartDisplay = document.getElementById('semester-start-date-display');
+    if (semesterStartDisplay && semesterStartDisplay.textContent === 'Select start date') {
+      semesterStartDisplay.textContent = i18nService.t('modals.selectStartDate');
+    }
+    const semesterEndDisplay = document.getElementById('semester-end-date-display');
+    if (semesterEndDisplay && semesterEndDisplay.textContent === 'Select end date') {
+      semesterEndDisplay.textContent = i18nService.t('modals.selectEndDate');
+    }
+    const semesterSaveBtn = document.getElementById('save-semester-btn');
+    if (semesterSaveBtn) semesterSaveBtn.textContent = i18nService.t('modals.saveSemester');
+    const semesterCancelBtn = document.querySelector('#semester-modal .btn[data-modal-close="semester-modal"]');
+    if (semesterCancelBtn) semesterCancelBtn.textContent = i18nService.t('common.cancel');
+
+    // Update Edit Attendance Modal
+    const editAttTitle = document.getElementById('edit-attendance-modal-title');
+    if (editAttTitle) editAttTitle.textContent = i18nService.t('modals.editAttendance');
+    const editAttLabels = document.querySelectorAll('#edit-attendance-modal .form-group label');
+    if (editAttLabels.length >= 4) {
+      editAttLabels[0].textContent = i18nService.t('modals.subject');
+      editAttLabels[1].textContent = i18nService.t('modals.date');
+      editAttLabels[2].textContent = i18nService.t('modals.currentStatus');
+      editAttLabels[3].textContent = i18nService.t('modals.newStatus');
+      if (editAttLabels[4]) editAttLabels[4].innerHTML = `${i18nService.t('modals.reasonForEdit')} <span style="color: var(--red);">*</span>`;
+    }
+    const editAttStatusDisplay = document.getElementById('edit-attendance-status-display');
+    if (editAttStatusDisplay && editAttStatusDisplay.textContent === 'Select new status...') {
+      editAttStatusDisplay.textContent = i18nService.t('modals.selectNewStatus');
+    }
+    const editAttReasonInput = document.getElementById('edit-attendance-reason');
+    if (editAttReasonInput) editAttReasonInput.placeholder = i18nService.t('modals.reasonPlaceholder');
+    const editAttAuditNote = document.querySelector('#edit-attendance-modal .form-group div[style*="font-size: 0.8rem"]');
+    if (editAttAuditNote) editAttAuditNote.textContent = i18nService.t('modals.auditNote');
+    const editAttSaveBtn = document.getElementById('save-edit-attendance-btn');
+    if (editAttSaveBtn) editAttSaveBtn.textContent = i18nService.t('modals.updateAttendance');
+    const editAttCancelBtn = document.querySelector('#edit-attendance-modal .btn[data-modal-close="edit-attendance-modal"]');
+    if (editAttCancelBtn) editAttCancelBtn.textContent = i18nService.t('common.cancel');
+
+    const editAttOptions = document.querySelectorAll('#edit-attendance-status-dropdown .dropdown-option');
+    editAttOptions.forEach(opt => {
+      const val = opt.dataset.value.toLowerCase();
+      if (i18nService.languages[i18nService.getCurrentLanguage()].status[val]) {
+        opt.textContent = i18nService.t(`status.${val}`);
+      }
+    });
+
+    const subjectDayOptions = document.querySelectorAll('#subject-modal-day-dropdown .dropdown-option');
+    subjectDayOptions.forEach(opt => {
+      const val = opt.dataset.value.toLowerCase();
+      if (i18nService.languages[i18nService.getCurrentLanguage()].days[val]) {
+        opt.textContent = i18nService.t(`days.${val}`);
+      }
+    });
+
+    // Update Auth Modal
+    const authEmailLabel = document.querySelector('label[for="signin-email"]');
+    if (authEmailLabel) authEmailLabel.textContent = i18nService.t('settings.username') + ' ' + i18nService.t('common.or') + ' Email'; // Need common.or
+    const authPassLabel = document.querySelector('label[for="signin-password"]');
+    if (authPassLabel) authPassLabel.textContent = i18nService.t('settings.password');
+    const authForgotLink = document.getElementById('forgot-password-link');
+    if (authForgotLink) authForgotLink.textContent = i18nService.t('auth.forgotPassword');
+    const authSignInBtn = document.getElementById('signin-btn');
+    if (authSignInBtn) authSignInBtn.textContent = i18nService.t('settings.signIn');
+
+    const authNameLabel = document.querySelector('label[for="signup-name"]');
+    if (authNameLabel) authNameLabel.textContent = i18nService.t('settings.fullName');
+    const authSignupEmailLabel = document.querySelector('label[for="signup-email"]');
+    if (authSignupEmailLabel) authSignupEmailLabel.textContent = 'Email';
+    const authSignupPassLabel = document.querySelector('label[for="signup-password"]');
+    if (authSignupPassLabel) authSignupPassLabel.textContent = i18nService.t('settings.password');
+    const authSignUpBtn = document.getElementById('signup-btn');
+    if (authSignUpBtn) authSignUpBtn.textContent = i18nService.t('auth.authModalTitleSignUp');
+
+    const signupPassInput = document.getElementById('signup-password');
+    if (signupPassInput) signupPassInput.placeholder = i18nService.t('auth.passwordPlaceholder');
+
+    // Agree text for sign in
+    const signinAgreeText = document.querySelector('#signin-form p');
+    if (signinAgreeText) {
+      signinAgreeText.innerHTML = i18nService.t('auth.agreeText', {
+        action: i18nService.t('auth.signingIn'),
+        terms: `<a href="terms.html" target="_blank" style="color: var(--primary);">${i18nService.t('auth.terms')}</a>`,
+        privacy: `<a href="privacy.html" target="_blank" style="color: var(--primary);">${i18nService.t('auth.privacy')}</a>`
+      });
+    }
+
+    // Agree text for sign up
+    const signupAgreeText = document.querySelector('#signup-form p');
+    if (signupAgreeText) {
+      signupAgreeText.innerHTML = i18nService.t('auth.agreeText', {
+        action: i18nService.t('auth.creatingAccount'),
+        terms: `<a href="terms.html" target="_blank" style="color: var(--primary);">${i18nService.t('auth.terms')}</a>`,
+        privacy: `<a href="privacy.html" target="_blank" style="color: var(--primary);">${i18nService.t('auth.privacy')}</a>`
+      });
+    }
+
+    const googleBtnText = document.querySelector('.google-btn-text');
+    if (googleBtnText) googleBtnText.textContent = i18nService.t('auth.googleSignIn');
+    const githubBtnText = document.querySelector('.github-btn-text');
+    if (githubBtnText) githubBtnText.textContent = i18nService.t('auth.githubSignIn');
+
+    const authTabs = document.querySelectorAll('.auth-tab');
+    if (authTabs.length >= 2) {
+      authTabs[0].textContent = i18nService.t('settings.signIn');
+      authTabs[1].textContent = i18nService.t('auth.authModalTitleSignUp');
+    }
+
+    // Update Edit Attendance Modal labels
+    const editAttSubjectLabel = document.querySelector('#edit-attendance-modal label[for="edit-attendance-subject-name"]');
+    if (editAttSubjectLabel) editAttSubjectLabel.textContent = i18nService.t('modals.subject');
+    const editAttDateLabel = document.querySelector('#edit-attendance-modal label[for="edit-attendance-date-display"]');
+    if (editAttDateLabel) editAttDateLabel.textContent = i18nService.t('modals.date');
+    const editAttStatusLabel = document.querySelector('#edit-attendance-modal label[for="edit-attendance-current-status"]');
+    if (editAttStatusLabel) editAttStatusLabel.textContent = i18nService.t('modals.currentStatus');
+    const editAttNewStatusLabel = document.querySelector('#edit-attendance-modal label[for="edit-attendance-status-dropdown"]');
+    if (editAttNewStatusLabel) editAttNewStatusLabel.textContent = i18nService.t('modals.newStatus');
+    const editAttReasonLabel = document.querySelector('label[for="edit-attendance-reason"]');
+    if (editAttReasonLabel) editAttReasonLabel.innerHTML = i18nService.t('modals.reasonForEdit') + ' <span style="color: var(--red);">*</span>';
+    const editAttReasonHint = document.querySelector('#edit-attendance-reason + div');
+    if (editAttReasonHint) editAttReasonHint.textContent = i18nService.t('modals.auditNote');
+    const editAttReasonPlaceholder = document.getElementById('edit-attendance-reason');
+    if (editAttReasonPlaceholder) editAttReasonPlaceholder.placeholder = i18nService.t('modals.reasonPlaceholder');
+    const editAttUpdateBtn = document.getElementById('save-edit-attendance-btn');
+    if (editAttUpdateBtn) editAttUpdateBtn.textContent = i18nService.t('modals.updateAttendance');
+
+    // Update Loading Overlay
+    const processingLoaderText = document.querySelector('#loading-overlay div div:last-child');
+    if (processingLoaderText) processingLoaderText.textContent = i18nService.t('modals.processing');
+
+    // Update Input Modal
+    const inputModalCancel = document.querySelector('#input-modal .btn[data-modal-close="input-modal"]');
+    if (inputModalCancel) inputModalCancel.textContent = i18nService.t('common.cancel');
   }
 
   updateHeader() {
@@ -504,9 +788,15 @@ class App {
       if (this.userProfile.name) {
         const nameElement = document.getElementById('user-info-name');
         if (nameElement) {
-          nameElement.textContent = `Hello, ${this.userProfile.name}`;
+          nameElement.textContent = i18nService.t('dashboard.welcome', { name: this.userProfile.name });
+        }
+      } else {
+        const nameElement = document.getElementById('user-info-name');
+        if (nameElement) {
+          nameElement.textContent = i18nService.t('dashboard.helloStudent');
         }
       }
+
       if (this.userProfile.major) {
         const majorElement = document.getElementById('user-info-major');
         if (majorElement) {
@@ -520,7 +810,7 @@ class App {
         if (currentSem) {
           semesterElement.textContent = currentSem.name;
         } else {
-          semesterElement.textContent = "No semester selected";
+          semesterElement.textContent = i18nService.t('settings.noSemesterSelected');
         }
       }
 
@@ -552,21 +842,14 @@ class App {
       }
 
       // Update streak
-      const streak = attendanceService.calculateStreak(this.currentSemesterId, this.allSubjects);
+      const streak = currentSem ? attendanceService.calculateStreak(this.currentSemesterId, this.allSubjects) : 0;
       const streakEl = document.getElementById('streak-display');
 
       if (streakEl) {
+        streakEl.innerHTML = `${ICONS.FIRE} ${i18nService.t('dashboard.streakCount', { count: streak })}`;
         if (streak === 0) {
-          streakEl.innerHTML = `
-            ${ICONS.FIRE}
-            0 day streak
-          `;
           streakEl.style.color = 'var(--grey-text)';
         } else {
-          streakEl.innerHTML = `
-            ${ICONS.FIRE}
-            ${streak} day${streak !== 1 ? 's' : ''} streak
-          `;
           streakEl.style.color = 'var(--green)';
         }
 

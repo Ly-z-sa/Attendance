@@ -15,6 +15,8 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { FIREBASE_PATHS } from '../utils/constants.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class FocusPage {
     constructor() {
@@ -148,9 +150,9 @@ class FocusPage {
                     <!-- 3-Way Toggle Switch with Glider -->
                     <div class="focus-toggle-container" style="--toggle-index: 0">
                         <div class="toggle-glider"></div>
-                        <button class="focus-toggle-btn ${this.mode === 'Focus' ? 'active' : ''}" data-mode="Focus" data-time="25" data-index="0">Focus</button>
-                        <button class="focus-toggle-btn ${this.mode === 'Short Break' ? 'active' : ''}" data-mode="Short Break" data-time="5" data-index="1">Short Break</button>
-                        <button class="focus-toggle-btn ${this.mode === 'Long Break' ? 'active' : ''}" data-mode="Long Break" data-time="15" data-index="2">Long Break</button>
+                        <button class="focus-toggle-btn ${this.mode === 'Focus' ? 'active' : ''}" data-mode="Focus" data-time="25" data-index="0">${i18nService.t('settings.focus')}</button>
+                        <button class="focus-toggle-btn ${this.mode === 'Short Break' ? 'active' : ''}" data-mode="Short Break" data-time="5" data-index="1">${i18nService.t('settings.shortBreak')}</button>
+                        <button class="focus-toggle-btn ${this.mode === 'Long Break' ? 'active' : ''}" data-mode="Long Break" data-time="15" data-index="2">${i18nService.t('settings.longBreak')}</button>
                     </div>
 
                     <div class="timer-container-circle">
@@ -160,57 +162,57 @@ class FocusPage {
                         </svg>
                         <div class="time-value-overlay">
                             <div id="timer-display" class="timer-text-large">${this.formatTime(this.timeLeft)}</div>
-                            <div class="status-text-small" id="timer-status">${this.isRunning ? 'Focusing...' : 'Ready'}</div>
+                            <div class="status-text-small" id="timer-status">${this.isRunning ? i18nService.t('settings.timerFocusing') : i18nService.t('settings.timerReady')}</div>
                         </div>
                     </div>
 
                     <div class="timer-controls">
-                        <button class="btn btn-primary control-btn-large" id="start-btn">${this.isRunning ? 'Pause' : 'Start'}</button>
-                        <button class="btn btn-secondary control-btn-large" id="reset-btn">Reset</button>
+                        <button class="btn btn-primary control-btn-large" id="start-btn">${this.isRunning ? i18nService.t('settings.pause') : i18nService.t('settings.start')}</button>
+                        <button class="btn btn-secondary control-btn-large" id="reset-btn">${i18nService.t('settings.reset')}</button>
                         <button class="icon-btn-small" id="sound-toggle" title="Toggle Sound">
                             ${this.soundOn ? ICONS.BELL : ICONS.BELL_OFF}
                         </button>
                     </div>
 
                     <div class="custom-time-input">
-                        <span>Custom (min):</span>
+                        <span>${i18nService.t('settings.customMin')}</span>
                         <input type="number" id="custom-min" value="${this.customTime}" min="1" max="120" class="mini-input">
-                        <button class="btn-small" id="set-custom-btn">Set</button>
+                        <button class="btn-small" id="set-custom-btn">${i18nService.t('settings.set')}</button>
                     </div>
                 </div>
 
                 <div class="focus-sidebar">
                     <div class="focus-card">
-                        <div class="card-title">Session Stats</div>
+                        <div class="card-title">${i18nService.t('settings.sessionStats')}</div>
                         <div class="focus-stats-grid">
                             <div class="stat-item">
                                 <div class="stat-val" id="stat-sessions">${this.stats.sessions}</div>
-                                <div class="stat-lbl">Sessions</div>
+                                <div class="stat-lbl">${i18nService.t('settings.sessions')}</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-val" id="stat-minutes">${this.stats.minutes}</div>
-                                <div class="stat-lbl">Minutes</div>
+                                <div class="stat-lbl">${i18nService.t('settings.minutes')}</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-val" id="stat-completed">${this.stats.completed}</div>
-                                <div class="stat-lbl">Tasks Done</div>
+                                <div class="stat-lbl">${i18nService.t('settings.tasksDone')}</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Input Card -->
                     <div class="focus-card">
-                        <div class="card-title">Add Task</div>
+                        <div class="card-title">${i18nService.t('settings.addTask')}</div>
                         <div class="task-input-wrap">
-                            <input type="text" class="task-input" id="task-input" placeholder="What's on your mind?">
-                            <button class="btn-icon-only" id="add-task-btn" title="Add Task">${ICONS.PLUS}</button>
+                            <input type="text" class="task-input" id="task-input" placeholder="${i18nService.t('settings.taskPlaceholder')}">
+                            <button class="btn-icon-only" id="add-task-btn" title="${i18nService.t('settings.addTask')}">${ICONS.PLUS}</button>
                         </div>
                     </div>
                     
                     <!-- Task Controls -->
                     <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
                         <button class="btn-text-only" id="toggle-completed-btn" style="color: var(--grey-text); font-size: 14px; background: none; border: none; cursor: pointer;">
-                            ${this.showCompleted ? 'Hide Completed' : 'Show Completed'}
+                            ${this.showCompleted ? i18nService.t('settings.hideCompleted') : i18nService.t('settings.showCompleted')}
                         </button>
                     </div>
 
@@ -269,7 +271,7 @@ class FocusPage {
                 this.customTime = min;
                 this.setMode(min, 'Custom');
             } else {
-                toastManager.info('Please enter a time between 1 and 180 minutes.');
+                toastManager.info(i18nService.t('settings.enterValidTime'));
             }
         });
 
@@ -286,7 +288,7 @@ class FocusPage {
         const toggleBtn = document.getElementById('toggle-completed-btn');
         if (toggleBtn) toggleBtn.addEventListener('click', () => {
             this.showCompleted = !this.showCompleted;
-            toggleBtn.textContent = this.showCompleted ? 'Hide Completed' : 'Show Completed';
+            toggleBtn.textContent = this.showCompleted ? i18nService.t('settings.hideCompleted') : i18nService.t('settings.showCompleted');
             this.refreshTaskList();
         });
 
@@ -318,7 +320,7 @@ class FocusPage {
         this.totalTime = min * 60;
 
         this.updateDisplay();
-        this.updateStatus('Ready');
+        this.updateStatus(i18nService.t('settings.timerReady'));
 
         // Update slider position
         const container = this.container.querySelector('.focus-toggle-container');
@@ -369,8 +371,8 @@ class FocusPage {
 
     startTimer() {
         this.isRunning = true;
-        document.getElementById('start-btn').textContent = 'Pause';
-        this.updateStatus('Keep Focus');
+        document.getElementById('start-btn').textContent = i18nService.t('settings.pause');
+        this.updateStatus(i18nService.t('settings.timerKeepFocus'));
 
         this.interval = setInterval(() => {
             this.timeLeft--;
@@ -386,16 +388,15 @@ class FocusPage {
         this.isRunning = false;
         clearInterval(this.interval);
         const btn = document.getElementById('start-btn');
-        if (btn) btn.textContent = 'Start';
-        this.updateStatus('Paused');
-
+        if (btn) btn.textContent = i18nService.t('settings.start');
+        this.updateStatus(i18nService.t('settings.timerPaused'));
     }
 
     resetTimer() {
         this.stopTimer();
         this.timeLeft = this.totalTime;
         this.updateDisplay();
-        this.updateStatus('Ready');
+        this.updateStatus(i18nService.t('settings.timerReady'));
     }
 
     completeSession() {
@@ -408,8 +409,8 @@ class FocusPage {
 
         if (this.soundOn) this.playBeep();
 
-        const msg = this.mode === 'Focus' || this.mode === 'Custom' ? 'Time for a break!' : 'Ready to focus again?';
-        this.updateStatus('Session Done');
+        const msg = this.mode === 'Focus' || this.mode === 'Custom' ? i18nService.t('settings.timeBreak') : i18nService.t('settings.focusAgain');
+        this.updateStatus(i18nService.t('settings.timerSessionDone'));
         toastManager.success(msg);
 
         if (Notification.permission === 'granted') {
@@ -499,7 +500,7 @@ class FocusPage {
         if (!text) return;
 
         if (!this.db || !this.userId) {
-            toastManager.error("Please sign in to save tasks.");
+            toastManager.error(i18nService.t('settings.signInToSave'));
             return;
         }
 
@@ -536,7 +537,7 @@ class FocusPage {
     async deleteTask(id) {
         if (!this.db || !this.userId) return;
 
-        const confirmed = await modalManager.confirm('Delete Task', 'Are you sure you want to delete this task?');
+        const confirmed = await modalManager.confirm(i18nService.t('settings.deleteTask'), i18nService.t('settings.confirmDeleteTask'));
         if (!confirmed) return;
 
         try {
@@ -561,9 +562,9 @@ class FocusPage {
 
         if (visibleTasks.length === 0) {
             if (this.tasks.length > 0 && !this.showCompleted) {
-                return `<li class="focus-task-msg empty-task-msg">All tasks completed! Click "Show Completed" to see them.</li>`;
+                return `<li class="focus-task-msg empty-task-msg">${i18nService.t('settings.allTasksDone')} ${i18nService.t('settings.clickShowCompleted')}</li>`;
             }
-            return `<li class="focus-task-msg empty-task-msg">No tasks yet. Add one to focus on!</li>`;
+            return `<li class="focus-task-msg empty-task-msg">${i18nService.t('settings.noTasks')}</li>`;
         }
 
         return visibleTasks.map(t => `

@@ -218,20 +218,69 @@ body {
 /* ============================================
    HEADER & NAVIGATION
    ============================================ */
+.header-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 12px 20px 0 20px;
+    position: sticky;
+    top: 12px;
+    z-index: 1100;
+}
+
+.header-logo-circle {
+    width: 67px;
+    height: 67px;
+    min-width: 67px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.header-logo-circle:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.header-logo-circle img {
+    width: 67px;
+    height: 67px;
+    object-fit: contain;
+}
+
 .app-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: var(--light-text);
-    padding: 0.875rem 2rem;
+    padding: 0.75rem 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 12px;
-    z-index: 1100;
-    margin: 12px 20px 0 20px;
     border-radius: 50px;
     backdrop-filter: blur(10px);
+    flex: 1;
+    min-height: 52px;
+    box-sizing: border-box;
+}
+
+.header-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+    font-family: 'Iceberg', serif !important;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none !important;
+    color: inherit !important;
+    cursor: pointer;
 }
 
 .app-header h1 {
@@ -1704,6 +1753,159 @@ main {
 }
 
 /* ============================================
+   TOTAL PAGE - SUBJECT CARDS (Header-like Style)
+   ============================================ */
+
+/* Header labels for PRS/ABS/PER/LAT */
+.total-header-labels {
+    display: flex;
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--grey-text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.total-header-spacer {
+    flex: 1;
+}
+
+.total-header-counts {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.total-header-label {
+    width: 67px;
+    text-align: center;
+}
+
+.total-subject-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+.total-subject-bar {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: var(--light-text);
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    min-height: 67px;
+    box-sizing: border-box;
+}
+
+.total-subject-bar .subject-info-detailed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.total-subject-bar .subject-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.total-subject-bar .subject-name-large {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--light-text);
+}
+
+.total-subject-bar .subject-day-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--light-text);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.total-subject-bar .subject-status-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.total-subject-bar .subject-warning {
+    opacity: 0.9;
+}
+
+.total-subject-bar .subject-percentage {
+    font-weight: 600;
+}
+
+.total-count-circles {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.count-circle {
+    width: 67px;
+    height: 67px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--light-text);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+}
+
+.count-circle:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.count-circle.count-green {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+}
+
+.count-circle.count-red {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+}
+
+.count-circle.count-blue {
+    background: linear-gradient(135deg, var(--blue-accent) 0%, var(--blue-accent-dark) 100%);
+}
+
+.count-circle.count-yellow {
+    background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow-dark) 100%);
+    color: var(--dark-text);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .total-subject-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .total-count-circles {
+        justify-content: center;
+    }
+
+    .count-circle {
+        width: 56px;
+        height: 56px;
+        font-size: 1.1rem;
+    }
+}
+
+/* ============================================
    COUNT BUBBLES
    ============================================ */
 .count-bubble {
@@ -2314,10 +2516,14 @@ main {
    ============================================ */
 .settings-section {
     background-color: var(--light-grey);
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: var(--border-radius);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     box-shadow: var(--shadow);
+}
+
+.settings-section:has(.settings-header.collapsible.collapsed) {
+    padding: 1rem 1.5rem;
 }
 
 .settings-header {
@@ -2336,7 +2542,7 @@ main {
     /* Move layout properties here from :hover to prevent jumping */
     /* Reduced bottom margin and padding to fix "hollow" look */
     margin: 0 -1rem 0.5rem -1rem;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     border-radius: 12px;
     border-bottom: 2px solid transparent;
     /* Hide default border, let it be handled by section or specific spacing */
@@ -2346,6 +2552,11 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.settings-header.collapsible.collapsed {
+    padding: 0.4rem 1rem;
+    margin-bottom: 0;
 }
 
 /* Restore the separator line visually if needed, or rely on spacing. 

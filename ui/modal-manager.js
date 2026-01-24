@@ -2,6 +2,7 @@
 import { validatePassword, getPasswordStrength } from '../utils/validation.js';
 import { sanitizeInput } from '../utils/sanitizer.js';
 import dropdownManager from './dropdown-manager.js';
+import i18nService from '../services/i18n-service.js';
 
 class ModalManager {
   constructor() {
@@ -166,8 +167,8 @@ class ModalManager {
         confirmBtn.disabled = !isValid;
 
         validationEl.innerHTML = `
-          <div style="color: ${sanitizeInput(strength.color)}; font-weight: 500;">Strength: ${sanitizeInput(strength.strength)}</div>
-          ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">Missing: ${sanitizeInput(requirements.join(', '))}</div>` : ''}
+          <div style="color: ${sanitizeInput(strength.color)}; font-weight: 500;">${i18nService.t('auth.strength')}: ${sanitizeInput(strength.strength)}</div>
+          ${requirements.length > 0 ? `<div style="color: var(--red); font-size: 0.8rem;">${i18nService.t('auth.missing')}: ${sanitizeInput(requirements.join(', '))}</div>` : ''}
         `;
       };
 
@@ -387,33 +388,33 @@ class ModalManager {
       subjectIdEl.value = recordData.subjectId;
       dateEl.value = recordData.date;
       subjectNameEl.textContent = recordData.subjectName;
-      dateDisplayEl.textContent = new Date(recordData.date).toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      dateDisplayEl.textContent = i18nService.formatDate(recordData.date, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       });
-      currentStatusEl.textContent = recordData.currentStatus;
+      currentStatusEl.textContent = i18nService.t(`status.${recordData.currentStatus.toLowerCase()}`);
       reasonEl.value = '';
-      
+
       // Reset dropdown
       dropdown.dataset.value = '';
-      display.textContent = 'Select new status...';
+      display.textContent = i18nService.t('modals.selectNewStatus');
 
       const handleConfirm = () => {
         const newStatus = dropdown.dataset.value;
         const reason = reasonEl.value.trim();
-        
+
         if (!newStatus) {
-          resolve({ success: false, error: 'Please select a new status.' });
+          resolve({ success: false, error: i18nService.t('modals.errorSelectStatus') });
           return;
         }
-        
+
         if (!reason || reason.length < 10) {
-          resolve({ success: false, error: 'Please provide a detailed reason (minimum 10 characters).' });
+          resolve({ success: false, error: i18nService.t('modals.errorReasonMin') });
           return;
         }
-        
+
         this.close('edit-attendance-modal');
         cleanup();
         resolve({ success: true, newStatus, reason });

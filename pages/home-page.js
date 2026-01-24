@@ -6,6 +6,8 @@ import { sanitizeInput } from '../utils/sanitizer.js';
 import toastManager from '../ui/toast-manager.js';
 import modalManager from '../ui/modal-manager.js';
 import { validateCSRFToken } from '../utils/csrf-protection.js';
+import i18nService from '../services/i18n-service.js';
+
 
 class HomePage {
   constructor() {
@@ -76,14 +78,17 @@ class HomePage {
     const selectedDateDisplay = document.getElementById('selected-date-display');
     const dateSelector = document.getElementById('date-selector-dropdown');
 
-    if (!dateOptionsContainer || !selectedDateDisplay || !dateSelector) return;
-
-    dateOptionsContainer.innerHTML = availableDates.map(date =>
-      `<div class="dropdown-option" data-value="${sanitizeInput(date.dateString)}" role="option">${sanitizeInput(date.displayName)}</div>`
-    ).join('');
+    dateOptionsContainer.innerHTML = availableDates.map(date => {
+      const displayName = date.displayName === 'Today' ? i18nService.t('common.today') : i18nService.getDayTranslation(date.displayName);
+      return `<div class="dropdown-option" data-value="${sanitizeInput(date.dateString)}" role="option">${sanitizeInput(displayName)}</div>`;
+    }).join('');
 
     const selectedDateObj = availableDates.find(d => d.dateString === currentDate);
-    selectedDateDisplay.textContent = selectedDateObj ? sanitizeInput(selectedDateObj.displayName) : sanitizeInput(getDayNameFromDate(currentDate));
+    if (selectedDateObj) {
+      selectedDateDisplay.textContent = selectedDateObj.displayName === 'Today' ? i18nService.t('common.today') : i18nService.getDayTranslation(selectedDateObj.displayName);
+    } else {
+      selectedDateDisplay.textContent = i18nService.getDayTranslation(getDayNameFromDate(currentDate));
+    }
     dateSelector.dataset.value = sanitizeInput(currentDate);
   }
 
@@ -101,9 +106,7 @@ class HomePage {
     return `
       <div class="empty-state">
         <div class="empty-icon">${ICONS.CALENDAR}</div>
-        <h3>Date Out of Range</h3>
-        <p>The selected date is outside of the semester period</p>
-        ${semester ? `<p class="text-muted">${sanitizeInput(semester.startDate)} to ${sanitizeInput(semester.endDate)}</p>` : ''}
+        <div class="empty-text">${i18nService.t('attendance.outOfRange')}</div>
       </div>
     `;
   }
@@ -111,9 +114,8 @@ class HomePage {
   renderTooOldMessage() {
     return `
       <div class="empty-state">
-        <div class="empty-icon">${ICONS.LOCK}</div>
-        <h3>Cannot Edit Old Attendance</h3>
-        <p>You can only edit attendance for the past 7 days</p>
+        <div class="empty-icon">${ICONS.WARNING}</div>
+        <div class="empty-text">${i18nService.t('attendance.tooOld')}</div>
       </div>
     `;
   }
@@ -122,8 +124,7 @@ class HomePage {
     return `
       <div class="empty-state">
         <div class="empty-icon">${ICONS.BOOK}</div>
-        <h3>No Classes Today</h3>
-        <p>No subjects are scheduled for ${sanitizeInput(dayName)}</p>
+        <div class="empty-text">${i18nService.t('attendance.noSubjectsForDay', { day: dayName })}</div>
       </div>
     `;
   }
@@ -153,20 +154,20 @@ class HomePage {
         <div class="data-row ${isDisabled ? 'data-row-completed' : ''}" style="animation-delay: ${index * 0.05}s;" data-subject-id="${sanitizeInput(subject.id)}">
           <div class="subject-info">
             <span class="subject-name">${sanitizeInput(subject.name)}</span>
-            ${isDisabled ? '<span class="subject-marked-badge">✓ Marked</span>' : ''}
-            ${record && record.editReason ? '<span class="subject-edited-badge" title="This record has been edited">Edited</span>' : ''}
+            ${isDisabled ? `<span class="subject-marked-badge">✓ ${i18nService.t('attendance.marked')}</span>` : ''}
+            ${record && record.editReason ? `<span class="subject-edited-badge" title="This record has been edited">${i18nService.t('attendance.edited')}</span>` : ''}
           </div>
           <div class="subject-row-right">
             <div class="custom-dropdown status-dropdown" data-value="${sanitizeInput(status)}" data-subject-id="${sanitizeInput(subject.id)}">
               <div class="dropdown-selected ${statusClass}" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-                <span>${sanitizeInput(status)}</span>
+                <span>${i18nService.t(`status.${status.toLowerCase()}`)}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
               </div>
               <div class="dropdown-options" role="listbox">
-                <div class="dropdown-option" data-value="Present" role="option">Present</div>
-                <div class="dropdown-option" data-value="Absent" role="option">Absent</div>
-                <div class="dropdown-option" data-value="Permission" role="option">Permission</div>
-                <div class="dropdown-option" data-value="Late" role="option">Late</div>
+                <div class="dropdown-option" data-value="Present" role="option">${i18nService.t('status.present')}</div>
+                <div class="dropdown-option" data-value="Absent" role="option">${i18nService.t('status.absent')}</div>
+                <div class="dropdown-option" data-value="Permission" role="option">${i18nService.t('status.permission')}</div>
+                <div class="dropdown-option" data-value="Late" role="option">${i18nService.t('status.late')}</div>
               </div>
             </div>
             ${isDisabled ? `
@@ -194,8 +195,8 @@ class HomePage {
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
             </svg>
           </span>
-          <span class="bulk-title">Quick Mark All</span>
-          <span class="bulk-badge">${unmarkedCount} remaining</span>
+          <span class="bulk-title">${i18nService.t('attendance.quickMarkAll')}</span>
+          <span class="bulk-badge">${i18nService.t('attendance.remaining', { count: unmarkedCount })}</span>
         </div>
         <div class="bulk-actions">
           <button class="bulk-btn" data-bulk-status="Present">
@@ -204,7 +205,7 @@ class HomePage {
                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
               </svg>
             </span>
-            All Present
+            ${i18nService.t('attendance.allPresent')}
           </button>
           <button class="bulk-btn" data-bulk-status="Absent">
             <span class="bulk-btn-icon">
@@ -212,15 +213,15 @@ class HomePage {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </span>
-            All Absent
+            ${i18nService.t('attendance.allAbsent')}
           </button>
           <button class="bulk-btn" data-bulk-status="Permission">
             <span class="bulk-btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 1 0-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 0 1 3.15 0v1.5m-3.15 0 .075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 0 1 3.15 0V15M6.9 7.575a1.575 1.575 0 1 0-3.15 0v8.175a6.75 6.75 0 0 0 6.75 6.75h2.018a5.25 5.25 0 0 0 3.712-1.538l1.732-1.732a5.25 5.25 0 0 0 1.538-3.712l.003-2.024a.668.668 0 0 1 .198-.471 1.575 1.575 0 1 0-2.228-2.228 3.818 3.818 0 0 0-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0 1 16.35 15" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 1 0-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 0 1 3.15 0v1.5m-3.15 0 .075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 0 1 3.15 0v15M6.9 7.575a1.575 1.575 0 1 0-3.15 0v8.175a6.75 6.75 0 0 0 6.75 6.75h2.018a5.25 5.25 0 0 0 3.712-1.538l1.732-1.732a5.25 5.25 0 0 0 1.538-3.712l.003-2.024a.668.668 0 0 1 .198-.471 1.575 1.575 0 1 0-2.228-2.228 3.818 3.818 0 0 0-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0 1 16.35 15" />
               </svg>
             </span>
-            All Permission
+            ${i18nService.t('attendance.allPermission')}
           </button>
           <button class="bulk-btn" data-bulk-status="Late">
             <span class="bulk-btn-icon">
@@ -228,7 +229,7 @@ class HomePage {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
             </span>
-            All Late
+            ${i18nService.t('attendance.allLate')}
           </button>
         </div>
       </div>
@@ -312,7 +313,7 @@ class HomePage {
       if (result.success) {
         try {
           await attendanceService.editAttendance(recordId, result.newStatus, result.reason);
-          toastManager.success('✓ Attendance updated successfully');
+          toastManager.success(i18nService.t('attendance.updateSuccess'));
 
           // Refresh the page to show updated data
           this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
@@ -363,7 +364,10 @@ class HomePage {
         semester
       );
 
-      toastManager.success(`✓ Marked ${count} subject${count > 1 ? 's' : ''} as ${status}`);
+      toastManager.success(i18nService.t('attendance.bulkSuccess', {
+        count,
+        status: i18nService.t(`status.${status.toLowerCase()}`)
+      }));
 
       // Re-render the page to show updated state
       this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
