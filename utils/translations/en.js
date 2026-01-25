@@ -216,7 +216,8 @@ export default {
         matrix: "Matrix Rain",
         prism: "Prism",
         aurora: "Aurora",
-        snowfall: "Snowfall"
+        snowfall: "Snowfall",
+        'lunar-new-year': "CNY - Year of the Horse"
     },
     effects: {
         none: "None",
@@ -297,6 +298,21 @@ export default {
         title: "Complete Your Profile",
         subtitle: "Please enter your details to continue.",
         saveAndContinue: "Save & Continue"
+    },
+    tutorial: {
+        skip: "Skip Tutorial",
+        next: "Next",
+        finish: "Get Started!",
+        step1Title: "Welcome to Your Dashboard",
+        step1Desc: "This is your main overview. See your attendance stats, streak, and today's classes at a glance.",
+        step2Title: "Navigation",
+        step2Desc: "Use these links to access Attendance, Reports, Total overview, Focus timer, and Settings.",
+        step3Title: "Mark Attendance",
+        step3Desc: "Go to Attendance to mark your daily classes as Present, Absent, Late, or Permission.",
+        step4Title: "Customize & Manage",
+        step4Desc: "In Settings, add semesters and subjects, change themes, and personalize your experience with colors and backgrounds.",
+        step5Title: "Need Help?",
+        step5Desc: "Click the assistant button anytime to ask questions or get help with the app."
     },
     report: {
         title: "Report a Problem",

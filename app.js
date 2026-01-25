@@ -22,6 +22,7 @@ import navigationManager from './ui/navigation-manager.js';
 import notificationService from './services/notification-service.js';
 import i18nService from './services/i18n-service.js';
 import errorHandler from './utils/error-handler.js';
+import tutorialManager from './ui/tutorial-manager.js';
 
 class App {
   constructor() {
@@ -221,6 +222,12 @@ class App {
 
             this.navigateTo('Dashboard');
 
+            // Check if tutorial should be shown for new users (per account, not per device)
+            // Small delay to ensure page is fully rendered
+            setTimeout(() => {
+              tutorialManager.startIfNeeded(this.userId);
+            }, 500);
+
           } else {
             // Sign out cleanup
             this.cleanup();
@@ -413,8 +420,7 @@ class App {
   checkMilestone() {
     const streak = attendanceService.calculateStreak(this.currentSemesterId, this.allSubjects);
 
-    // STRICT ENFORCEMENT: Revert locked items if streak is lost
-    this.enforcePersonalizationLocks(streak);
+    // Personalization is now freely selectable - no streak requirements enforced
 
     const milestones = [3, 7, 10, 15, 21, 30, 50, 75, 100, 150, 200, 365];
     const isMilestone = milestones.includes(streak);
@@ -611,7 +617,7 @@ class App {
     if (confirmCancelBtn) confirmCancelBtn.textContent = i18nService.t('common.cancel');
 
     const confirmConfirmBtn = document.getElementById('confirm-modal-confirm');
-    if (confirmConfirmBtn) confirmConfirmBtn.textContent = i18nService.t('common.save'); // Usually dynamic
+    if (confirmConfirmBtn) confirmConfirmBtn.textContent = i18nService.t('modals.confirmAction');
 
     // Update Subject Modal
     const subjectTitle = document.getElementById('subject-modal-title');

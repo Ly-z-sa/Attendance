@@ -106,6 +106,15 @@ class ModalManager {
       return;
     }
 
+    // Prevent closing auth-modal if user is not logged in
+    if (modalId === 'auth-modal') {
+      const isLoggedIn = window.authService?.auth?.currentUser;
+      if (!isLoggedIn) {
+        console.log('Cannot close auth modal - user must sign in first');
+        return; // Block close
+      }
+    }
+
     modal.classList.remove('show');
     // Clean up direct styles
     modal.style.display = '';

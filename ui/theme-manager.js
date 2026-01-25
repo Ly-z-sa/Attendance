@@ -142,6 +142,11 @@ class ThemeManager {
           this.backgroundInstance = new SnowfallBackground();
         }
         break;
+      case 'lunar-new-year':
+        if (typeof LunarNewYearBackground !== 'undefined') {
+          this.backgroundInstance = new LunarNewYearBackground();
+        }
+        break;
       default:
         // No background
         break;

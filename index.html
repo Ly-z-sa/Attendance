@@ -614,8 +614,12 @@
     </div>
 
     <!-- FAB for assistant -->
-    <button class="fab" id="assistant-fab" title="Ask Assistant" aria-label="Open Assistant">
-        <img src="assets/new-bot-icon.png" alt="Assistant"
+    <div id="assistant-reminder" class="assistant-reminder">
+        <div class="reminder-text">Need help? Ask Trackie!</div>
+        <div class="reminder-caret"></div>
+    </div>
+    <button class="fab" id="assistant-fab" aria-label="Open Trackie">
+        <img src="assets/new-bot-icon.png" alt="Trackie"
             style="width: 32px; height: 32px; filter: brightness(0) invert(1);">
     </button>
 
@@ -624,8 +628,8 @@
         <div class="assistant-panel">
             <div class="assistant-header">
                 <div class="assistant-title">
-                    <img src="assets/new-bot-icon.png" alt="Assistant" class="assistant-icon">
-                    <h4>Assistant</h4>
+                    <img src="assets/new-bot-icon.png" alt="Trackie" class="assistant-icon">
+                    <h4>Trackie</h4>
                 </div>
                 <button class="assistant-close" id="assistant-close">&times;</button>
             </div>
@@ -740,6 +744,7 @@
     <script src="assets/prism-background.js"></script>
     <script src="assets/aurora-background.js"></script>
     <script src="assets/snowfall-background.js"></script>
+    <script src="assets/lunar-new-year-background.js"></script>
 
     <!-- Firebase -->
     <script type="module">

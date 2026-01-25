@@ -657,6 +657,9 @@ class AuthService {
       modalManager.close('onboarding-modal');
       toastManager.success(i18nService.t('auth.profileUpdated'));
 
+      // Set tutorial flag for new users
+      localStorage.setItem('tutorialPending', 'true');
+
       // Trigger any post-login UI updates (like sidebar name)
       // This might require a page reload or a specific event, checking app.js might be verified.
       // For now, reload window to ensure everything syncs is the safest for "first time" feeling
@@ -691,7 +694,7 @@ class AuthService {
       await signOut(this.auth);
 
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.signedOut'));
+      toastManager.success(i18nService.t('auth.signedOut'), 3000, 'You have been securely logged out. See you next time!');
 
       // 3. Ensure scroll is free
       document.body.style.overflow = '';
@@ -969,6 +972,12 @@ class AuthService {
 
   openAuthModal() {
     modalManager.open('auth-modal');
+
+    // Hide close button if user is not logged in (force sign in)
+    const closeBtn = document.querySelector('#auth-modal [data-modal-close]');
+    if (closeBtn) {
+      closeBtn.style.display = this.auth.currentUser ? '' : 'none';
+    }
   }
 }
 

@@ -373,7 +373,7 @@ class SettingsPage {
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
         <div>© 2026 Attendance Tracker. ${i18nService.t('settings.allRightsReserved')}</div>
-        <div style="margin-top: 0.25rem;">${i18nService.t('settings.version')} 3.6.8</div>
+        <div style="margin-top: 0.25rem;">${i18nService.t('settings.version')} 3.7.0</div>
       </div>
     `;
   }
@@ -387,41 +387,57 @@ class SettingsPage {
     // Collapse handlers
     this.setupCollapseHandlers();
 
+    // Helper to add listener only once (prevents duplicates on modal buttons)
+    const addListenerOnce = (id, event, handler) => {
+      const el = document.getElementById(id);
+      if (el && !el.dataset.listenerAttached) {
+        el.addEventListener(event, handler);
+        el.dataset.listenerAttached = 'true';
+      }
+    };
+
     // Auth buttons
-    document.getElementById('signout-btn')?.addEventListener('click', () => authService.handleSignOut());
-    document.getElementById('auth-btn')?.addEventListener('click', () => authService.openAuthModal());
+    addListenerOnce('signout-btn', 'click', () => authService.handleSignOut());
+    addListenerOnce('auth-btn', 'click', () => authService.openAuthModal());
 
     // Profile
-    document.getElementById('save-profile-btn')?.addEventListener('click', () => this.handleSaveProfile());
+    addListenerOnce('save-profile-btn', 'click', () => this.handleSaveProfile());
 
     // Change Picture button
-    document.getElementById('change-picture-btn')?.addEventListener('click', () => {
+    addListenerOnce('change-picture-btn', 'click', () => {
       document.getElementById('profile-pic-input').click();
     });
 
     // Profile Pic Input
-    document.getElementById('profile-pic-input')?.addEventListener('change', (e) => this.handleImageSelect(e));
+    addListenerOnce('profile-pic-input', 'change', (e) => this.handleImageSelect(e));
 
     // Crop Apply
-    document.getElementById('apply-crop-btn')?.addEventListener('click', () => this.handleApplyCrop());
+    addListenerOnce('apply-crop-btn', 'click', () => this.handleApplyCrop());
 
     // Current semester
-    document.getElementById('current-semester-dropdown')?.addEventListener('change', (e) => {
+    addListenerOnce('current-semester-dropdown', 'change', (e) => {
       this.handleCurrentSemesterChange(e.currentTarget.dataset.value);
     });
 
-    // Semesters
-    document.getElementById('save-semester-btn')?.addEventListener('click', () => this.handleAddSemester());
-    document.getElementById('add-semester-btn')?.addEventListener('click', () => this.openSemesterModal());
-    document.querySelectorAll('.btn-edit-semester').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleEditSemester(e))
-    );
-    document.querySelectorAll('.btn-delete-semester').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleDeleteSemester(e)) // using class state
-    );
+    // Semesters - modal buttons need guard
+    addListenerOnce('save-semester-btn', 'click', () => this.handleAddSemester());
+    addListenerOnce('add-semester-btn', 'click', () => this.openSemesterModal());
+
+    document.querySelectorAll('.btn-edit-semester').forEach(btn => {
+      if (!btn.dataset.listenerAttached) {
+        btn.addEventListener('click', (e) => this.handleEditSemester(e));
+        btn.dataset.listenerAttached = 'true';
+      }
+    });
+    document.querySelectorAll('.btn-delete-semester').forEach(btn => {
+      if (!btn.dataset.listenerAttached) {
+        btn.addEventListener('click', (e) => this.handleDeleteSemester(e));
+        btn.dataset.listenerAttached = 'true';
+      }
+    });
 
     // Subjects
-    document.getElementById('add-subject-btn')?.addEventListener('click', () => {
+    addListenerOnce('add-subject-btn', 'click', () => {
       if (!this.currentSemesterId) {
         toastManager.error('Please select or create a semester first.');
         return;
@@ -429,50 +445,56 @@ class SettingsPage {
       this.openSubjectModal(null, this.currentSemesterId);
     });
 
-    document.querySelectorAll('.btn-edit-subject').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleEditSubject(e)) // using class state
-    );
-    document.querySelectorAll('.btn-delete-subject').forEach(btn =>
-      btn.addEventListener('click', (e) => this.handleDeleteSubject(e)) // using class state
-    );
+    document.querySelectorAll('.btn-edit-subject').forEach(btn => {
+      if (!btn.dataset.listenerAttached) {
+        btn.addEventListener('click', (e) => this.handleEditSubject(e));
+        btn.dataset.listenerAttached = 'true';
+      }
+    });
+    document.querySelectorAll('.btn-delete-subject').forEach(btn => {
+      if (!btn.dataset.listenerAttached) {
+        btn.addEventListener('click', (e) => this.handleDeleteSubject(e));
+        btn.dataset.listenerAttached = 'true';
+      }
+    });
 
     // Notifications
-    document.getElementById('enable-notifications-btn')?.addEventListener('click', () =>
+    addListenerOnce('enable-notifications-btn', 'click', () =>
       notificationService.requestPermission()
     );
-    document.getElementById('disable-notifications-btn')?.addEventListener('click', () =>
+    addListenerOnce('disable-notifications-btn', 'click', () =>
       notificationService.disable()
     );
 
     // Language
-    document.getElementById('language-dropdown')?.addEventListener('change', (e) => {
+    addListenerOnce('language-dropdown', 'change', (e) => {
       const newLang = e.currentTarget.dataset.value;
       i18nService.setLanguage(newLang);
     });
 
     // Account management
-    document.getElementById('change-password-btn')?.addEventListener('click', () =>
+    addListenerOnce('change-password-btn', 'click', () =>
       authService.changePassword()
     );
-    document.getElementById('change-email-btn')?.addEventListener('click', () =>
+    addListenerOnce('change-email-btn', 'click', () =>
       authService.changeEmail()
     );
-    document.getElementById('delete-account-btn')?.addEventListener('click', () =>
+    addListenerOnce('delete-account-btn', 'click', () =>
       authService.deleteAccount()
     );
 
     // Legal/Support
-    document.getElementById('report-problem-btn')?.addEventListener('click', (e) => {
+    addListenerOnce('report-problem-btn', 'click', (e) => {
       e.preventDefault();
       modalManager.open('report-modal');
     });
-    document.getElementById('contact-us-btn')?.addEventListener('click', (e) => {
+    addListenerOnce('contact-us-btn', 'click', (e) => {
       e.preventDefault();
       this.showContactInfo();
     });
 
     // Report modal submit
-    document.getElementById('submit-report-btn')?.addEventListener('click', () =>
+    addListenerOnce('submit-report-btn', 'click', () =>
       this.handleSubmitReport()
     );
 
@@ -554,7 +576,7 @@ class SettingsPage {
         { merge: true }
       );
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.profileUpdated'));
+      toastManager.success(i18nService.t('auth.profileUpdated'), 3000, `Name: ${name}, Major: ${major}, Username: @${username}. Your profile is now up to date!`);
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error(error.message);
@@ -728,7 +750,7 @@ class SettingsPage {
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.semesterDoc(window.app.userId, id)));
       toastManager.hide(loadingToast);
-      toastManager.success('Semester deleted successfully');
+      toastManager.success('Semester deleted', 3000, `"${semester?.name}" removed along with ${subjectsToDelete.length} subjects and ${attendanceToDelete.length} attendance records.`);
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error deleting semester: ' + error.message);
@@ -781,7 +803,8 @@ class SettingsPage {
             startTime: inputs.startTime || null,
             endTime: inputs.endTime || null
           });
-          toastManager.success('Subject updated successfully');
+          const timeInfo = inputs.startTime && inputs.endTime ? ` (${inputs.startTime} - ${inputs.endTime})` : '';
+          toastManager.success('Subject updated', 3000, `"${inputs.name}" now scheduled for ${inputs.day}${timeInfo}.`);
         } else {
           if (!targetSemesterId) {
             toastManager.error(i18nService.t('errors.noSemesterSelected'));
@@ -793,7 +816,8 @@ class SettingsPage {
             startTime: inputs.startTime || null,
             endTime: inputs.endTime || null
           });
-          toastManager.success('Subject added successfully');
+          const timeStr = inputs.startTime && inputs.endTime ? ` from ${inputs.startTime} to ${inputs.endTime}` : '';
+          toastManager.success('Subject added', 3000, `"${inputs.name}" added to your schedule for ${inputs.day}${timeStr}. Start marking attendance!`);
         }
       } catch (error) {
         toastManager.error(error.message);
@@ -857,7 +881,7 @@ class SettingsPage {
           startDate,
           endDate
         });
-        toastManager.success('Semester updated successfully');
+        toastManager.success('Semester updated successfully', 3000, `"${name}" has been updated. Runs from ${startDate} to ${endDate}.`);
       } else {
         // Add
         await attendanceService.addSemester({
@@ -865,7 +889,7 @@ class SettingsPage {
           startDate,
           endDate
         });
-        toastManager.success('Semester added successfully');
+        toastManager.success('Semester added successfully', 3000, `"${name}" created! Starts ${startDate}, ends ${endDate}. You can now add subjects to it.`);
       }
 
       modalManager.close('semester-modal');
@@ -900,7 +924,7 @@ class SettingsPage {
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.subjectDoc(window.app.userId, id)));
       toastManager.hide(loadingToast);
-      toastManager.success('Subject deleted successfully');
+      toastManager.success('Subject deleted', 3000, `"${subject?.name}" (${subject?.day || 'N/A'}) has been removed from your schedule.`);
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error deleting subject: ' + error.message);

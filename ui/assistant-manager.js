@@ -34,7 +34,7 @@ class AssistantManager {
         id: 104,
         keywords: ['who', 'what', 'name', 'bot', 'robot', 'assistant', 'identify', 'yourself'],
         question: 'Social: Identity',
-        answer: 'I\'m the Attendance Tracker Assistant! My job is to help you navigate the app, manage your attendance, and answer any questions you might have.'
+        answer: 'I\'m Trackie, your Attendance Tracker Assistant! My job is to help you navigate the app, manage your attendance, and answer any questions you might have.'
       },
       {
         id: 105,
@@ -513,9 +513,9 @@ class AssistantManager {
 
     // Greeting messages (no emoji)
     this.greetings = [
-      "Hi there! I'm your Attendance Tracker assistant. Ask me anything about using the app!",
-      "Hello! I can help you with attendance tracking, reports, settings, themes, and more. What would you like to know?",
-      "Hey! Need help with the app? Just type your question and I'll find the best answer for you."
+      "Hi there! I'm Trackie, your Attendance Tracker assistant. Ask me anything about using the app!",
+      "Hello! I'm Trackie. I can help you with attendance tracking, reports, settings, themes, and more. What would you like to know?",
+      "Hey! I'm Trackie. Need help with the app? Just type your question and I'll find the best answer for you."
     ];
 
     // Fallback responses (no emoji) - includes contact link
@@ -586,6 +586,63 @@ class AssistantManager {
 
     // Setup contact link clicks
     this.setupContactLinks();
+
+    // Hover effect for FAB to show reminder
+    if (this.fab) {
+      this.fab.addEventListener('mouseenter', () => {
+        if (!this.isOpen && !this.isReminderVisible) {
+          this.showReminder(false); // false = don't save timestamp, just show
+        }
+      });
+
+      this.fab.addEventListener('mouseleave', () => {
+        if (this.isReminderVisible && !this.reminderAutoShown) {
+          this.hideReminder();
+        }
+      });
+    }
+
+    // Check for periodic reminder
+    setTimeout(() => this.checkReminder(), 2000);
+  }
+
+  checkReminder() {
+    const lastReminder = localStorage.getItem('lastAssistantReminderTime');
+    const now = Date.now();
+    const FIVE_MINUTES = 5 * 60 * 1000;
+
+    if (!lastReminder || (now - parseInt(lastReminder)) > FIVE_MINUTES) {
+      this.showReminder(true);
+    }
+  }
+
+  showReminder(autoShown = false) {
+    const reminder = document.getElementById('assistant-reminder');
+    if (reminder) {
+      reminder.classList.add('visible');
+      this.isReminderVisible = true;
+
+      if (autoShown) {
+        this.reminderAutoShown = true;
+        localStorage.setItem('lastAssistantReminderTime', Date.now().toString());
+
+        // Auto hide after 5 seconds if auto-shown
+        setTimeout(() => {
+          if (this.isReminderVisible && this.reminderAutoShown) {
+            this.hideReminder();
+          }
+        }, 5000);
+      }
+    }
+  }
+
+  hideReminder() {
+    const reminder = document.getElementById('assistant-reminder');
+    if (reminder) {
+      reminder.classList.remove('visible');
+      this.isReminderVisible = false;
+      this.reminderAutoShown = false;
+    }
   }
 
   setupContactLinks() {
@@ -737,7 +794,7 @@ class AssistantManager {
     messageDiv.className = 'chat-bubble bot';
     messageDiv.innerHTML = `
       <div class="bot-avatar">
-        <img src="assets/new-bot-icon.png" alt="Assistant">
+        <img src="assets/new-bot-icon.png" alt="Trackie">
       </div>
       <div class="bubble-content">${this.formatMessage(text)}</div>
     `;
@@ -753,7 +810,7 @@ class AssistantManager {
     typingDiv.id = 'typing-indicator';
     typingDiv.innerHTML = `
       <div class="bot-avatar">
-        <img src="assets/new-bot-icon.png" alt="Assistant">
+        <img src="assets/new-bot-icon.png" alt="Trackie">
       </div>
       <div class="bubble-content">
         <div class="typing-dots">

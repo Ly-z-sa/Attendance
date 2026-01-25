@@ -2208,65 +2208,83 @@ main {
    ============================================ */
 #toast-container {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    top: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 15000;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.75rem;
-    max-width: 400px;
+    max-width: 90vw;
+    pointer-events: none;
 }
 
 .toast {
     background: var(--light-grey);
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    display: inline-flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 90vw;
     opacity: 0;
-    transform: translateX(400px);
-    transition: var(--transition);
-    border-left: 4px solid var(--primary);
+    transform: translateY(-20px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--primary);
+    pointer-events: auto;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
 }
 
 .toast-show {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
 }
 
 .toast-hide {
     opacity: 0;
-    transform: translateX(400px);
+    transform: translateY(-20px);
 }
 
 .toast-success {
-    border-left-color: var(--green);
+    border-color: var(--green);
 }
 
 .toast-error {
-    border-left-color: var(--red);
+    border-color: var(--red);
 }
 
 .toast-warning {
-    border-left-color: var(--yellow);
+    border-color: var(--yellow);
 }
 
 .toast-info {
-    border-left-color: var(--blue-accent);
+    border-color: var(--primary);
+}
+
+.toast-loading {
+    border-color: var(--primary);
 }
 
 .toast-content {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex: 1;
 }
 
 .toast-icon {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .toast-success .toast-icon {
@@ -2282,19 +2300,24 @@ main {
 }
 
 .toast-info .toast-icon {
-    color: var(--blue-accent);
+    color: var(--primary);
+}
+
+.toast-loading .toast-icon {
+    color: var(--primary);
 }
 
 .toast-message {
-    flex: 1;
     font-weight: 500;
     color: var(--dark-text);
+    font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .toast-close {
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     cursor: pointer;
     color: var(--grey-text);
     width: 24px;
@@ -2304,10 +2327,92 @@ main {
     justify-content: center;
     border-radius: 50%;
     transition: var(--transition);
+    opacity: 0.7;
 }
 
 .toast-close:hover {
     background: rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+
+/* Expandable toast styles */
+.toast-expand-hint {
+    font-size: 0.75rem;
+    color: var(--grey-text);
+    opacity: 0.7;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+}
+
+.toast-detail {
+    position: absolute;
+    width: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    border-top: 0 solid transparent;
+    /* When COLLAPSING: same timing as expand - text fades, then box shrinks */
+    transition: opacity 0.3s ease-out,
+        max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+        width 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+        margin 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+        position 0s linear 0.35s;
+}
+
+.toast-detail-message {
+    font-size: 0.9rem;
+    color: var(--dark-text);
+    margin: 0 0 0.5rem 0;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.toast-detail-extra {
+    font-size: 0.85rem;
+    color: var(--grey-text);
+    margin: 0;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+/* Expanded state */
+.toast-expanded {
+    border-radius: 16px;
+    max-width: 400px;
+    min-width: 300px;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-expanded .toast-message {
+    white-space: normal;
+}
+
+.toast-expanded .toast-expand-hint {
+    display: none;
+}
+
+.toast-expanded .toast-detail {
+    position: relative;
+    width: 100%;
+    max-height: 200px;
+    opacity: 1;
+    padding: 0.75rem 1rem 0.5rem;
+    border-top-color: var(--border-color);
+    margin-top: 0.75rem;
+    /* When EXPANDING: box opens first, then text fades in after delay */
+    transition: position 0s linear,
+        width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s ease-in 0.35s;
+}
+
+.toast-expanded .toast-content {
+    flex-wrap: wrap;
 }
 
 /* ============================================
@@ -4886,4 +4991,255 @@ button:focus-visible,
 
 #signin-btn {
     margin-top: 0.5rem !important;
+}
+
+/* ============================================
+   TUTORIAL OVERLAY
+   ============================================ */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
+.tutorial-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    transition: opacity 0.3s ease;
+}
+
+.tutorial-spotlight {
+    position: absolute;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.85),
+        0 0 0 4px rgba(255, 255, 255, 0.9),
+        0 0 30px 8px rgba(255, 255, 255, 0.4),
+        0 0 60px 15px rgba(255, 255, 255, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.tutorial-tooltip {
+    position: absolute;
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 380px;
+    min-width: 300px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 10002;
+    animation: tutorialFadeIn 0.3s ease;
+}
+
+@keyframes tutorialFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tutorial-tooltip-content {
+    margin-bottom: 1.25rem;
+}
+
+.tutorial-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+    font-family: 'Iceberg', serif !important;
+}
+
+.tutorial-desc {
+    font-size: 0.95rem;
+    color: var(--grey-text);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.tutorial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tutorial-progress {
+    display: flex;
+    gap: 8px;
+}
+
+.tutorial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tutorial-dot:hover {
+    background: var(--grey-text);
+    transform: scale(1.2);
+}
+
+.tutorial-dot.active {
+    background: var(--primary);
+    transform: scale(1.2);
+}
+
+.tutorial-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.tutorial-skip-btn {
+    background: transparent !important;
+    color: var(--grey-text) !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+}
+
+.tutorial-skip-btn:hover {
+    color: var(--dark-text) !important;
+    background: var(--light-grey) !important;
+}
+
+.tutorial-next-btn {
+    padding: 0.6rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+}
+
+.tutorial-fade-out {
+    animation: tutorialFadeOut 0.3s ease forwards;
+}
+
+@keyframes tutorialFadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* Mobile responsive tutorial */
+@media (max-width: 768px) {
+    .tutorial-tooltip {
+        max-width: calc(100vw - 30px);
+        min-width: 280px;
+        padding: 1.25rem;
+        left: 15px !important;
+        right: 15px;
+        width: auto;
+    }
+
+    .tutorial-title {
+        font-size: 1.1rem;
+    }
+
+    .tutorial-desc {
+        font-size: 0.9rem;
+    }
+
+    .tutorial-footer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .tutorial-progress {
+        order: -1;
+    }
+
+    .tutorial-buttons {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ============================================
+/* ============================================
+   FAB REMINDER BUBBLE
+   ============================================ */
+.assistant-reminder {
+    position: fixed;
+    bottom: 100px;
+    right: 25px;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 20px;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1090;
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    max-width: 200px;
+}
+
+.assistant-reminder.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.reminder-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--dark-text);
+    white-space: nowrap;
+}
+
+.reminder-caret {
+    position: absolute;
+    bottom: -6px;
+    right: 12px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    transform: rotate(45deg);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: -1;
+}
+
+[data-theme="dark"] .assistant-reminder {
+    background: #2D2D2D;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .reminder-caret {
+    background: #2D2D2D;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .assistant-reminder {
+        bottom: 90px;
+        right: 20px;
+    }
 }

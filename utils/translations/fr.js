@@ -298,6 +298,21 @@ export default {
         subtitle: "Veuillez entrer vos détails pour continuer.",
         saveAndContinue: "Enregistrer et continuer"
     },
+    tutorial: {
+        skip: "Passer le tutoriel",
+        next: "Suivant",
+        finish: "C'est parti !",
+        step1Title: "Bienvenue sur votre tableau de bord",
+        step1Desc: "C'est votre aperçu principal. Consultez vos statistiques de présence, votre série et les cours du jour en un coup d'œil.",
+        step2Title: "Navigation",
+        step2Desc: "Utilisez ces liens pour accéder à Présence, Rapports, Total, Focus et Paramètres.",
+        step3Title: "Marquer la présence",
+        step3Desc: "Allez dans Présence pour marquer vos cours quotidiens comme Présent, Absent, En retard ou Permission.",
+        step4Title: "Personnaliser et gérer",
+        step4Desc: "Dans Paramètres, ajoutez des semestres et matières, changez les thèmes et personnalisez votre expérience avec des couleurs et arrière-plans.",
+        step5Title: "Besoin d'aide ?",
+        step5Desc: "Cliquez sur le bouton assistant à tout moment pour poser des questions ou obtenir de l'aide."
+    },
     report: {
         title: "Signaler un problème",
         type: "Type de problème",

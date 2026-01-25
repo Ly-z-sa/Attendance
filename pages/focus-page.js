@@ -110,6 +110,11 @@ class FocusPage {
             this.refreshTaskList();
             this.updateStats(); // Recalculate stats based on loaded data
         }, (error) => {
+            // Don't show error toast if user signed out (permission denied)
+            if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+                console.log("Task listener stopped - user signed out");
+                return;
+            }
             console.error("Error loading tasks:", error);
             toastManager.error("Failed to load tasks.");
         });

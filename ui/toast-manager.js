@@ -19,16 +19,40 @@ class ToastManager {
     }
   }
 
-  show(message, duration = 3000, type = 'info') {
+  show(message, duration = 3000, type = 'info', detail = null) {
     try {
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
       toast.setAttribute('role', 'status');
+
+      // Get timestamp for detail
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+      // Type labels and descriptions for display
+      const typeInfo = {
+        success: { label: '✓ Success', desc: 'Your action was completed successfully.' },
+        error: { label: '✕ Error', desc: 'Something went wrong. Please try again.' },
+        warning: { label: '⚠ Warning', desc: 'Please review this before continuing.' },
+        info: { label: 'ℹ Info', desc: 'Here\'s some information for you.' },
+        loading: { label: '⟳ Loading', desc: 'Please wait while we process your request.' }
+      };
+
+      const info = typeInfo[type] || typeInfo.info;
+
+      // Generate helpful detail content
+      const detailContent = detail || info.desc;
+
       toast.innerHTML = `
         <div class="toast-content">
           <span class="toast-icon">${this.getIcon(type)}</span>
           <span class="toast-message">${sanitizeInput(message || 'No message')}</span>
           <button class="toast-close" aria-label="Close">×</button>
+        </div>
+        <div class="toast-detail">
+          <p class="toast-detail-message">${sanitizeInput(detailContent)}</p>
+          <p class="toast-detail-extra">${info.label} • ${dateStr} at ${timeStr}</p>
         </div>
       `;
 
@@ -40,13 +64,22 @@ class ToastManager {
         toast.classList.add('toast-show');
       });
 
-      // Close button
+      // Close button - stop propagation to prevent expand
       const closeBtn = toast.querySelector('.toast-close');
-      closeBtn.addEventListener('click', () => this.hide(toast));
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.hide(toast);
+      });
 
-      // Auto hide
+      // Click to expand/collapse - ALL toasts are expandable
+      toast.addEventListener('click', (e) => {
+        if (e.target.classList.contains('toast-close')) return;
+        this.toggleExpand(toast);
+      });
+
+      // Auto hide after duration
       if (duration > 0) {
-        setTimeout(() => this.hide(toast), duration);
+        toast._hideTimeout = setTimeout(() => this.hide(toast), duration);
       }
 
       return toast;
@@ -56,18 +89,58 @@ class ToastManager {
     }
   }
 
+  toggleExpand(toast) {
+    if (!this.activeToasts.has(toast)) return;
+
+    const isExpanded = toast.classList.contains('toast-expanded');
+
+    if (isExpanded) {
+      toast.classList.remove('toast-expanded');
+    } else {
+      toast.classList.add('toast-expanded');
+
+      // Clear existing timeout and set new one when expanded
+      if (toast._hideTimeout) {
+        clearTimeout(toast._hideTimeout);
+      }
+      // Auto close after 5 seconds when expanded
+      toast._hideTimeout = setTimeout(() => this.hide(toast), 5000);
+    }
+  }
+
   hide(toast) {
     if (!this.activeToasts.has(toast)) return;
 
-    toast.classList.remove('toast-show');
-    toast.classList.add('toast-hide');
+    // Clear any pending timeout
+    if (toast._hideTimeout) {
+      clearTimeout(toast._hideTimeout);
+    }
 
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.parentNode.removeChild(toast);
-      }
-      this.activeToasts.delete(toast);
-    }, 300);
+    // If expanded, collapse first then slide up
+    if (toast.classList.contains('toast-expanded')) {
+      toast.classList.remove('toast-expanded');
+      // Wait for collapse animation, then slide up
+      setTimeout(() => {
+        toast.classList.remove('toast-show');
+        toast.classList.add('toast-hide');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+          this.activeToasts.delete(toast);
+        }, 300);
+      }, 300);
+    } else {
+      // Not expanded, just slide up
+      toast.classList.remove('toast-show');
+      toast.classList.add('toast-hide');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+        this.activeToasts.delete(toast);
+      }, 300);
+    }
   }
 
   update(toast, message, type = null) {
@@ -76,6 +149,9 @@ class ToastManager {
     if (message) {
       const messageEl = toast.querySelector('.toast-message');
       if (messageEl) messageEl.textContent = message;
+
+      const detailMessageEl = toast.querySelector('.toast-detail-message');
+      if (detailMessageEl) detailMessageEl.textContent = message;
     }
 
     if (type) {
@@ -88,20 +164,20 @@ class ToastManager {
     }
   }
 
-  success(message, duration = 3000) {
-    return this.show(message, duration, 'success');
+  success(message, duration = 3000, detail = null) {
+    return this.show(message, duration, 'success', detail);
   }
 
-  error(message, duration = 4000) {
-    return this.show(message, duration, 'error');
+  error(message, duration = 4000, detail = null) {
+    return this.show(message, duration, 'error', detail);
   }
 
-  warning(message, duration = 3500) {
-    return this.show(message, duration, 'warning');
+  warning(message, duration = 3500, detail = null) {
+    return this.show(message, duration, 'warning', detail);
   }
 
-  info(message, duration = 3000) {
-    return this.show(message, duration, 'info');
+  info(message, duration = 3000, detail = null) {
+    return this.show(message, duration, 'info', detail);
   }
 
   loading(message) {

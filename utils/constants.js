@@ -72,7 +72,8 @@ export const BACKGROUNDS = {
   matrix: 'Matrix Rain',
   prism: 'Prism',
   aurora: 'Aurora',
-  snowfall: 'Snowfall'
+  snowfall: 'Snowfall',
+  'lunar-new-year': 'CNY - Year of the Horse'
 };
 
 export const CLICK_EFFECTS = {
@@ -103,6 +104,7 @@ export const STREAK_REQUIREMENTS = {
   'particles': 21,
   'matrix': 30,
   'snowfall': 45,
+  'lunar-new-year': 0,
 
   // Fonts
   'philosopher': 0,
