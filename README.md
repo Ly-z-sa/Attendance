@@ -14,3 +14,7 @@ Brand new Attendance Tracker 3.0
 - Anyways HAPPY NEW YEAR!!!
 - May 2026 brings goodluck and prosperity, more money, knowledge, love and happiness.
 - ©2026 Attendance Tracker. All rights reserved <3
+
+
+#Version 3.7.2
+- Attendance tracker now support 5 languages and more will be coming in the future.
