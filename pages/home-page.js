@@ -158,8 +158,8 @@ class HomePage {
             ${record && record.editReason ? `<span class="subject-edited-badge" title="This record has been edited">${i18nService.t('attendance.edited')}</span>` : ''}
           </div>
           <div class="subject-row-right">
-            <div class="custom-dropdown status-dropdown" data-value="${sanitizeInput(status)}" data-subject-id="${sanitizeInput(subject.id)}">
-              <div class="dropdown-selected ${statusClass}" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+            <div class="custom-dropdown status-dropdown ${isDisabled ? 'disabled' : ''}" data-value="${sanitizeInput(status)}" data-subject-id="${sanitizeInput(subject.id)}">
+              <div class="dropdown-selected ${statusClass}" role="button" tabindex="${isDisabled ? '-1' : '0'}" aria-haspopup="listbox" aria-expanded="false" ${isDisabled ? 'aria-disabled="true"' : ''}>
                 <span>${i18nService.t(`status.${status.toLowerCase()}`)}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
               </div>
@@ -172,12 +172,16 @@ class HomePage {
             </div>
             ${isDisabled ? `
               <button class="edit-btn" data-record-id="${sanitizeInput(record.id)}" data-subject-id="${sanitizeInput(subject.id)}" data-subject-name="${sanitizeInput(subject.name)}" data-current-status="${sanitizeInput(status)}" data-date="${sanitizeInput(date)}" title="Edit Attendance" aria-label="Edit attendance">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                  <path d="m15 5 4 4"/>
+                </svg>
               </button>
-            ` : ''}
-            <button class="tick-btn" data-subject-id="${sanitizeInput(subject.id)}" title="Submit Attendance" aria-label="Submit attendance" ${isDisabled ? 'disabled' : ''}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            </button>
+            ` : `
+              <button class="tick-btn" data-subject-id="${sanitizeInput(subject.id)}" title="Submit Attendance" aria-label="Submit attendance">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+              </button>
+            `}
           </div>
         </div>
       `;
@@ -275,7 +279,7 @@ class HomePage {
 
     try {
       await attendanceService.submitAttendance(subjectId, window.app.currentSemesterId, date, status, semester);
-      toastManager.success(`✓ Marked as ${status}`);
+      toastManager.success(i18nService.t('toast.attendanceMarked.title', { subject: dropdown.closest('.data-row').querySelector('.subject-name').textContent, status }), 3000, i18nService.t('toast.attendanceMarked.detail', { subject: dropdown.closest('.data-row').querySelector('.subject-name').textContent, status: i18nService.t('status.' + status.toLowerCase()) }));
 
       // Mark row as completed
       const row = btn.closest('.data-row');
@@ -313,7 +317,7 @@ class HomePage {
       if (result.success) {
         try {
           await attendanceService.editAttendance(recordId, result.newStatus, result.reason);
-          toastManager.success(i18nService.t('attendance.updateSuccess'));
+          toastManager.success(i18nService.t('toast.attendanceUpdated.title'), 3000, i18nService.t('toast.attendanceUpdated.detail', { subject: subjectName }));
 
           // Refresh the page to show updated data
           this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);
@@ -364,10 +368,7 @@ class HomePage {
         semester
       );
 
-      toastManager.success(i18nService.t('attendance.bulkSuccess', {
-        count,
-        status: i18nService.t(`status.${status.toLowerCase()}`)
-      }));
+      toastManager.success(i18nService.t('toast.bulkAttendanceSuccess.title'), 3000, i18nService.t('toast.bulkAttendanceSuccess.detail', { count, status: i18nService.t(`status.${status.toLowerCase()}`) }));
 
       // Re-render the page to show updated state
       this.render(window.app.currentSemesterId, window.app.allSemesters, window.app.allSubjects);

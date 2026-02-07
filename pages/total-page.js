@@ -21,7 +21,7 @@ class TotalPage {
           this.handleExport(exportType);
           // Reset dropdown
           e.currentTarget.dataset.value = '';
-          document.getElementById('export-type-display').textContent = i18nService.t('common.exportToExcel');
+          document.getElementById('export-type-display').textContent = i18nService.t('export.toExcel');
         }
       });
     }
@@ -99,7 +99,7 @@ class TotalPage {
     const currentSem = window.app.allSemesters.find(s => s.id === window.app.currentSemesterId);
 
     if (!currentSem) {
-      toastManager.warning('Please select a semester first.');
+      toastManager.warning(i18nService.t('toast.selectSemester.title'), 3500, i18nService.t('toast.selectSemester.detail'));
       return;
     }
 
@@ -116,10 +116,10 @@ class TotalPage {
       link.download = filename;
       link.click();
 
-      toastManager.success(i18nService.t('common.exportSuccess', { type: type.charAt(0).toUpperCase() + type.slice(1) }));
+      toastManager.success(i18nService.t('toast.exportSuccess.title'), 3000, i18nService.t('toast.exportSuccess.detail', { type: type.charAt(0).toUpperCase() + type.slice(1) }));
     } catch (error) {
       console.error('Export error:', error);
-      toastManager.error(i18nService.t('common.exportError'));
+      toastManager.error(i18nService.t('toast.exportError.title'), 4000, i18nService.t('toast.exportError.detail'));
     }
   }
 

@@ -77,6 +77,31 @@ class App {
       // Update static UI translations
       this.updateStaticTranslations();
 
+      // Initialize Auth Language Dropdown
+      const authLangDropdown = document.getElementById('auth-language-dropdown');
+      if (authLangDropdown) {
+        const currentLang = i18nService.getCurrentLanguage();
+        const display = document.getElementById('auth-lang-display');
+        const options = authLangDropdown.querySelectorAll('.dropdown-option');
+
+        // Set initial value
+        authLangDropdown.dataset.value = currentLang;
+        const selectedOption = Array.from(options).find(opt => opt.dataset.value === currentLang);
+        if (selectedOption && display) {
+          display.textContent = selectedOption.textContent;
+        }
+
+        // Add click handlers for options
+        options.forEach(option => {
+          option.addEventListener('click', (e) => {
+            const lang = e.target.dataset.value;
+            if (lang !== i18nService.getCurrentLanguage()) {
+              i18nService.setLanguage(lang);
+            }
+          });
+        });
+      }
+
 
     } catch (error) {
       console.error('Error initializing app:', error);
@@ -117,6 +142,27 @@ class App {
     };
   }
 
+  // Map page names to display titles (translated)
+  getPageTitle(pageName) {
+    const pageTitleKeys = {
+      'Dashboard': 'nav.dashboard',
+      'Home': 'nav.home',
+      'WeeklyReport': 'nav.weeklyreport',
+      'Total': 'nav.total',
+      'Focus': 'nav.focus',
+      'Settings': 'nav.settings'
+    };
+    const key = pageTitleKeys[pageName];
+    return key ? i18nService.t(key) : pageName;
+  }
+
+  // Update the browser tab title
+  updatePageTitle() {
+    const pageTitle = this.getPageTitle(this.currentPage);
+    const appName = i18nService.t('common.appName') || 'Attendance Tracker';
+    document.title = `${pageTitle} - ${appName}`;
+  }
+
   navigateTo(pageName) {
     try {
       if (!pageName || typeof pageName !== 'string') {
@@ -125,6 +171,9 @@ class App {
       }
 
       this.currentPage = pageName;
+
+      // Update browser tab title
+      this.updatePageTitle();
 
       // Update nav links with error handling
       try {
@@ -229,9 +278,16 @@ class App {
             }, 500);
 
           } else {
+            // User is signed out
+            if (this.isAuthenticated) {
+              toastManager.info(i18nService.t('toast.signedOut.title'), 3000, i18nService.t('toast.signedOut.detail'));
+            }
+            this.isAuthenticated = false;
+            this.userId = null;
+            this.userEmail = null;
+            authService.updateUI(null); // Original line, assuming updateAuthUI is a new method in App.js
             // Sign out cleanup
             this.cleanup();
-            this.userId = null;
 
             // Clear Page Data safely
             try {
@@ -246,12 +302,6 @@ class App {
             this.allSemesters = [];
             this.allSubjects = [];
             this.allAttendance = [];
-
-            try {
-              authService.updateUI(null);
-            } catch (uiError) {
-              console.error('Error updating UI for unauthenticated state:', uiError);
-            }
 
             // Delayed modal opening with error handling
             setTimeout(() => {
@@ -547,14 +597,33 @@ class App {
     }
 
     const majorElement = document.getElementById('user-info-major');
-    if (majorElement && majorElement.textContent === 'Your Major') {
-      majorElement.textContent = i18nService.t('settings.major');
+    if (majorElement && !this.userProfile?.major) {
+      majorElement.textContent = i18nService.t('settings.yourMajor');
     }
 
     const semesterElement = document.getElementById('user-info-semester');
-    if (semesterElement && semesterElement.textContent === 'No semester selected') {
+    const currentSem = this.allSemesters?.find(s => s.id === this.currentSemesterId);
+    if (semesterElement && !currentSem) {
       semesterElement.textContent = i18nService.t('settings.noSemesterSelected');
     }
+
+    // Export dropdown
+    const exportTypeDisplay = document.getElementById('export-type-display');
+    if (exportTypeDisplay) {
+      const exportDropdown = document.getElementById('export-type-dropdown');
+      const currentValue = exportDropdown?.dataset?.value || '';
+      exportTypeDisplay.textContent = currentValue === 'weekly' ? i18nService.t('export.weeklyReport') :
+        currentValue === 'monthly' ? i18nService.t('export.monthlyReport') :
+          currentValue === 'semester' ? i18nService.t('export.fullSemester') :
+            i18nService.t('export.toExcel');
+    }
+    const exportOptions = document.querySelectorAll('#export-type-dropdown .dropdown-option');
+    const exportValues = ['weekly', 'monthly', 'semester'];
+    const exportKeys = ['export.weeklyReport', 'export.monthlyReport', 'export.fullSemester'];
+    exportOptions.forEach(opt => {
+      const idx = exportValues.indexOf(opt.dataset.value);
+      if (idx !== -1) opt.textContent = i18nService.t(exportKeys[idx]);
+    });
 
     const todayDateDisplay = document.getElementById('selected-date-display');
     if (todayDateDisplay && todayDateDisplay.textContent === 'Today') {

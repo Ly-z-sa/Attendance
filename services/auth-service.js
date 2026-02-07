@@ -265,7 +265,7 @@ class AuthService {
 
         if (!usernameDoc.exists()) {
           toastManager.hide(loadingToast);
-          toastManager.error(i18nService.t('auth.usernameNotFound'));
+          toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.usernameNotFound'));
           return;
         }
 
@@ -273,7 +273,7 @@ class AuthService {
 
         if (!email) {
           toastManager.hide(loadingToast);
-          toastManager.error(i18nService.t('auth.usernameLinkIncomplete'));
+          toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.usernameLinkIncomplete'));
           return;
         }
       }
@@ -284,7 +284,7 @@ class AuthService {
 
       if (this.loginAttempts[email] >= 5) {
         toastManager.hide(loadingToast);
-        toastManager.error(i18nService.t('auth.accountLocked'));
+        toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.accountLocked'));
         return;
       }
 
@@ -301,7 +301,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(userCredential.user.uid);
 
-      toastManager.success(i18nService.t('auth.welcomeBack', { name: userName || userCredential.user.displayName || i18nService.t('dashboard.helloStudent') }));
+      toastManager.success(i18nService.t('toast.welcomeBack.title'), 3000, i18nService.t('toast.welcomeBack.detail', { name: userName || userCredential.user.displayName || i18nService.t('dashboard.helloStudent') }));
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error("Sign in error:", error);
@@ -312,22 +312,22 @@ class AuthService {
           this.loginAttempts[email] = (this.loginAttempts[email] || 0) + 1;
 
           if (this.loginAttempts[email] >= 5) {
-            toastManager.error(i18nService.t('auth.accountLocked'));
+            toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.accountLocked'));
           } else if (this.loginAttempts[email] > 1) {
             this.showResetPasswordOption(email);
-            toastManager.error(i18nService.t('auth.wrongPassword') + ' ' + i18nService.t('auth.attemptsRemaining', { count: 5 - this.loginAttempts[email] }));
+            toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.wrongPassword') + ' ' + i18nService.t('auth.attemptsRemaining', { count: 5 - this.loginAttempts[email] }));
           } else {
-            toastManager.error(i18nService.t('auth.wrongPassword'));
+            toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.wrongPassword'));
           }
         } else {
-          toastManager.error(i18nService.t('auth.invalidCredentials'));
+          toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.invalidCredentials'));
         }
       } else if (error.code === 'auth/user-not-found') {
-        toastManager.error(i18nService.t('auth.userNotFound'));
+        toastManager.error(i18nService.t('toast.errorLabel'), 4000, i18nService.t('auth.userNotFound'));
       } else if (error.code === 'auth/too-many-requests') {
-        toastManager.error(errorHandler.getFriendlyMessage(error));
+        toastManager.error(i18nService.t('toast.errorLabel'), 4000, errorHandler.getFriendlyMessage(error));
       } else {
-        toastManager.error(errorHandler.getFriendlyMessage(error));
+        toastManager.error(i18nService.t('toast.errorLabel'), 4000, errorHandler.getFriendlyMessage(error));
       }
     }
   }
@@ -361,7 +361,7 @@ class AuthService {
   async handlePasswordReset(email) {
     try {
       await sendPasswordResetEmail(this.auth, email);
-      toastManager.success(i18nService.t('auth.passwordResetSent'));
+      toastManager.success(i18nService.t('toast.passwordResetSent.title'), 3000, i18nService.t('toast.passwordResetSent.detail'));
     } catch (error) {
       toastManager.error(errorHandler.getFriendlyMessage(error));
     }
@@ -428,7 +428,7 @@ class AuthService {
 
       await sendPasswordResetEmail(this.auth, email);
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.passwordResetSent'));
+      toastManager.success(i18nService.t('toast.passwordResetSent.title'), 3000, i18nService.t('toast.passwordResetSent.detail'));
     } catch (error) {
       toastManager.hide(loadingToast);
       console.error("Forgot password error:", error);
@@ -495,7 +495,7 @@ class AuthService {
 
       toastManager.hide(loadingToast);
       modalManager.close('auth-modal');
-      toastManager.success(i18nService.t('auth.emailSent'));
+      toastManager.success(i18nService.t('toast.emailSent.title'), 3000, i18nService.t('toast.emailSent.detail'));
     } catch (error) {
       toastManager.hide(loadingToast);
 
@@ -539,7 +539,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(user.uid);
 
-      toastManager.success(i18nService.t('auth.welcomeUser', { name: user.displayName || 'User' }));
+      toastManager.success(i18nService.t('toast.welcomeUser.title'), 3000, i18nService.t('toast.welcomeUser.detail', { name: user.displayName || 'User' }));
 
     } catch (error) {
       toastManager.hide(loadingToast);
@@ -578,7 +578,7 @@ class AuthService {
       // Check for profile completion
       await this.checkAndPromptProfileCompletion(user.uid);
 
-      toastManager.success(i18nService.t('auth.welcomeUser', { name: user.displayName || 'User' }));
+      toastManager.success(i18nService.t('toast.welcomeUser.title'), 3000, i18nService.t('toast.welcomeUser.detail', { name: user.displayName || 'User' }));
 
     } catch (error) {
       toastManager.hide(loadingToast);
@@ -655,7 +655,7 @@ class AuthService {
 
       toastManager.hide(loadingToast);
       modalManager.close('onboarding-modal');
-      toastManager.success(i18nService.t('auth.profileUpdated'));
+      toastManager.success(i18nService.t('toast.profileUpdated.title'), 3000, i18nService.t('toast.profileUpdated.detail'));
 
       // Set tutorial flag for new users
       localStorage.setItem('tutorialPending', 'true');
@@ -687,22 +687,21 @@ class AuthService {
     try {
       // 1. Reset UI immediately to avoid race conditions with auth state listeners
       this.resetUI();
-      // Also forcibly hide the signout button and show auth button manually just in case
-      this.updateUI(null);
 
       // 2. Perform sign out
       await signOut(this.auth);
 
-      toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.signedOut'), 3000, 'You have been securely logged out. See you next time!');
+      // Toast handled by onAuthStateChanged in app.js
+      // toastManager.success(i18nService.t('auth.signedOut'), 3000, 'You have been securely logged out. See you next time!');
 
       // 3. Ensure scroll is free
       document.body.style.overflow = '';
 
-      // 4. Force reload to clear any lingering React/DOM state if necessary (optional, but safer)
-      // window.location.reload(); // Commented out to try soft reset first
+      // 4. Reset language to English (default)
+      i18nService.setLanguage('en');
 
-      // Navigate to Dashboard
+      // 5. Navigate to Dashboard (triggering re-render/reload via setLanguage usually does the trick, but just in case)
+      // Since setLanguage reloads, the code below might not run, which is fine.
       if (window.navigateTo) {
         window.navigateTo('Dashboard');
       }
@@ -725,7 +724,7 @@ class AuthService {
       const streakEl = document.getElementById('streak-display');
 
       if (nameEl) nameEl.textContent = i18nService.t('dashboard.helloStudent');
-      if (majorEl) majorEl.textContent = i18nService.t('settings.major');
+      if (majorEl) majorEl.textContent = i18nService.t('settings.yourMajor');
       if (semEl) semEl.textContent = i18nService.t('settings.noSemesterSelected');
       if (streakEl) {
         streakEl.innerHTML = `
@@ -742,7 +741,7 @@ class AuthService {
   async sendVerificationEmail() {
     try {
       await sendEmailVerification(this.auth.currentUser);
-      toastManager.success(i18nService.t('auth.emailSent'));
+      toastManager.success(i18nService.t('toast.emailSent.title'), 3000, i18nService.t('toast.emailSent.detail'));
     } catch (error) {
       toastManager.error(errorHandler.getFriendlyMessage(error));
     }
@@ -781,7 +780,7 @@ class AuthService {
     try {
       await updatePassword(this.auth.currentUser, newPassword);
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.passwordUpdated'));
+      toastManager.success(i18nService.t('toast.passwordChanged.title'), 3000, i18nService.t('toast.passwordChanged.detail'));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error(errorHandler.getFriendlyMessage(error));

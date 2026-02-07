@@ -1,17 +1,23 @@
 // services/i18n-service.js
 import en from '../utils/translations/en.js';
 import fr from '../utils/translations/fr.js';
+import es from '../utils/translations/es.js';
+import ru from '../utils/translations/ru.js';
+import zh from '../utils/translations/zh.js';
+import km from '../utils/translations/km.js';
 
 class I18nService {
     constructor() {
-        this.languages = { en, fr };
+        this.languages = { en, fr, es, ru, zh, km };
         this.currentLanguage = localStorage.getItem('app_language') || 'en';
+        document.documentElement.lang = this.currentLanguage;
     }
 
     setLanguage(lang) {
         if (this.languages[lang]) {
             this.currentLanguage = lang;
             localStorage.setItem('app_language', lang);
+            document.documentElement.lang = lang;
             // We'll need to trigger a re-render of the app
             window.location.reload();
         }
@@ -69,7 +75,7 @@ class I18nService {
     formatDate(date, options = {}) {
         if (!date) return '';
         const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : date;
-        return d.toLocaleDateString(this.currentLanguage === 'en' ? 'en-US' : 'fr-FR', options);
+        return d.toLocaleDateString(this.currentLanguage, options);
     }
 
     getCurrentLanguage() {

@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Iceberg&family=Philosopher:wght@400;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -350,6 +350,27 @@
     </div>
 
     <div class="modal-overlay" id="auth-modal" role="dialog" aria-labelledby="auth-modal-title" aria-modal="true">
+        <!-- Language Switcher for Auth Screen -->
+        <div class="custom-dropdown" id="auth-language-dropdown"
+            style="position: absolute; top: 20px; right: 20px; z-index: 10001;">
+            <div class="dropdown-selected" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false"
+                style="background: var(--bg-color); border: 1px solid var(--border-color); color: var(--dark-text);">
+                <span id="auth-lang-display">English</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
+                    stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+            <div class="dropdown-options" role="listbox">
+                <div class="dropdown-option" data-value="en" role="option">English</div>
+                <div class="dropdown-option" data-value="fr" role="option">Français</div>
+                <div class="dropdown-option" data-value="es" role="option">Español</div>
+                <div class="dropdown-option" data-value="ru" role="option">Русский</div>
+                <div class="dropdown-option" data-value="zh" role="option">中文</div>
+                <div class="dropdown-option" data-value="km" role="option">ខ្មែរ</div>
+            </div>
+        </div>
+
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="auth-modal-title">Sign In</h4>
@@ -378,8 +399,7 @@
                             <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
                         </div>
                     </div>
-                    <button class="btn btn-green" id="signin-btn" onclick="window.authService.handleSignIn()"
-                        style="width: 100%; margin-top: 1rem;">Sign
+                    <button class="btn btn-green" id="signin-btn" style="width: 100%; margin-top: 1rem;">Sign
                         In</button>
                     <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
                         By
@@ -442,8 +462,7 @@
                             placeholder="Min 6 chars, 1 capital, 1 number" autocomplete="new-password">
                         <div id="password-strength" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
                     </div>
-                    <button class="btn btn-green" id="signup-btn" onclick="window.authService.handleSignUp()"
-                        style="width: 100%; margin-top: 1rem;">Create
+                    <button class="btn btn-green" id="signup-btn" style="width: 100%; margin-top: 1rem;">Create
                         Account</button>
                     <p style="font-size: 0.8rem; color: var(--grey-text); text-align: center; margin-top: 0.5rem;">
                         By

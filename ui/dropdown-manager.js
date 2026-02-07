@@ -37,7 +37,7 @@ class DropdownManager {
       // 2. If we clicked a trigger (Dropdown/DatePicker/TimePicker), handle toggle
       if (dropdown) {
         const selected = e.target.closest('.dropdown-selected');
-        if (selected) this.toggle(dropdown);
+        if (selected && !dropdown.classList.contains('disabled')) this.toggle(dropdown);
       } else if (datePicker) {
         const selected = e.target.closest('.date-picker-selected');
         if (selected) this.toggleDatePicker(datePicker);

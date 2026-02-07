@@ -190,7 +190,7 @@ class SettingsPage {
 
   renderLanguageDropdown() {
     const currentLang = i18nService.getCurrentLanguage();
-    const langNames = { en: 'English', fr: 'Français' };
+    const langNames = { en: 'English', fr: 'Français', es: 'Español', ru: 'Русский', zh: '中文', km: 'ភាសាខ្មែរ' };
 
     return `
       <div class="form-group">
@@ -203,6 +203,10 @@ class SettingsPage {
           <div class="dropdown-options" role="listbox">
             <div class="dropdown-option" data-value="en" role="option">English</div>
             <div class="dropdown-option" data-value="fr" role="option">Français</div>
+            <div class="dropdown-option" data-value="es" role="option">Español</div>
+            <div class="dropdown-option" data-value="ru" role="option">Русский</div>
+            <div class="dropdown-option" data-value="zh" role="option">中文</div>
+            <div class="dropdown-option" data-value="km" role="option">ភាសាខ្មែរ</div>
           </div>
         </div>
       </div>
@@ -373,7 +377,7 @@ class SettingsPage {
       
       <div style="text-align: center; padding: 1rem; color: var(--grey-text); font-size: 0.9rem; border-top: 1px solid var(--border-color); margin-top: 1rem;">
         <div>© 2026 Attendance Tracker. ${i18nService.t('settings.allRightsReserved')}</div>
-        <div style="margin-top: 0.25rem;">${i18nService.t('settings.version')} 3.7.0</div>
+        <div style="margin-top: 0.25rem;">${i18nService.t('settings.version')} 3.7.2</div>
       </div>
     `;
   }
@@ -576,7 +580,7 @@ class SettingsPage {
         { merge: true }
       );
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('auth.profileUpdated'), 3000, `Name: ${name}, Major: ${major}, Username: @${username}. Your profile is now up to date!`);
+      toastManager.success(i18nService.t('toast.profileUpdated.title'), 3000, i18nService.t('toast.profileUpdated.detail'));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error(error.message);
@@ -642,7 +646,7 @@ class SettingsPage {
 
       toastManager.hide(loadingToast);
       modalManager.close('crop-modal');
-      toastManager.success(i18nService.t('auth.profileUpdated'));
+      toastManager.success(i18nService.t('toast.profilePictureUpdated'), 3000, i18nService.t('toast.profilePictureUpdated'));
 
       // Clear input
       document.getElementById('profile-pic-input').value = '';
@@ -663,7 +667,7 @@ class SettingsPage {
         { merge: true }
       );
       toastManager.hide(loadingToast);
-      toastManager.success(i18nService.t('settings.currentSemesterUpdated')); // Need key
+      toastManager.success(i18nService.t('toast.currentSemesterUpdated'), 3000, i18nService.t('toast.currentSemesterUpdated'));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error updating semester: ' + error.message);
@@ -750,7 +754,7 @@ class SettingsPage {
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.semesterDoc(window.app.userId, id)));
       toastManager.hide(loadingToast);
-      toastManager.success('Semester deleted', 3000, `"${semester?.name}" removed along with ${subjectsToDelete.length} subjects and ${attendanceToDelete.length} attendance records.`);
+      toastManager.success(i18nService.t('toast.semesterDeleted', { name: semester?.name }), 3000, i18nService.t('toast.semesterDeleted', { name: semester?.name }));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error deleting semester: ' + error.message);
@@ -804,7 +808,7 @@ class SettingsPage {
             endTime: inputs.endTime || null
           });
           const timeInfo = inputs.startTime && inputs.endTime ? ` (${inputs.startTime} - ${inputs.endTime})` : '';
-          toastManager.success('Subject updated', 3000, `"${inputs.name}" now scheduled for ${inputs.day}${timeInfo}.`);
+          toastManager.success(i18nService.t('toast.subjectUpdated', { name: inputs.name }), 3000, i18nService.t('toast.subjectUpdated', { name: inputs.name, day: inputs.day, time: timeInfo }));
         } else {
           if (!targetSemesterId) {
             toastManager.error(i18nService.t('errors.noSemesterSelected'));
@@ -816,8 +820,8 @@ class SettingsPage {
             startTime: inputs.startTime || null,
             endTime: inputs.endTime || null
           });
-          const timeStr = inputs.startTime && inputs.endTime ? ` from ${inputs.startTime} to ${inputs.endTime}` : '';
-          toastManager.success('Subject added', 3000, `"${inputs.name}" added to your schedule for ${inputs.day}${timeStr}. Start marking attendance!`);
+          const timeStr = inputs.startTime && inputs.endTime ? ` (${inputs.startTime} - ${inputs.endTime})` : '';
+          toastManager.success(i18nService.t('toast.subjectAdded', { name: inputs.name }), 3000, i18nService.t('toast.subjectAdded', { name: inputs.name, day: inputs.day, time: timeStr }));
         }
       } catch (error) {
         toastManager.error(error.message);
@@ -881,7 +885,7 @@ class SettingsPage {
           startDate,
           endDate
         });
-        toastManager.success('Semester updated successfully', 3000, `"${name}" has been updated. Runs from ${startDate} to ${endDate}.`);
+        toastManager.success(i18nService.t('settings.semesterUpdated'), 3000, i18nService.t('toast.semesterUpdated', { name, startDate, endDate }));
       } else {
         // Add
         await attendanceService.addSemester({
@@ -889,7 +893,7 @@ class SettingsPage {
           startDate,
           endDate
         });
-        toastManager.success('Semester added successfully', 3000, `"${name}" created! Starts ${startDate}, ends ${endDate}. You can now add subjects to it.`);
+        toastManager.success(i18nService.t('settings.semesterAdded'), 3000, i18nService.t('toast.semesterAdded', { name, startDate, endDate }));
       }
 
       modalManager.close('semester-modal');
@@ -924,7 +928,7 @@ class SettingsPage {
     try {
       await deleteDoc(doc(window.firebaseDb, FIREBASE_PATHS.subjectDoc(window.app.userId, id)));
       toastManager.hide(loadingToast);
-      toastManager.success('Subject deleted', 3000, `"${subject?.name}" (${subject?.day || 'N/A'}) has been removed from your schedule.`);
+      toastManager.success(i18nService.t('toast.subjectDeleted.title'), 3000, i18nService.t('toast.subjectDeleted.detail', { name: subject?.name }));
     } catch (error) {
       toastManager.hide(loadingToast);
       toastManager.error('Error deleting subject: ' + error.message);
@@ -937,7 +941,7 @@ class SettingsPage {
     // Copy to clipboard automatically
     try {
       navigator.clipboard.writeText(email).then(() => {
-        toastManager.success(`Email copied to clipboard`);
+        toastManager.success(i18nService.t('toast.emailCopied.title'), 3000, i18nService.t('toast.emailCopied.detail'));
       }).catch(() => {
         // Fallback if clipboard fails
         toastManager.info(`Contact us at: ${email}`, 6000);
@@ -976,7 +980,7 @@ class SettingsPage {
     try {
       await addDoc(collection(window.firebaseDb, FIREBASE_PATHS.bugReports(window.app.userId)), reportData);
       toastManager.hide(loadingToast);
-      toastManager.success('Report submitted successfully! Thank you for your feedback.');
+      toastManager.success(i18nService.t('toast.reportSubmitted.title'), 4000, i18nService.t('toast.reportSubmitted.detail'));
       modalManager.close('report-modal');
 
       // Clear form

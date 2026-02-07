@@ -42,9 +42,8 @@ class FocusPage {
         this.showCompleted = false;
         this.quoteInterval = null;
 
+        this.quoteKeys = ['quote1', 'quote2', 'quote3', 'quote4', 'quote5', 'quote6', 'quote7', 'quote8', 'quote9', 'quote10', 'quote11', 'quote12', 'quote13', 'quote14', 'quote15', 'quote16', 'quote17', 'quote18', 'quote19', 'quote20'];
         this.quotes = [
-            "The secret of getting ahead is getting started.",
-            "Focus on being productive instead of busy.",
             "Don't watch the clock; do what it does. Keep going.",
             "Success is the sum of small efforts repeated day in and day out.",
             "The future depends on what you do today.",
@@ -149,7 +148,7 @@ class FocusPage {
                 <div class="timer-section">
                     <!-- Quote at Top -->
                     <div class="quote-card-top">
-                        <p id="quote-text-top">"${this.quotes[0]}"</p>
+                        <p id="quote-text-top">"${i18nService.t('focus.quote1')}"</p>
                     </div>
 
                     <!-- 3-Way Toggle Switch with Glider -->
@@ -276,7 +275,7 @@ class FocusPage {
                 this.customTime = min;
                 this.setMode(min, 'Custom');
             } else {
-                toastManager.info(i18nService.t('settings.enterValidTime'));
+                toastManager.info(i18nService.t('toast.infoLabel'), 3000, i18nService.t('settings.enterValidTime'));
             }
         });
 
@@ -416,7 +415,7 @@ class FocusPage {
 
         const msg = this.mode === 'Focus' || this.mode === 'Custom' ? i18nService.t('settings.timeBreak') : i18nService.t('settings.focusAgain');
         this.updateStatus(i18nService.t('settings.timerSessionDone'));
-        toastManager.success(msg);
+        toastManager.success(msg, 5000, i18nService.t('toast.timerSessionDone'));
 
         if (Notification.permission === 'granted') {
             new Notification('Focus Timer', { body: msg, icon: 'assets/att-logo.png' });
@@ -474,10 +473,10 @@ class FocusPage {
     }
 
     showRandomQuote() {
-        const quote = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+        const key = this.quoteKeys[Math.floor(Math.random() * this.quoteKeys.length)];
+        const quote = i18nService.t(`focus.${key}`);
         const el = document.getElementById('quote-text-top');
         if (el) {
-            // Simple fade effect
             el.style.opacity = '0';
             setTimeout(() => {
                 el.textContent = `"${quote}"`;

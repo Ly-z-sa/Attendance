@@ -20,7 +20,7 @@ class NotificationService {
 
   async requestPermission() {
     if (!('Notification' in window)) {
-      toastManager.warning('Notifications are not supported in this browser.');
+      toastManager.warning('Notifications are not supported in this browser.', 3500, 'Your browser does not support desktop notifications.');
       return false;
     }
 
@@ -28,11 +28,11 @@ class NotificationService {
       this.permission = await Notification.requestPermission();
 
       if (this.permission === 'granted') {
-        toastManager.success('Notifications enabled!');
+        toastManager.success(i18nService.t('toast.notificationsEnabled.title'), 3000, i18nService.t('toast.notificationsEnabled.detail'));
         this.startSchedule();
         return true;
       } else {
-        toastManager.info('Notifications disabled. Enable in browser settings for reminders.');
+        toastManager.info(i18nService.t('toast.notificationsDisabled.title'), 3000, i18nService.t('toast.notificationsDisabled.detail'));
         return false;
       }
     } catch (error) {
@@ -42,7 +42,7 @@ class NotificationService {
   }
 
   disable() {
-    toastManager.info('To disable notifications, go to your browser settings and block notifications for this site.');
+    toastManager.info('To disable notifications, go to your browser settings and block notifications for this site.', 5000, i18nService.t('toast.notificationsDisabled.detail'));
   }
 
   send(title, body, icon = null) {
@@ -246,7 +246,8 @@ class NotificationService {
     const message = `Week ${currentWeek} Report: ${stats.counts.Present}P ${stats.counts.Absent}A ${stats.counts.Permission}Pe ${stats.counts.Late}L (${stats.percentage}% attendance)`;
 
     this.send('Weekly Attendance Report', message);
-    toastManager.info(message, 6000);
+    this.send('Weekly Attendance Report', message);
+    toastManager.info(message, 6000, 'Your weekly attendance summary is ready.');
   }
 
   // Method to inject dependencies

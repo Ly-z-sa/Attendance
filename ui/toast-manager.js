@@ -1,6 +1,7 @@
 // ui/toast-manager.js
 import { ICONS } from '../utils/icons.js';
 import { sanitizeInput } from '../utils/sanitizer.js';
+import i18nService from '../services/i18n-service.js';
 
 class ToastManager {
   constructor() {
@@ -19,6 +20,22 @@ class ToastManager {
     }
   }
 
+  // Get translated type info
+  getTypeInfo(type) {
+    const typeMap = {
+      success: { labelKey: 'toast.successLabel', descKey: 'toast.successDesc' },
+      error: { labelKey: 'toast.errorLabel', descKey: 'toast.errorDesc' },
+      warning: { labelKey: 'toast.warningLabel', descKey: 'toast.warningDesc' },
+      info: { labelKey: 'toast.infoLabel', descKey: 'toast.infoDesc' },
+      loading: { labelKey: 'toast.loadingLabel', descKey: 'toast.loadingDesc' }
+    };
+    const keys = typeMap[type] || typeMap.info;
+    return {
+      label: i18nService.t(keys.labelKey),
+      desc: i18nService.t(keys.descKey)
+    };
+  }
+
   show(message, duration = 3000, type = 'info', detail = null) {
     try {
       const toast = document.createElement('div');
@@ -30,25 +47,16 @@ class ToastManager {
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateStr = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
 
-      // Type labels and descriptions for display
-      const typeInfo = {
-        success: { label: '✓ Success', desc: 'Your action was completed successfully.' },
-        error: { label: '✕ Error', desc: 'Something went wrong. Please try again.' },
-        warning: { label: '⚠ Warning', desc: 'Please review this before continuing.' },
-        info: { label: 'ℹ Info', desc: 'Here\'s some information for you.' },
-        loading: { label: '⟳ Loading', desc: 'Please wait while we process your request.' }
-      };
+      // Get translated type info
+      const info = this.getTypeInfo(type);
 
-      const info = typeInfo[type] || typeInfo.info;
-
-      // Generate helpful detail content
+      // Generate helpful detail content - use provided detail or fall back to generic description
       const detailContent = detail || info.desc;
 
       toast.innerHTML = `
         <div class="toast-content">
           <span class="toast-icon">${this.getIcon(type)}</span>
           <span class="toast-message">${sanitizeInput(message || 'No message')}</span>
-          <button class="toast-close" aria-label="Close">×</button>
         </div>
         <div class="toast-detail">
           <p class="toast-detail-message">${sanitizeInput(detailContent)}</p>
@@ -64,16 +72,8 @@ class ToastManager {
         toast.classList.add('toast-show');
       });
 
-      // Close button - stop propagation to prevent expand
-      const closeBtn = toast.querySelector('.toast-close');
-      closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.hide(toast);
-      });
-
       // Click to expand/collapse - ALL toasts are expandable
-      toast.addEventListener('click', (e) => {
-        if (e.target.classList.contains('toast-close')) return;
+      toast.addEventListener('click', () => {
         this.toggleExpand(toast);
       });
 

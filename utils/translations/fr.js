@@ -1,6 +1,7 @@
 // utils/translations/fr.js
 export default {
     common: {
+        appName: "Suivi de Présence",
         dashboard: "Tableau de bord",
         attendance: "Présence",
         reports: "Rapports",
@@ -30,7 +31,8 @@ export default {
         statusLastWarning: "DERNIER AVERTISSEMENT",
         statusError: "AVERTISSEMENT D'ERREUR ROUGE",
         or: "ou",
-        select: "Sélectionner..."
+        select: "Sélectionner...",
+        copied: "Copié !"
     },
     nav: {
         dashboard: "Tableau de bord",
@@ -190,9 +192,17 @@ export default {
         enterValidTime: "Veuillez entrer une durée entre 1 et 180 minutes.",
         deleteTask: "Supprimer la tâche",
         confirmDeleteTask: "Voulez-vous vraiment supprimer cette tâche ?",
-        signInToSave: "Veuillez vous connecter pour enregistrer les tâches."
+        signInToSave: "Veuillez vous connecter pour enregistrer les tâches.",
+        subjectAdded: "Matière ajoutée",
+        subjectUpdated: "Matière modifiée",
+        subjectDeleted: "Matière supprimée",
+        semesterAdded: "Semestre ajouté",
+        semesterUpdated: "Semestre modifié",
+        semesterDeleted: "Semestre supprimé",
+        reportSubmitted: "Signalement envoyé"
     },
     status: {
+        select: "Sélectionner...",
         present: "Présent",
         absent: "Absent",
         late: "En retard",
@@ -365,6 +375,217 @@ export default {
         endTime: "Heure de fin",
         errorSelectStatus: "Veuillez sélectionner un nouveau statut.",
         errorReasonMin: "Veuillez fournir une raison détaillée (minimum 10 caractères)."
+    },
+    focus: {
+        quote1: "Le secret pour avancer, c'est de commencer.",
+        quote2: "Concentrez-vous sur la productivité plutôt que sur l'occupation.",
+        quote3: "Ne regardez pas l'horloge ; faites ce qu'elle fait. Continuez.",
+        quote4: "Le succès est la somme de petits efforts répétés jour après jour.",
+        quote5: "L'avenir dépend de ce que vous faites aujourd'hui.",
+        quote6: "Concentrez toutes vos pensées sur le travail en cours.",
+        quote7: "Vous n'avez pas besoin d'être génial pour commencer, mais vous devez commencer pour être génial.",
+        quote8: "L'action est la clé fondamentale de tout succès.",
+        quote9: "Croyez que vous pouvez et vous êtes à mi-chemin.",
+        quote10: "La qualité n'est pas un acte, c'est une habitude.",
+        quote11: "Cela semble toujours impossible jusqu'à ce que ce soit fait.",
+        quote12: "Votre limite—ce n'est que votre imagination.",
+        quote13: "Poussez-vous, car personne d'autre ne le fera pour vous.",
+        quote14: "Les grandes choses ne viennent jamais des zones de confort.",
+        quote15: "Rêvez-le. Souhaitez-le. Faites-le.",
+        quote16: "Le succès ne vous trouve pas. Vous devez aller le chercher.",
+        quote17: "Plus vous travaillez dur pour quelque chose, plus vous vous sentirez bien en l'atteignant.",
+        quote18: "Rêvez plus grand. Faites plus grand.",
+        quote19: "Ne vous arrêtez pas quand vous êtes fatigué. Arrêtez-vous quand c'est fait.",
+        quote20: "Réveillez-vous avec détermination. Couchez-vous avec satisfaction."
+    },
+    export: {
+        toExcel: "Exporter vers Excel",
+        weeklyReport: "Rapport hebdomadaire",
+        monthlyReport: "Rapport mensuel",
+        fullSemester: "Semestre complet"
+    },
+    trackie: {
+        askTrackie: "Besoin d'aide ? Demandez à Trackie !",
+        greeting1: "Salut ! Je suis Trackie, ton assistant de suivi de présence. Pose-moi n'importe quelle question sur l'application !",
+        greeting2: "Bonjour ! Je suis Trackie. Je peux t'aider avec le suivi des présences, les rapports, les paramètres, les thèmes et plus encore. Que voudrais-tu savoir ?",
+        greeting3: "Hey ! Je suis Trackie. Besoin d'aide avec l'app ? Tape ta question et je trouverai la meilleure réponse pour toi.",
+        tryAsking: "Essaie de demander :",
+        fallback1: "Hmm, je ne suis pas sûr de ça. Pourrais-tu reformuler ta question ? Ou <a href=\"#\" class=\"contact-link\">contacte-nous</a> pour de l'aide.",
+        fallback2: "Je n'ai pas d'informations sur ce sujet. Essaie de poser des questions sur les présences, les matières, les rapports, les paramètres, les thèmes ou les fonctionnalités du compte ! Ou <a href=\"#\" class=\"contact-link\">contacte notre équipe</a>.",
+        fallback3: "Désolé, je n'ai pas trouvé de réponse correspondante. Voici des sujets sur lesquels je peux t'aider :\n\n• Marquer et modifier les présences\n• Gérer les matières et semestres\n• Voir les rapports et exporter les données\n• Thèmes et personnalisation\n• Paramètres du compte et du profil\n\nEncore besoin d'aide ? <a href=\"#\" class=\"contact-link\">Contacte-nous</a>",
+        profanity: "Je préfère garder notre conversation polie. Utilise un langage approprié pour que je puisse t'aider.",
+        suggest1: "Comment marquer ma présence ?",
+        suggest2: "Puis-je modifier des enregistrements passés ?",
+        suggest3: "Comment exporter les données ?",
+        suggest4: "Comment changer les thèmes ?",
+        markAttendance: "Pour marquer ta présence :\n1. Va sur la page Présence\n2. Sélectionne un statut dans le menu déroulant à côté de chaque matière (Présent, Absent, Permission ou En retard)\n3. Clique sur le bouton coche pour soumettre\nTa présence est enregistrée automatiquement dans le cloud !",
+        editAttendance: "Oui ! Tu peux modifier les présences des 7 derniers jours :\n1. Va sur la page Présence\n2. Utilise le menu déroulant des dates pour sélectionner une date passée\n3. Clique sur l'icône crayon à côté de la matière à modifier\n4. Sélectionne le nouveau statut et fournis une raison\nNote : Toutes les modifications sont enregistrées à des fins d'audit.",
+        statuses: "Il y a 4 statuts de présence :\n\n• Présent : Tu as assisté au cours complet\n• Absent : Tu as manqué le cours\n• Permission : Tu avais une permission officielle (congé maladie, etc.)\n• En retard : Tu es arrivé en retard\n\nSeuls Présent et En retard comptent dans ton pourcentage de présence.",
+        bulkAttendance: "Oui ! Utilise la fonction Présence groupée sur le Tableau de bord :\n1. Va sur la page Tableau de bord\n2. Trouve la carte \"Présence groupée\"\n3. Sélectionne un statut (Présent, Absent, etc.)\n4. Clique pour appliquer ce statut à toutes les matières du jour\n\nParfait pour les jours où tu as assisté à tous les cours !",
+        addSubject: "Pour ajouter une nouvelle matière :\n1. Va sur la page Paramètres\n2. Trouve la section \"Matières\"\n3. Clique sur \"Ajouter une matière\"\n4. Entre le nom de la matière\n5. Sélectionne le(s) jour(s) de la semaine\n6. Clique sur Enregistrer\n\nTu peux ajouter autant de matières que nécessaire !",
+        exportData: "Pour exporter tes données :\n1. Va sur la page Total\n2. Clique sur le menu déroulant \"Exporter vers Excel\"\n3. Choisis le type d'export :\n   • Rapport hebdomadaire - Données de la semaine\n   • Rapport mensuel - Données du mois\n   • Semestre complet - Tous les enregistrements\n4. Le fichier Excel se téléchargera automatiquement !",
+        changeThemes: "Va dans Paramètres > section Personnalisation :\n\nSchémas de couleurs : Classique, Océan, Forêt, Coucher de soleil, Verre, Crimson, Violet, Émeraude, Festif\n\nTes préférences se synchronisent sur tous tes appareils !",
+        identity: "Je suis Trackie, ton assistant de suivi de présence ! Mon travail est de t'aider à naviguer dans l'app, gérer tes présences et répondre à tes questions.",
+        capabilities: "Je suis ton expert personnel en suivi de présence ! Je peux t'aider à marquer les présences, gérer les matières, personnaliser les thèmes et expliquer les fonctionnalités. Essaie de demander \"Comment marquer ma présence ?\"",
+        faq: [
+            {
+                id: 101,
+                keywords: ['salut', 'bonjour', 'coucou', 'hey', 'yo', 'bonsoir', 'matin', 'après-midi'],
+                question: 'Social : Salutation',
+                answer: 'Bonjour ! Comment puis-je vous aider avec votre suivi de présence aujourd\'hui ?'
+            },
+            {
+                id: 102,
+                keywords: ['merci', 'remercier', 'cool', 'super', 'génial', 'top', 'sympa'],
+                question: 'Social : Gratitude/Compliment',
+                answer: 'De rien ! Je suis ravi d\'avoir pu aider. N\'hésitez pas si vous avez besoin d\'autre chose !'
+            },
+            {
+                id: 103,
+                keywords: ['au revoir', 'bye', 'a plus', 'salut', 'quitter', 'partir'],
+                question: 'Social : Adieu',
+                answer: 'Au revoir ! Passez une journée productive !'
+            },
+            {
+                id: 104,
+                keywords: ['qui', 'quoi', 'nom', 'bot', 'robot', 'assistant', 'identité'],
+                question: 'Social : Identité',
+                answer: "Je suis Trackie, ton Assistant de Suivi de Présence ! Mon travail est de t'aider à naviguer dans l'app, gérer tes présences et répondre à tes questions."
+            },
+            {
+                id: 105,
+                keywords: ['comment', 'ça va', 'forme', 'status'],
+                question: 'Social : Statut',
+                answer: 'Je vais très bien et je suis prêt à aider ! Et vous ?'
+            },
+            {
+                id: 106,
+                keywords: ['blague', 'rire', 'drôle', 'humour', 'amuser'],
+                question: 'Social : Blague',
+                answer: [
+                    'Pourquoi les plongeurs plongent-ils toujours en arrière et jamais en avant ? Parce que sinon ils tombent dans le bateau !',
+                    'Quel est le comble pour un électricien ? De ne pas être au courant !'
+                ]
+            },
+            {
+                id: 1001,
+                keywords: ['haha', 'hahaha', 'mdr', 'lol', 'ptdr', 'hihi'],
+                question: 'Social : Rire',
+                answer: [
+                    'Ravi de vous voir sourire ! 😄',
+                    'C\'est drôle hein ? 😂',
+                    'Le rire est le meilleur remède (après le débogage).'
+                ]
+            },
+            {
+                id: 107,
+                keywords: ['âge', 'vieux', 'jeune', 'né', 'anniversaire', 'quand', 'créé'],
+                question: 'Social : Âge',
+                answer: 'Je n\'ai pas de gâteau d\'anniversaire, mais j\'ai été initialisé récemment ! En années logicielles, je suis tout neuf.'
+            },
+            {
+                id: 111,
+                keywords: ['météo', 'temps', 'soleil', 'pluie', 'froid', 'chaud'],
+                question: 'Social : Météo',
+                answer: 'Je ne peux pas regarder par la fenêtre, mais j\'espère qu\'il fait beau chez vous ! ☀️'
+            },
+            {
+                id: 112,
+                keywords: ['peux', 'faire', 'capacités', 'fonctionnalités', 'aide', 'fonctions', 'job'],
+                question: 'Social : Capacités',
+                answer: "Je suis ton expert personnel en suivi de présence ! Je peux t'aider à marquer les présences, gérer les matières, personnaliser les thèmes et expliquer les fonctionnalités. Essaie de demander \"Comment marquer ma présence ?\""
+            },
+            {
+                id: 1,
+                keywords: ['marquer', 'présence', 'soumettre', 'enregistrer', 'présent', 'absent', 'cocher', 'sauvegarder', 'aujourd\'hui'],
+                question: 'Comment marquer ma présence ?',
+                answer: "Pour marquer la présence :\n1. Va sur la page Présence\n2. Sélectionne un statut dans le menu déroulant à côté de chaque matière (Présent, Absent, Permission, ou En retard)\n3. Clique sur le bouton coche pour soumettre\nTa présence est enregistrée automatiquement dans le cloud !"
+            },
+            {
+                id: 2,
+                keywords: ['modifier', 'changer', 'éditer', 'mettre à jour', 'ancien', 'passé', 'précédent', 'corriger', 'erreur'],
+                question: 'Puis-je modifier une ancienne présence ?',
+                answer: "Oui ! Tu peux modifier les présences des 7 derniers jours :\n1. Va sur la page Présence\n2. Utilise le menu déroulant des dates pour sélectionner une date passée\n3. Clique sur l'icône crayon à côté de la matière à modifier\n4. Sélectionne le nouveau statut et fournis une raison\nNote : Toutes les modifications sont enregistrées."
+            },
+            {
+                id: 3,
+                keywords: ['statut', 'statuts', 'présent', 'absent', 'permission', 'retard', 'signification', 'types', 'options'],
+                question: 'Que signifient les différents statuts ?',
+                answer: "Il y a 4 statuts de présence :\n\n• Présent : Tu as assisté au cours complet\n• Absent : Tu as manqué le cours\n• Permission : Tu avais une permission officielle\n• En retard : Tu es arrivé en retard\n\nSeuls Présent et En retard comptent dans ton pourcentage."
+            },
+            {
+                id: 4,
+                keywords: ['masse', 'multiple', 'tout', 'rapide', 'groupe', 'lot', 'marquer tout'],
+                question: 'Puis-je marquer la présence pour plusieurs matières à la fois ?',
+                answer: "Oui ! Utilise la fonction Présence groupée sur le Tableau de bord :\n1. Va sur la page Tableau de bord\n2. Trouve la carte \"Présence groupée\"\n3. Sélectionne un statut\n4. Clique pour appliquer ce statut à toutes les matières du jour"
+            },
+            {
+                id: 5,
+                keywords: ['ajouter', 'créer', 'nouveau', 'matière', 'matières', 'cours'],
+                question: 'Comment ajouter des matières ?',
+                answer: "Pour ajouter une nouvelle matière :\n1. Va sur la page Paramètres\n2. Trouve la section \"Matières\"\n3. Clique sur \"Ajouter une matière\"\n4. Entre le nom de la matière\n5. Sélectionne le(s) jour(s) de la semaine\n6. Clique sur Enregistrer"
+            },
+            {
+                id: 6,
+                keywords: ['supprimer', 'enlever', 'matière', 'matières', 'cours'],
+                question: 'Comment supprimer une matière ?',
+                answer: 'Pour supprimer une matière :\n1. Va sur la page Paramètres\n2. Trouve la matière dans la liste\n3. Clique sur l\'icône poubelle\n4. Confirme la suppression\n\nAttention : Cela supprimera aussi tous les enregistrements de présence !'
+            },
+            {
+                id: 16,
+                keywords: ['série', 'séries', 'feu', 'flamme', 'consécutif', 'jours', 'maintenir', 'streak'],
+                question: 'Qu\'est-ce que les séries (streaks) ?',
+                answer: 'Les séries suivent les jours consécutifs où tu as marqué ta présence pour TOUS tes cours. L\'icône de feu montre ta série actuelle.\n\n🔥 **Récompenses :**\nMaintenir une série débloque des thèmes premium et des effets.\n\n⚠️ **Perte de série :**\nSi tu manques un jour, ta série retombe à 0.'
+            },
+            {
+                id: 17,
+                keywords: ['thème', 'thèmes', 'couleur', 'couleurs', 'schéma', 'personnaliser', 'apparence', 'style'],
+                question: 'Comment changer de thème ?',
+                answer: "Va dans Paramètres > section Personnalisation :\n\nSchémas de couleurs disponibles : Classique, Océan, Forêt, Coucher de soleil, Verre, etc.\n\nTes préférences sont synchronisées !"
+            },
+            {
+                id: 39,
+                keywords: ['gratuit', 'coût', 'prix', 'payer', 'abonnement', 'premium'],
+                question: 'Est-ce que Attendance Tracker est gratuit ?',
+                answer: 'Oui ! Attendance Tracker est entièrement gratuit. Toutes les fonctionnalités sont disponibles pour tout le monde :\n\n• Matières et semestres illimités\n• Rapports complets\n• Tous les thèmes\n\nPas de frais cachés !'
+            }
+        ]
+    },
+    toast: {
+        // Type labels
+        successLabel: "✓ Succès",
+        errorLabel: "✕ Erreur",
+        warningLabel: "⚠ Avertissement",
+        infoLabel: "ℹ Info",
+        loadingLabel: "⟳ Chargement",
+        // Generic type descriptions (fallback)
+        successDesc: "Votre action a été effectuée avec succès.",
+        errorDesc: "Une erreur s'est produite. Veuillez réessayer.",
+        warningDesc: "Veuillez vérifier avant de continuer.",
+        infoDesc: "Voici une information pour vous.",
+        loadingDesc: "Veuillez patienter pendant le traitement.",
+        // Action-specific detail messages
+        subjectAdded: "\"{name}\" ajouté à votre emploi du temps pour {day}{time}. Commencez à marquer les présences !",
+        subjectUpdated: "\"{name}\" maintenant prévu le {day}{time}.",
+        subjectDeleted: "\"{name}\" ({day}) a été supprimé de votre emploi du temps.",
+        semesterAdded: "\"{name}\" créé ! Commence le {startDate}, se termine le {endDate}. Vous pouvez maintenant y ajouter des matières.",
+        semesterUpdated: "\"{name}\" a été mis à jour. Du {startDate} au {endDate}.",
+        semesterDeleted: "\"{name}\" supprimé avec {subjectCount} matières et {attendanceCount} enregistrements de présence.",
+        profileUpdated: "Nom : {name}, Spécialité : {major}, Pseudo : @{username}. Votre profil est à jour !",
+        profilePictureUpdated: "Votre photo de profil a été mise à jour et synchronisée.",
+        currentSemesterUpdated: "Votre semestre actif a été changé. Toutes les pages afficheront les données de ce semestre.",
+        attendanceMarked: "Votre présence pour \"{subject}\" a été enregistrée comme {status}.",
+        attendanceUpdated: "La présence pour \"{subject}\" a été changée de {oldStatus} à {newStatus}.",
+        bulkAttendanceMarked: "Toutes les {count} matière(s) d'aujourd'hui ont été marquées comme {status}.",
+        signedOut: "Vous avez été déconnecté en toute sécurité. À bientôt !",
+        emailUpdated: "Votre e-mail a été changé. Vérifiez votre boîte de réception pour confirmer la nouvelle adresse.",
+        passwordUpdated: "Votre mot de passe a été changé avec succès. Utilisez le nouveau mot de passe lors de votre prochaine connexion.",
+        accountDeleted: "Votre compte et toutes vos données ont été définitivement supprimés.",
+        reportSubmitted: "Votre signalement a été reçu. Nous l'examinerons et vous répondrons si nécessaire.",
+        exportSuccess: "Votre rapport {type} a été téléchargé en fichier Excel.",
+        notificationsEnabled: "Vous recevrez des rappels pour les présences manquées et les avertissements.",
+        notificationsDisabled: "Les notifications push ont été désactivées.",
+        emailCopied: "Adresse e-mail du support copiée dans le presse-papiers."
     },
     errors: {
         subjectNameRequired: "Le nom de la matière est requis.",
